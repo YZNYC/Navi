@@ -21,7 +21,7 @@ function App() {
         <NavbarDemo />
         <ModeToggle/>
 
-        <h1>AAAAA</h1>
+        <h1>AAAsssAA</h1>
         <motion.main
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
