@@ -26,7 +26,7 @@ export default function Banner() {
             </RippleEffect>
           </div>
         </div>
-        <hr className="bg-yellow-500 h-5 dark:bg-gray-500"></hr>
+        <hr className="bg-white h-5 dark:bg-gray-500"></hr>
       </>
     );
   }
