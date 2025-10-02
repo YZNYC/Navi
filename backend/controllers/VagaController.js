@@ -43,11 +43,12 @@ const criarVagaController = async (req, res) => {
 const atualizarVagaController = async (req, res) => {
     try {
         const vagaId = req.params.id
-        const { id_estacionamento, numero } = req.body
+        const { id_estacionamento, numero, status } = req.body
 
         const vagaData = {
             id_estacionamento: id_estacionamento,
             numero: numero,
+            status: status
         }
         await atualizarVaga(vagaId, vagaData)
         res.status(200).json({ message: 'Vaga atualizada com sucesso!' })
@@ -64,6 +65,9 @@ const excluirVagaController = async (req, res) => {
         res.status(200).json({ message: 'Vaga excluída com sucesso!' })
     } catch (error) {
         console.error('Erro ao excluir vaga: ', error)
+        if (error.message === 'Registro não encontrado') {
+            return res.status(404).json({ message: 'Vaga não encontrada!' })
+        }
         res.status(500).json({ message: 'Erro ao excluir vaga!' })
     }
 }

@@ -104,6 +104,9 @@ async function deleteRecord(table, where) {
     try {
         const sql = `DELETE FROM ${table} WHERE ${where}`
         const [result] = await connection.execute(sql)
+        if (result.affectedRows === 0) {
+            throw new Error('Registro não encontrado')
+        }
         return result.affectedRows
     } catch (err) {
         console.error('Não foi possível ler os registros: ', err)
