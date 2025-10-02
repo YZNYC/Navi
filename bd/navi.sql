@@ -1,3 +1,4 @@
+DROP DATABASE navi;
 CREATE DATABASE navi;
 USE navi;
 
@@ -8,6 +9,10 @@ endereço VARCHAR(150),
 tarifas DECIMAL(10,2),
 horarios TIMESTAMP
 );
+insert into estacionamento (id_estacionamento, nome)
+values (23, "Park1"),
+(24, "Park2"),
+(25, "Park3");
 
 CREATE TABLE vagas (
 id_vaga INT AUTO_INCREMENT PRIMARY KEY,
@@ -18,6 +23,8 @@ FOREIGN KEY (id_estacionamento) REFERENCES estacionamento (id_estacionamento)
 	ON DELETE CASCADE
 	ON UPDATE CASCADE
 );
+select * from vagas;
+DELETE FROM vagas WHERE id_vaga = 5;
 
 CREATE TABLE usuario (
 id_usuario INT AUTO_INCREMENT PRIMARY KEY,
@@ -57,8 +64,7 @@ data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 #-----------------------------------------------------------------------------------
-#ideia de add avaliações
-
+#ideias ou mudanças futuras
 /*
 CREATE TABLE avaliacao (
 id_avalicao INT AUTO_INCREMENT PRIMARY KEY,
@@ -66,10 +72,7 @@ id_usuario INT NOT NULL,
 data_postado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 comentário VARCHAR(500),
 FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
-);
+
 */
 
 #------------------------------------------------------------------------------------
-#dropar o bagui se dar erro
-
-#drop database navi;
