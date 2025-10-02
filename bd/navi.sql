@@ -1,6 +1,3 @@
--- Só apertar no raio ali po
-DROP DATABASE navi;
-
 -- Cria o banco de dados caso ele não exista, garantindo que o script possa ser executado múltiplas vezes.
 CREATE DATABASE IF NOT EXISTS navi;
 
@@ -21,23 +18,13 @@ CREATE TABLE usuario (
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE veiculo (
-    id_veiculo INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    placa VARCHAR(10) NOT NULL UNIQUE,
-    marca VARCHAR(50),
-    modelo VARCHAR(50),
-    cor VARCHAR(30),
-    tipo_veiculo ENUM('CARRO', 'MOTO', 'CAMINHAO', 'OUTRO') NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
-);
 -- =================================================================================
 -- Tabela de Estacionamentos: Dados cadastrais de cada estacionamento.
 -- =================================================================================
 CREATE TABLE estacionamento (
 id_estacionamento INT AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(255) NOT NULL,
-endereco VARCHAR(255),
+endereço VARCHAR(150),
 tarifas DECIMAL(10,2),
 horarios TIMESTAMP
 );
@@ -53,25 +40,6 @@ FOREIGN KEY (id_estacionamento) REFERENCES estacionamento (id_estacionamento)
 );
 select * from vagas;
 DELETE FROM vagas WHERE id_vaga = 5;
-
--- =================================================================================
--- NOVO: Relação de proprietário e estacionamento.
--- Cada proprietário gerencia seu próprio estacionamento.
--- =================================================================================
-CREATE TABLE estacionamento_proprietario (
-    id_estacionamento INT NOT NULL,
-    id_usuario INT NOT NULL, -- Este usuário deve ter o papel 'PROPRIETARIO'
-    
-    PRIMARY KEY (id_estacionamento, id_usuario), -- Uma combinação única
-    
-    FOREIGN KEY (id_estacionamento) REFERENCES estacionamento(id_estacionamento)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-        
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
 
 -- =================================================================================
 -- NOVO: Tabela de Planos Mensais.
@@ -204,3 +172,6 @@ FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 */
 
 #------------------------------------------------------------------------------------
+#dropar o bagui se dar erro
+
+#drop database navi;
