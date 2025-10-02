@@ -1,18 +1,20 @@
 import Header from "@/components/navbar/page";
 import Banner from "../components/banner/page"
-import { SidebarDemo } from "@/components/sidebar/page";
 import Navbar04Page from "@/components/navbar-04/navbar-04";
-import Contato from "@/components/contato/page";
+import Sobre from "@/components/sobre/page";
+import Funcionamento from "@/components/como-funciona/page";
+import Contact02Page from "@/components/contact-02/contact-02";
+
 
 export default function Home() {
   return (
     <>
-      {/* <SidebarDemo/> */}
-      <Header />
+      <Header/>
       <Navbar04Page/>
-      <Banner />
-      <Contato/>
-
+      <Banner/>
+      <Funcionamento/>
+      <Sobre/>
+      <Contact02Page />
     </>
   );
 }

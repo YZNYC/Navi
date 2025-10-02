@@ -3,7 +3,7 @@ import { ModeToggle } from "../darkmode/darkMode";
 
 export default function Header() {
   return (
-    <header className="fixed top-0 left-0 w-full z-20 hidden md:block">
+    <header className="fixed top-0 left-0 w-full z-20 hidden md:block ">
       <nav className="flex items-center justify-center bg-transparent h-20 px-6 relative">
         <ul className="flex items-center justify-center gap-12 text-white font-bold">
           <li><HoveredLink href="/Home">Início</HoveredLink></li>
@@ -17,7 +17,7 @@ export default function Header() {
             </a>
           </li>
 
-          <li><HoveredLink href="/Sobre">Sobre</HoveredLink></li>
+          <li><HoveredLink href="#sobre">Sobre</HoveredLink></li>
           <li><HoveredLink href="/Servicos">Serviços</HoveredLink></li>
         </ul>
 
