@@ -13,7 +13,7 @@ const Contact02Page = () => (
     <div className="min-h-screen flex items-center justify-center py-16">
       <div className="w-full max-w-(--breakpoint-xl) mx-auto px-6 xl:px-0">
 
-        <div id="contato" className="flex flex-col text-center text-6xl font-bold text-white mb-24">
+        <div id="contato" className="flex flex-col text-center text-5xl md:text-6xl font-bold text-white mb-24">
           <span>Pronto Para</span>
           <span className="text-gray-600 dark:text-yellow-500">Começar?</span>
         </div>
@@ -34,7 +34,7 @@ const Contact02Page = () => (
                 className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
                 <MailIcon />
               </div>
-              <h3 className="mt-6 font-semibold text-xl">Email</h3>
+              <h3 className="mt-6 font-semibold text-xl text-gray-600 dark:text-yellow-500">Email</h3>
               <p className="my-2.5 text-white">
                 Nossa equipe amigável está aqui para ajudar.
               </p>
@@ -49,7 +49,7 @@ const Contact02Page = () => (
                 className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
                 <MessageCircle />
               </div>
-              <h3 className="mt-6 font-semibold text-xl">Bate-papo ao vivo</h3>
+              <h3 className="mt-6 text-gray-600 font-semibold text-xl dark:text-yellow-500">Bate-papo ao vivo</h3>
               <p className="my-2.5 text-white">
                 Nossa equipe amigável está aqui para ajudar.
               </p>
@@ -62,7 +62,7 @@ const Contact02Page = () => (
                 className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
                 <MapPinIcon />
               </div>
-              <h3 className="mt-6 font-semibold text-xl">Sede</h3>
+              <h3 className="mt-6 font-semibold text-xl text-gray-600 dark:text-yellow-500">Sede</h3>
               <p className="my-2.5 text-white">
                 Venha nos cumprimentar.
               </p>
@@ -78,7 +78,7 @@ const Contact02Page = () => (
                 className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
                 <PhoneIcon />
               </div>
-              <h3 className="mt-6 font-semibold text-xl">Telefone</h3>
+              <h3 className="mt-6 font-semibold text-xl text-gray-600 dark:text-yellow-500">Telefone</h3>
               <p className="my-2.5 text-white">
                 Seg-Sex das 8h às 17h.
               </p>
@@ -135,7 +135,7 @@ const Contact02Page = () => (
                     </Label>
                   </div>
                 </div>
-                <Button className="mt-6 w-full bg-yellow-400 text-primary hover:text-white dark:text-black cursor-pointer" size="lg">
+                <Button className="mt-6 w-full bg-yellow-400 text-gray-600 hover:text-white dark:text-black cursor-pointer" size="lg">
                   Submit
                 </Button>
               </form>

@@ -72,8 +72,8 @@ function SheetContent({
         <SheetPrimitive.Title className="sr-only">Sheet Title</SheetPrimitive.Title>
         {children}
         <SheetPrimitive.Close
-          className="absolute top-4 left-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none">
-          <XIcon className="size-6 text-black" />
+          className="absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none">
+          <XIcon className="size-6 text-black transition-transform duration-300 hover:rotate-90" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>

@@ -31,7 +31,7 @@ export default function Funcionamento() {
         <section id="como-funciona" className="relative">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <motion.div initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.5 }} variants={staggerContainer} className="text-center mb-16">
-                    <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-black/70">Simples como 1, 2, 3</motion.h2>
+                    <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-gray-600 dark:text-yellow-500">Simples como 1, 2, 3</motion.h2>
                     <motion.p variants={fadeInUp} className="mt-4 text-lg text-white">Comece a usar a Navi em segundos.</motion.p>
                 </motion.div>
 
@@ -43,8 +43,8 @@ export default function Funcionamento() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}>
                             <div className="bg-white/10 rounded-xl p-6 backdrop-blur-md shadow-md transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-2xl cursor-pointer">
-                                <div className="text-5xl font-bold text-white-200">0{index + 1}</div>
-                                <h3 className="mt-4 text-2xl font-semibold text-black/50">{step.title}</h3>
+                                <div className="text-5xl font-bold text-white-200 ">0{index + 1}</div>
+                                <h3 className="mt-4 text-2xl font-semibold text-gray-800 ">{step.title}</h3>
                                 <p className="mt-2 text-white font-semibold">{step.desc}</p>
                             </div>
                         </motion.div>
