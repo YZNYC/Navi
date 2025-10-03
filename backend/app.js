@@ -1,22 +1,20 @@
 import express from 'express';
+import authRoutes from './routes/AuthRoutes.js';
 import vagaRoutes from './routes/vagaRoutes.js';
-// import authMiddleware from '../middlewares/authMiddleware.js';  //--> descomentar qnd criar autenticação
+import estacionamentoRoutes from './routes/estacionamentoRoutes.js';
+import usuarioRoutes from './routes/UsuarioRoutes.js'; 
+
 const port = 3000;
-
-// import cors from 'cors';  //--> descomentar qnd for usar o frontend
-
 const app = express();
-
-//middlewares
-// app.use(cors());
 app.use(express.json());
 
-
-//rotas modularizadas
+// Rotas
+app.use('/auth', authRoutes);
+app.use('/usuarios', usuarioRoutes); 
 app.use('/vagas', vagaRoutes);
+app.use('/estacionamentos', estacionamentoRoutes);
 
 
-//rotas
 app.get('/', (req, res) => {
     res.send('você não deveria estar aqui...');
 });

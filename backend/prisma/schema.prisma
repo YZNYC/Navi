@@ -1,0 +1,283 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model anexo_avaliacao {
+  id_anexo     Int                         @id @default(autoincrement())
+  id_avaliacao Int
+  tipo_anexo   anexo_avaliacao_tipo_anexo? @default(IMAGEM)
+  url_anexo    String                      @db.VarChar(255)
+  avaliacao    avaliacao                   @relation(fields: [id_avaliacao], references: [id_avaliacao], onDelete: Cascade, onUpdate: Restrict, map: "anexo_avaliacao_ibfk_1")
+
+  @@index([id_avaliacao], map: "id_avaliacao")
+}
+
+model avaliacao {
+  id_avaliacao      Int               @id @default(autoincrement())
+  id_usuario        Int
+  id_estacionamento Int
+  nota              Decimal           @db.Decimal(2, 1)
+  comentario        String?           @db.Text
+  data_postagem     DateTime          @default(now()) @db.Timestamp(0)
+  anexo_avaliacao   anexo_avaliacao[]
+  usuario           usuario           @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "avaliacao_ibfk_1")
+  estacionamento    estacionamento    @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, onUpdate: Restrict, map: "avaliacao_ibfk_2")
+
+  @@index([id_estacionamento], map: "id_estacionamento")
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model contrato_mensalista {
+  id_contrato  Int                        @id @default(autoincrement())
+  id_usuario   Int
+  id_plano     Int
+  id_veiculo   Int
+  data_inicio  DateTime                   @db.Date
+  data_fim     DateTime?                  @db.Date
+  status       contrato_mensalista_status
+  usuario      usuario                    @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "contrato_mensalista_ibfk_1")
+  plano_mensal plano_mensal               @relation(fields: [id_plano], references: [id_plano], onUpdate: Restrict, map: "contrato_mensalista_ibfk_2")
+  veiculo      veiculo                    @relation(fields: [id_veiculo], references: [id_veiculo], onDelete: Cascade, onUpdate: Restrict, map: "contrato_mensalista_ibfk_3")
+
+  @@index([id_plano], map: "id_plano")
+  @@index([id_usuario], map: "id_usuario")
+  @@index([id_veiculo], map: "id_veiculo")
+}
+
+model cupom {
+  id_cupom      Int                 @id @default(autoincrement())
+  codigo        String              @unique(map: "codigo") @db.VarChar(50)
+  descricao     String?             @db.Text
+  tipo_desconto cupom_tipo_desconto
+  valor         Decimal             @db.Decimal(10, 2)
+  data_validade DateTime            @db.Date
+  usos_maximos  Int?                @default(1)
+  usos_atuais   Int?                @default(0)
+  ativo         Boolean?            @default(true)
+  pagamento     pagamento[]
+}
+
+model estacionamento {
+  id_estacionamento          Int                          @id @default(autoincrement())
+  id_proprietario            Int
+  nome                       String                       @db.VarChar(255)
+  cnpj                       String                       @unique(map: "cnpj") @db.VarChar(18)
+  url_foto_principal         String?                      @db.VarChar(255)
+  endereco_completo          String                       @db.Text
+  localizacao                Unsupported("point")
+  horario_abertura           DateTime?                    @db.Time(0)
+  horario_fechamento         DateTime?                    @db.Time(0)
+  dias_funcionamento         String?                      @db.VarChar(100)
+  data_criacao               DateTime                     @default(now()) @db.Timestamp(0)
+  avaliacao                  avaliacao[]
+  usuario                    usuario                      @relation(fields: [id_proprietario], references: [id_usuario], map: "estacionamento_ibfk_1")
+  estacionamento_funcionario estacionamento_funcionario[]
+  plano_mensal               plano_mensal[]
+  politica_preco             politica_preco[]
+  vaga                       vaga[]
+
+  @@index([id_proprietario], map: "id_proprietario")
+  @@index([localizacao(length: 32)], map: "localizacao")
+}
+
+model estacionamento_funcionario {
+  id_estacionamento Int
+  id_usuario        Int
+  permissao         estacionamento_funcionario_permissao
+  data_admissao     DateTime                             @default(now()) @db.Timestamp(0)
+  estacionamento    estacionamento                       @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, onUpdate: Restrict, map: "estacionamento_funcionario_ibfk_1")
+  usuario           usuario                              @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "estacionamento_funcionario_ibfk_2")
+
+  @@id([id_estacionamento, id_usuario])
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model log {
+  id_log     Int      @id @default(autoincrement())
+  id_usuario Int?
+  acao       String   @db.VarChar(100)
+  descricao  String?  @db.Text
+  data_log   DateTime @default(now()) @db.Timestamp(0)
+  usuario    usuario? @relation(fields: [id_usuario], references: [id_usuario], map: "log_ibfk_1")
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model pagamento {
+  id_pagamento   Int              @id @default(autoincrement())
+  id_reserva     Int              @unique(map: "id_reserva")
+  id_cupom       Int?
+  valor_bruto    Decimal          @db.Decimal(10, 2)
+  valor_desconto Decimal?         @default(0.00) @db.Decimal(10, 2)
+  valor_liquido  Decimal          @db.Decimal(10, 2)
+  metodo         pagamento_metodo
+  status         pagamento_status
+  url_recibo     String?          @db.VarChar(255)
+  data_hora      DateTime         @default(now()) @db.Timestamp(0)
+  reserva        reserva          @relation(fields: [id_reserva], references: [id_reserva], onDelete: Cascade, onUpdate: Restrict, map: "pagamento_ibfk_1")
+  cupom          cupom?           @relation(fields: [id_cupom], references: [id_cupom], onUpdate: Restrict, map: "pagamento_ibfk_2")
+
+  @@index([id_cupom], map: "id_cupom")
+}
+
+model plano_mensal {
+  id_plano            Int                   @id @default(autoincrement())
+  id_estacionamento   Int
+  nome_plano          String                @db.VarChar(100)
+  descricao           String?               @db.Text
+  preco_mensal        Decimal               @db.Decimal(10, 2)
+  ativo               Boolean?              @default(true)
+  contrato_mensalista contrato_mensalista[]
+  estacionamento      estacionamento        @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, onUpdate: Restrict, map: "plano_mensal_ibfk_1")
+
+  @@index([id_estacionamento], map: "id_estacionamento")
+}
+
+model politica_preco {
+  id_politica_preco      Int            @id @default(autoincrement())
+  id_estacionamento      Int
+  descricao              String         @db.VarChar(100)
+  preco_primeira_hora    Decimal?       @default(0.00) @db.Decimal(10, 2)
+  preco_horas_adicionais Decimal?       @default(0.00) @db.Decimal(10, 2)
+  preco_diaria           Decimal?       @default(0.00) @db.Decimal(10, 2)
+  estacionamento         estacionamento @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, map: "politica_preco_ibfk_1")
+
+  @@index([id_estacionamento], map: "id_estacionamento")
+}
+
+model reserva {
+  id_reserva         Int            @id @default(autoincrement())
+  id_usuario         Int
+  id_vaga            Int
+  id_veiculo         Int?
+  codigo_confirmacao String?        @unique(map: "codigo_confirmacao") @db.VarChar(100)
+  data_hora_inicio   DateTime       @default(now()) @db.Timestamp(0)
+  data_hora_fim      DateTime?      @db.Timestamp(0)
+  status             reserva_status
+  pagamento          pagamento?
+  usuario            usuario        @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "reserva_ibfk_1")
+  vaga               vaga           @relation(fields: [id_vaga], references: [id_vaga], onDelete: Cascade, map: "reserva_ibfk_2")
+  veiculo            veiculo?       @relation(fields: [id_veiculo], references: [id_veiculo], map: "reserva_ibfk_3")
+
+  @@index([id_usuario], map: "id_usuario")
+  @@index([id_vaga], map: "id_vaga")
+  @@index([id_veiculo], map: "id_veiculo")
+}
+
+model usuario {
+  id_usuario                 Int                          @id @default(autoincrement())
+  nome                       String                       @db.VarChar(255)
+  email                      String                       @unique(map: "email") @db.VarChar(255)
+  senha                      String                       @db.VarChar(255)
+  telefone                   String?                      @db.VarChar(20)
+  url_foto_perfil            String?                      @db.VarChar(255)
+  papel                      usuario_papel
+  data_criacao               DateTime                     @default(now()) @db.Timestamp(0)
+  ativo             Boolean?      @default(true)
+  avaliacao                  avaliacao[]
+  contrato_mensalista        contrato_mensalista[]
+  estacionamento             estacionamento[]
+  estacionamento_funcionario estacionamento_funcionario[]
+  log                        log[]
+  reserva                    reserva[]
+  veiculo                    veiculo[]
+}
+
+model vaga {
+  id_vaga           Int             @id @default(autoincrement())
+  id_estacionamento Int
+  identificador     String          @db.VarChar(20)
+  tipo_vaga         vaga_tipo_vaga? @default(PADRAO)
+  status            vaga_status?    @default(LIVRE)
+  reserva           reserva[]
+  estacionamento    estacionamento  @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, map: "vaga_ibfk_1")
+
+  @@unique([id_estacionamento, identificador], map: "id_estacionamento")
+}
+
+model veiculo {
+  id_veiculo          Int                   @id @default(autoincrement())
+  id_usuario          Int
+  placa               String                @unique(map: "placa") @db.VarChar(10)
+  marca               String                @db.VarChar(50)
+  modelo              String                @db.VarChar(50)
+  cor                 String                @db.VarChar(30)
+  url_foto_placa      String?               @db.VarChar(255)
+  apelido             String?               @db.VarChar(50)
+  ativo               Boolean?              @default(true)
+  data_criacao        DateTime              @default(now()) @db.Timestamp(0)
+  contrato_mensalista contrato_mensalista[]
+  reserva             reserva[]
+  usuario             usuario               @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "veiculo_ibfk_1")
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+enum anexo_avaliacao_tipo_anexo {
+  IMAGEM
+  VIDEO
+}
+
+enum estacionamento_funcionario_permissao {
+  GESTOR
+  OPERADOR
+}
+
+enum cupom_tipo_desconto {
+  PERCENTUAL
+  FIXO
+}
+
+enum vaga_tipo_vaga {
+  PADRAO
+  PCD
+  IDOSO
+  ELETRICO
+  MOTO
+}
+
+enum vaga_status {
+  LIVRE
+  OCUPADA
+  RESERVADA
+  MANUTENCAO
+}
+
+enum contrato_mensalista_status {
+  ATIVO
+  INATIVO
+  CANCELADO
+}
+
+enum pagamento_metodo {
+  PIX
+  DEBITO
+  CREDITO
+  DINHEIRO
+}
+
+enum usuario_papel {
+  ADMINISTRADOR
+  PROPRIETARIO
+  MOTORISTA
+}
+
+enum pagamento_status {
+  PENDENTE
+  APROVADO
+  RECUSADO
+  ESTORNADO
+}
+
+enum reserva_status {
+  ATIVA
+  CONCLUIDA
+  CANCELADA
+  EXPIRADA
+}

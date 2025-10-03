@@ -1,0 +1,4 @@
+Se precisar alterar o banco de dados (ex: adicionar uma coluna),
+Você edita o schema.prisma
+Roda "npx prisma migrate dev --name sua-alteracao"    (colocar o nome do que mudou em "sua-alteracao" não pode ter espaço)
+E depois npx prisma generate.

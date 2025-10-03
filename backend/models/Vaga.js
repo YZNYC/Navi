@@ -1,48 +1,35 @@
-import { readAll, read, update, deleteRecord, create } from '../config/database.js';
+import prisma from '../config/prisma.js';
 
 const listarVagas = async () => {
-    try {
-        return await readAll('vagas');
-    } catch (error) {
-        console.error('Erro ao listar as vagas: ', error)
-        throw error
-    }
-}
+    return await prisma.vaga.findMany();
+};
 
 const obterVagasPorId = async (id) => {
-    try {
-        return await read('vagas', `id_vaga = ${id}`)
-    } catch (error) {
-        console.error('Erro ao pesquisar a vaga por ID: ', error)
-        throw error
-    }
-}
+   
+    return await prisma.vaga.findUnique({
+        where: { id_vaga: parseInt(id) } 
+    });
+};
 
 const criarVaga = async (vagaData) => {
-    try {
-        return await create('vagas', vagaData)
-    } catch (error) {
-        console.error('Erro ao criar vaga: ', error)
-        throw error
-    }
-}
+   
+    const novaVaga = await prisma.vaga.create({
+        data: vagaData
+    });
+    return novaVaga.id_vaga;
+};
 
 const atualizarVaga = async (id, vagaData) => {
-    try {
-        return await update('vagas', vagaData, `id_vaga = ${id}`)
-    } catch (error) {
-        console.error('Erro ao atualizar vaga: ', error)
-        throw error
-    }
-}
+    return await prisma.vaga.update({
+        where: { id_vaga: parseInt(id) },
+        data: vagaData
+    });
+};
 
 const excluirVaga = async (id) => {
-    try {
-        return await deleteRecord('vagas', `id_vaga = ${id}`)
-    } catch (error) {
-        console.error('Erro ao excluir vaga: ', error)
-        throw error
-    }
-}
+    return await prisma.vaga.delete({
+        where: { id_vaga: parseInt(id) }
+    });
+};
 
-export { listarVagas, obterVagasPorId, criarVaga, atualizarVaga, excluirVaga }
+export { listarVagas, obterVagasPorId, criarVaga, atualizarVaga, excluirVaga };

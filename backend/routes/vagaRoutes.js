@@ -1,28 +1,29 @@
-import express from 'express'
-import { listarVagasController, obterVagasPorIdController, criarVagaController, atualizarVagaController, excluirVagaController } from '../controllers/VagaController.js'
-// import authMiddleware from '../middlewares/authMiddleware.js' //--> descomentar qnd criar autenticação
 
+// src/routes/vagaRoutes.js
+import express from 'express';
+import { listarVagasController, obterVagasPorIdController, criarVagaController, atualizarVagaController, excluirVagaController} from '../controllers/VagaController.js';
+import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/', listarVagasController)  //--> listar todas as vagas (adicionar authMiddleware dps)
+// Rotas públicas - Todos podem ver
 
-router.post('/', criarVagaController)   //--> cadastrar nova vaga (adicionar authMiddleware dps e verificar se é dono do estacionamento)
+// listar todas as vagas
+router.get('/', listarVagasController);  
 
-router.get('/:id', obterVagasPorIdController)   //--> listar vaga por id (adicionar authMiddleware dps)
+//listar vaga por id
+router.get('/:id', obterVagasPorIdController);
 
-router.put('/:id', atualizarVagaController) //--> atualizar nova vaga (adicionar authMiddleware dps e verificar se é dono do estacionamento)
+// Rotas de gestão - Protegidas para PROPRIETARIO ou ADMINISTRADOR
+const permissoesDeGestao = ['PROPRIETARIO', 'ADMINISTRADOR'];
 
-router.delete('/:id', excluirVagaController)    //--> atualizar nova vaga (adicionar authMiddleware dps e verificar se é dono do estacionamento)
+//cadastrar nova vaga
+router.post('/', authMiddleware, authorize(permissoesDeGestao), criarVagaController);
 
-router.options('/', (req, res) => {
-    res.setHeader('Allow', 'GET, POST, OPTIONS')
-    res.status(204).send()
-})
+//atualizar nova vaga
+router.put('/:id', authMiddleware, authorize(permissoesDeGestao), atualizarVagaController);
 
-router.options('/:id', (req, res) => {
-    res.setHeader('Allow', 'GET, PUT, DELETE, OPTIONS')
-    res.status(204).send()
-})
+//deleta uma vaga
+router.delete('/:id', authMiddleware, authorize(permissoesDeGestao), excluirVagaController);
 
-export default router
+export default router;
