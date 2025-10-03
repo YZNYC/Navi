@@ -1,6 +1,5 @@
-import 'dotenv/config'; // <-- ESTA É A LINHA MAIS IMPORTANTE
+import 'dotenv/config'; 
 
-// Adicione esta linha para diagnóstico
 console.log('--- Verificando variáveis de ambiente ---');
 console.log('DATABASE_URL lida:', process.env.DATABASE_URL ? 'SIM' : 'NÃO');
 console.log('------------------------------------');

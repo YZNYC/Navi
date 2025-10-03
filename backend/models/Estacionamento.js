@@ -19,7 +19,7 @@ const criarEstacionamento = async (estacionamentoData) => {
         data: dadosNormais,
     });
 
-    // 3. Se um dado de localização foi enviado atualizamos usando uma query SQL pura
+    // Se um dado de localização foi enviado atualizamos usando uma query SQL pura
     if (localizacao && localizacao.coordinates) {
         const [longitude, latitude] = localizacao.coordinates;
 
@@ -30,7 +30,7 @@ const criarEstacionamento = async (estacionamentoData) => {
         `;
     }
 
-    // 4. Retorna o estacionamento criado no passo 2
+
     return novoEstacionamento;
 };
 
