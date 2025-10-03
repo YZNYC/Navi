@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider   = "mysql"
+  url        = env("DATABASE_URL")
 }
 
 model anexo_avaliacao {
@@ -70,7 +70,7 @@ model estacionamento {
   cnpj                       String                       @unique(map: "cnpj") @db.VarChar(18)
   url_foto_principal         String?                      @db.VarChar(255)
   endereco_completo          String                       @db.Text
-  localizacao                Unsupported("point")
+ localizacao       Unsupported("Point")?
   horario_abertura           DateTime?                    @db.Time(0)
   horario_fechamento         DateTime?                    @db.Time(0)
   dias_funcionamento         String?                      @db.VarChar(100)

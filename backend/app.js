@@ -1,3 +1,11 @@
+import 'dotenv/config'; // <-- ESTA É A LINHA MAIS IMPORTANTE
+
+// Adicione esta linha para diagnóstico
+console.log('--- Verificando variáveis de ambiente ---');
+console.log('DATABASE_URL lida:', process.env.DATABASE_URL ? 'SIM' : 'NÃO');
+console.log('------------------------------------');
+
+
 import express from 'express';
 import authRoutes from './routes/AuthRoutes.js';
 import vagaRoutes from './routes/vagaRoutes.js';

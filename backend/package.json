@@ -1,12 +1,23 @@
 {
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
   "dependencies": {
     "@prisma/client": "^6.16.3",
     "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.1"
   },
-  "type": "module",
   "devDependencies": {
+    "nodemon": "^3.1.4",
     "prisma": "^6.16.3"
   }
 }

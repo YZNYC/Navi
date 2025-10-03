@@ -32,12 +32,18 @@ export const obterUsuarioPorIdController = async (req, res) => {
 
 export const criarUsuarioController = async (req, res) => {
     try {
+
+          const dadosDoCorpo = req.body;
+        if (!dadosDoCorpo.papel) {
+            dadosDoCorpo.papel = 'MOTORISTA';
+        }
         const novoUsuario = await criarUsuario(req.body);
         res.status(201).json({ message: "Usuário criado com sucesso!", usuario: removerSenha(novoUsuario) });
     } catch (error) {
         if (error.code === 'P2002' && error.meta?.target.includes('email')) {
              return res.status(409).json({ message: 'Este email já está em uso.' });
         }
+        console.error('ERRO DETALHADO:', error); 
         res.status(500).json({ message: "Erro ao criar usuário." });
     }
 };

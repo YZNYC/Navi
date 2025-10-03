@@ -1,6 +1,6 @@
 import express from 'express';
 import { listarEstacionamentoController, obterEstacionamentoPorIdController, criarEstacionamentoController, atualizarEstacionamentoController, excluirEstacionamentoController} from '../controllers/EstacionamentoController.js';
-import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
+import { authMiddleware, authorize } from '../middlewares/authMiddlewares.js';
 
 const router = express.Router();
 
