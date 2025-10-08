@@ -10,6 +10,7 @@ import authRoutes from './routes/AuthRoutes.js';
 import vagaRoutes from './routes/vagaRoutes.js';
 import estacionamentoRoutes from './routes/estacionamentoRoutes.js';
 import usuarioRoutes from './routes/UsuarioRoutes.js'; 
+import veiculoRoutes from './routes/veiculoRoutes.js';
 
 const port = 3000;
 const app = express();
@@ -20,6 +21,7 @@ app.use('/auth', authRoutes);
 app.use('/usuarios', usuarioRoutes); 
 app.use('/vagas', vagaRoutes);
 app.use('/estacionamentos', estacionamentoRoutes);
+app.use('/veiculos', veiculoRoutes);
 
 
 app.get('/', (req, res) => {

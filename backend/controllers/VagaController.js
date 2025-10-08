@@ -1,5 +1,5 @@
 import { criarVaga, atualizarVaga, excluirVaga, listarVagas, obterVagasPorId } from "../models/Vaga.js";
-import prisma from '../config/prisma.js'; // Usado para a verificação de posse do estacionamento
+import prisma from '../config/prisma.js'; 
 
 // Verifica se o requisitante é o proprietário do estacionamento ou um administrador.
 const temPermissaoSobreEstacionamento = async (id_estacionamento, requisitante) => {
