@@ -8,9 +8,10 @@ console.log('------------------------------------');
 import express from 'express';
 import authRoutes from './routes/AuthRoutes.js';
 import vagaRoutes from './routes/vagaRoutes.js';
-import estacionamentoRoutes from './routes/estacionamentoRoutes.js';
+import estacionamentoRoutes from './routes/EstacionamentoRoutes.js';
 import usuarioRoutes from './routes/UsuarioRoutes.js'; 
 import veiculoRoutes from './routes/veiculoRoutes.js';
+import reservaRoutes from './routes/ReservRoutes.js'; 
 
 const port = 3000;
 const app = express();
@@ -22,6 +23,7 @@ app.use('/usuarios', usuarioRoutes);
 app.use('/vagas', vagaRoutes);
 app.use('/estacionamentos', estacionamentoRoutes);
 app.use('/veiculos', veiculoRoutes);
+app.use('/reservas', reservaRoutes); 
 
 
 app.get('/', (req, res) => {

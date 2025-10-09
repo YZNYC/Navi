@@ -1,33 +1,37 @@
-// src/controllers/VeiculoController.js
+import {  criarVeiculo,  listarVeiculosPorUsuario,  obterVeiculoPorId,  atualizarVeiculo,excluirVeiculo} from "../models/Veiculo.js";
+import { criarVeiculoSchema, atualizarVeiculoSchema } from '../schemas/veiculo.schema.js';
+import { paramsSchema } from '../schemas/params.schema.js';
 
-import { criarVeiculo, listarVeiculosPorUsuario, obterVeiculoPorId, atualizarVeiculo, excluirVeiculo } from "../models/Veiculo.js";
 
-// Cria um novo veículo para o usuário autenticado
 export const criarVeiculoController = async (req, res) => {
     try {
+        // 1. VALIDAÇÃO: Garante que os dados do veículo no body estão corretos.
+        const { body } = criarVeiculoSchema.parse(req);
         const usuarioId = req.usuario.id_usuario;
-        const novoVeiculo = await criarVeiculo(req.body, usuarioId);
-        res.status(201).json({ message: "Veículo cadastrado com sucesso!", veiculo: novoVeiculo });
-    } catch (error) {
-        console.error("Erro ao criar veículo:", error);
 
-        // Trata erro de placa duplicada
+        // 2. EXECUÇÃO: Prossegue com a criação do veículo.
+        const novoVeiculo = await criarVeiculo(body, usuarioId);
+        res.status(201).json({ message: "Veículo cadastrado com sucesso!", veiculo: novoVeiculo });
+
+    } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
+        }
         if (error.code === 'P2002' && error.meta?.target.includes('placa')) {
             return res.status(409).json({ message: 'A placa informada já está cadastrada.' });
         }
-
+        console.error("Erro ao criar veículo:", error);
         res.status(500).json({ message: "Erro interno ao cadastrar veículo." });
     }
 };
 
-// Lista veículos do usuário autenticado (ou de outro usuário, se admin)
 export const listarVeiculosController = async (req, res) => {
     try {
         let usuarioId = req.usuario.id_usuario;
 
-        // Se for admin, pode listar veículos de outro usuário
+        // Regra: Se for admin e passar `usuarioId` na query, pode ver veículos de outros.
         if (req.usuario.papel === 'ADMINISTRADOR' && req.query.usuarioId) {
-            usuarioId = req.query.usuarioId;
+            usuarioId = parseInt(req.query.usuarioId);
         }
 
         const veiculos = await listarVeiculosPorUsuario(usuarioId);
@@ -38,72 +42,84 @@ export const listarVeiculosController = async (req, res) => {
     }
 };
 
-// Busca um veículo pelo ID (somente dono ou admin)
 export const obterVeiculoPorIdController = async (req, res) => {
     try {
-        const veiculoId = req.params.id;
+        // 1. VALIDAÇÃO
+        const { params } = paramsSchema.parse(req);
+        const veiculoId = parseInt(params.id);
         const requisitante = req.usuario;
 
+        // 2. EXECUÇÃO
         const veiculo = await obterVeiculoPorId(veiculoId);
         if (!veiculo) {
             return res.status(404).json({ message: "Veículo não encontrado." });
         }
 
-        // Verifica se é dono ou admin
         if (veiculo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Este veículo não pertence a você." });
         }
-
         res.status(200).json(veiculo);
     } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "ID de veículo inválido.", errors: error.flatten().fieldErrors });
+        }
         console.error("Erro ao obter veículo:", error);
         res.status(500).json({ message: "Erro interno ao obter veículo." });
     }
 };
 
-// Atualiza os dados de um veículo (somente dono ou admin)
 export const atualizarVeiculoController = async (req, res) => {
     try {
-        const veiculoId = req.params.id;
+        // 1. VALIDAÇÃO
+        const { params } = paramsSchema.parse(req);
+        const { body } = atualizarVeiculoSchema.parse(req);
+        const veiculoId = parseInt(params.id);
         const requisitante = req.usuario;
 
+        // 2. EXECUÇÃO
         const veiculoAlvo = await obterVeiculoPorId(veiculoId);
         if (!veiculoAlvo) {
             return res.status(404).json({ message: "Veículo não encontrado." });
         }
 
-        // Verifica se é dono ou admin
         if (veiculoAlvo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você não pode alterar este veículo." });
         }
         
-        const veiculoAtualizado = await atualizarVeiculo(veiculoId, req.body);
+        const veiculoAtualizado = await atualizarVeiculo(veiculoId, body);
         res.status(200).json({ message: "Veículo atualizado com sucesso!", veiculo: veiculoAtualizado });
     } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
+        }
         console.error("Erro ao atualizar veículo:", error);
         res.status(500).json({ message: "Erro interno ao atualizar veículo." });
     }
 };
 
-// Exclui um veículo (somente dono ou admin)
 export const excluirVeiculoController = async (req, res) => {
     try {
-        const veiculoId = req.params.id;
+        // 1. VALIDAÇÃO
+        const { params } = paramsSchema.parse(req);
+        const veiculoId = parseInt(params.id);
         const requisitante = req.usuario;
-
+        
+        // 2. EXECUÇÃO
         const veiculoAlvo = await obterVeiculoPorId(veiculoId);
         if (!veiculoAlvo) {
             return res.status(404).json({ message: "Veículo não encontrado." });
         }
-
-        // Verifica se é dono ou admin
+        
         if (veiculoAlvo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você não pode excluir este veículo." });
         }
-
+        
         await excluirVeiculo(veiculoId);
         res.status(204).send();
     } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "ID de veículo inválido.", errors: error.flatten().fieldErrors });
+        }
         console.error("Erro ao excluir veículo:", error);
         res.status(500).json({ message: "Erro interno ao excluir veículo." });
     }

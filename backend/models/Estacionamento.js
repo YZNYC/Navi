@@ -11,29 +11,11 @@ const obterEstacionamentoPorId = async (id) => {
         where: { id_estacionamento: parseInt(id) },
     });
 };
-
 const criarEstacionamento = async (estacionamentoData) => {
-  
-    const { localizacao, ...dadosNormais } = estacionamentoData;
-    const novoEstacionamento = await prisma.estacionamento.create({
-        data: dadosNormais,
+    return await prisma.estacionamento.create({
+        data: estacionamentoData, 
     });
-
-    // Se um dado de localização foi enviado atualizamos usando uma query SQL pura
-    if (localizacao && localizacao.coordinates) {
-        const [longitude, latitude] = localizacao.coordinates;
-
-        await prisma.$executeRaw`
-            UPDATE estacionamento 
-            SET localizacao = ST_PointFromText(${`POINT(${longitude} ${latitude})`}) 
-            WHERE id_estacionamento = ${novoEstacionamento.id_estacionamento}
-        `;
-    }
-
-
-    return novoEstacionamento;
 };
-
 
 const atualizarEstacionamento = async (id, estacionamentoData) => {
     return await prisma.estacionamento.update({

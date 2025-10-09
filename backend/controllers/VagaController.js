@@ -54,6 +54,11 @@ export const criarVagaController = async (req, res) => {
         const novaVaga = await criarVaga(req.body);
         res.status(201).json({ message: 'Vaga criada com sucesso!', vaga: novaVaga });
     } catch (error) {
+        if (error.code === 'P2002') {
+            return res.status(409).json({ 
+                message: "Conflito: Já existe uma vaga com este identificador neste estacionamento." 
+            });
+        }
         console.error('Erro ao criar vaga:', error);
         res.status(500).json({ message: 'Erro interno ao criar vaga.' });
     }
