@@ -1,24 +1,22 @@
 -- Criação
-CREATE TABLE IF NOT EXISTS estacionamento (
+CREATE TABLE estacionamento (
     id_estacionamento INT AUTO_INCREMENT PRIMARY KEY,
     id_proprietario INT NOT NULL,
     nome VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) NOT NULL UNIQUE,
     url_foto_principal VARCHAR(255),
     endereco_completo TEXT NOT NULL,
-    localizacao POINT NOT NULL,
+    latitude DECIMAL(10, 8) NOT NULL,    
+    longitude DECIMAL(10, 8) NOT NULL,      
     horario_abertura TIME,
     horario_fechamento TIME,
     dias_funcionamento VARCHAR(100),
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
+    
     FOREIGN KEY (id_proprietario) REFERENCES usuario(id_usuario)
         ON DELETE RESTRICT
-        ON UPDATE CASCADE,
-
-    SPATIAL INDEX(localizacao)
+        ON UPDATE CASCADE
 );
-
 -- Estrutura
 DESCRIBE estacionamento;
 

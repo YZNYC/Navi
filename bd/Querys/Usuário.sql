@@ -1,5 +1,5 @@
 -- Criação
-CREATE TABLE IF NOT EXISTS usuario (
+CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS usuario (
     telefone VARCHAR(20),
     url_foto_perfil VARCHAR(255),
     papel ENUM('ADMINISTRADOR', 'PROPRIETARIO', 'MOTORISTA') NOT NULL,
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    data_criacao TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE
 );
 
 -- Insere exemplo
