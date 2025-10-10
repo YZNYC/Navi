@@ -33,24 +33,33 @@ export const obterEstacionamentoPorIdController = async (req, res) => {
 
 export const criarEstacionamentoController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Garante que todos os campos do body estão corretos
         const { body } = criarEstacionamentoSchema.parse(req);
         const proprietarioId = req.usuario.id_usuario;
 
-        // 2. EXECUÇÃO: Usa os dados validados para criar o registro
-        const dadosComProprietario = { ...body, id_proprietario: proprietarioId };
-        const novoEstacionamento = await criarEstacionamento(dadosComProprietario);
+        const response = await fetch(`https://viacep.com.br/ws/${body.cep.replace('-', '')}/json/`);
+        if (!response.ok) {
+            return res.status(400).json({ message: "CEP inválido ou não encontrado." });
+        }
+        const endereco = await response.json();
+        if (endereco.erro) {
+            return res.status(400).json({ message: "CEP inválido ou não encontrado." });
+        }
 
+        const dadosCompletos = {
+            ...body, 
+            rua: endereco.logradouro,
+            bairro: endereco.bairro,
+            cidade: endereco.localidade,
+            id_proprietario: proprietarioId,
+        };
+
+        const novoEstacionamento = await criarEstacionamento(dadosCompletos);
         res.status(201).json({ message: 'Estacionamento criado com sucesso!', estacionamento: novoEstacionamento });
+
     } catch (error) {
-        if (error.name === 'ZodError') {
-            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
+        if (error.code === 'P2002') {
+            return res.status(409).json({ message: "Conflito: Já existe um estacionamento com este CNPJ, endereço ou localização." });
         }
-        if (error.code === 'P2002' && error.meta?.target.includes('cnpj')) {
-            return res.status(409).json({ message: 'Este CNPJ já está cadastrado.' });
-        }
-        console.error('Erro ao criar estacionamento:', error);
-        res.status(500).json({ message: 'Erro ao criar estacionamento.' });
     }
 };
 

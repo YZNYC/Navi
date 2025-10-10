@@ -1,4 +1,5 @@
-import 'dotenv/config'; 
+
+import 'dotenv/config';
 
 console.log('--- Verificando variáveis de ambiente ---');
 console.log('DATABASE_URL lida:', process.env.DATABASE_URL ? 'SIM' : 'NÃO');
@@ -6,31 +7,38 @@ console.log('------------------------------------');
 
 
 import express from 'express';
-import authRoutes from './routes/AuthRoutes.js';
-import vagaRoutes from './routes/vagaRoutes.js';
+
+import authRoutes from './routes/authRoutes.js';
+import usuarioRoutes from './routes/usuarioRoutes.js';
 import estacionamentoRoutes from './routes/EstacionamentoRoutes.js';
-import usuarioRoutes from './routes/UsuarioRoutes.js'; 
+import vagaRoutes from './routes/vagaRoutes.js';
 import veiculoRoutes from './routes/veiculoRoutes.js';
 import reservaRoutes from './routes/ReservRoutes.js'; 
+import contratoRoutes from './routes/ContratoRoutes.js'; 
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 const app = express();
+
+
 app.use(express.json());
 
-// Rotas
+
+// Rotas da API 
 app.use('/auth', authRoutes);
-app.use('/usuarios', usuarioRoutes); 
-app.use('/vagas', vagaRoutes);
+app.use('/usuarios', usuarioRoutes);
 app.use('/estacionamentos', estacionamentoRoutes);
+app.use('/vagas', vagaRoutes);
 app.use('/veiculos', veiculoRoutes);
 app.use('/reservas', reservaRoutes); 
+app.use('/contratos', contratoRoutes); 
 
 
+// Rota raiz para verificação
 app.get('/', (req, res) => {
-    res.send('você não deveria estar aqui...');
+    res.send('API Navi em funcionamento!');
 });
 
+// Inicialização do servidor
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });
-

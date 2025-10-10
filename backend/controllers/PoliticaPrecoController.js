@@ -17,24 +17,30 @@ const verificarPermissao = async (estacionamentoId, requisitante) => {
 
 export const criarPoliticaPrecoController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Garante que o ID do estacionamento na URL e os dados de preço no body são válidos.
+      
         const { params } = politicaPrecoParamsSchema.parse(req);
         const { body } = politicaPrecoSchema.parse(req);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO: Lógica de negócio e permissão
         const temPermissao = await verificarPermissao(params.estacionamentoId, requisitante);
         if (!temPermissao) {
             return res.status(403).json({ message: "Acesso proibido. Você não gerencia este estacionamento." });
         }
-
         const novaPolitica = await criarPoliticaPreco(body, params.estacionamentoId);
         res.status(201).json({ message: "Política de preço criada com sucesso!", politica: novaPolitica });
 
     } catch (error) {
+
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
         }
+
+        if (error.code === 'P2002') {
+            return res.status(409).json({
+                message: "Conflito: Já existe uma política de preço com esta descrição para este estacionamento."
+            });
+        }
+        
         console.error("Erro ao criar política de preço:", error);
         res.status(500).json({ message: "Erro interno ao criar política de preço." });
     }

@@ -1,4 +1,6 @@
 import { criarVaga, atualizarVaga, excluirVaga, listarVagas, obterVagasPorId } from "../models/Vaga.js";
+import { criarVagaSchema, atualizarVagaSchema } from "../schemas/vaga.schema.js";
+import { paramsSchema } from "../schemas/params.schema.js";
 import prisma from '../config/prisma.js'; 
 
 // Verifica se o requisitante é o proprietário do estacionamento ou um administrador.
@@ -44,31 +46,37 @@ export const obterVagasPorIdController = async (req, res) => {
 // Cria uma vaga após verificar a permissão sobre o estacionamento.
 export const criarVagaController = async (req, res) => {
     try {
-        const { id_estacionamento } = req.body;
+        // 1. VALIDAÇÃO com Zod
+        const { body } = criarVagaSchema.parse(req);
 
-        const temPermissao = await temPermissaoSobreEstacionamento(id_estacionamento, req.usuario);
+        // 2. EXECUÇÃO
+        const temPermissao = await temPermissaoSobreEstacionamento(body.id_estacionamento, req.usuario);
         if (!temPermissao) {
             return res.status(403).json({ message: "Acesso proibido. Você não gerencia o estacionamento informado." });
         }
 
-        const novaVaga = await criarVaga(req.body);
+        const novaVaga = await criarVaga(body);
         res.status(201).json({ message: 'Vaga criada com sucesso!', vaga: novaVaga });
     } catch (error) {
+        // 3. TRATAMENTO DE ERROS
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
+        }
         if (error.code === 'P2002') {
-            return res.status(409).json({ 
-                message: "Conflito: Já existe uma vaga com este identificador neste estacionamento." 
-            });
+            return res.status(409).json({ message: "Conflito: Já existe uma vaga com este identificador neste estacionamento." });
         }
         console.error('Erro ao criar vaga:', error);
         res.status(500).json({ message: 'Erro interno ao criar vaga.' });
     }
 };
 
-// Atualiza uma vaga após verificar a permissão sobre o estacionamento da vaga.
+// Atualiza a vaga
 export const atualizarVagaController = async (req, res) => {
     try {
-        const vagaId = parseInt(req.params.id);
-        
+        const { params } = paramsSchema.parse(req);
+        const { body } = atualizarVagaSchema.parse(req);
+        const vagaId = parseInt(params.id);
+
         const vagaAlvo = await obterVagasPorId(vagaId);
         if (!vagaAlvo) {
             return res.status(404).json({ message: "Vaga não encontrada." });
@@ -79,11 +87,14 @@ export const atualizarVagaController = async (req, res) => {
             return res.status(403).json({ message: "Acesso proibido. Você não gerencia o estacionamento desta vaga." });
         }
 
-        const vagaAtualizada = await atualizarVaga(vagaId, req.body);
+        const vagaAtualizada = await atualizarVaga(vagaId, body);
         res.status(200).json({ message: 'Vaga atualizada com sucesso!', vaga: vagaAtualizada });
     } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
+        }
         console.error('Erro ao atualizar vaga:', error);
-        res.status(500).json({ message: 'Erro interno ao atualizar vaga.' });
+        res.status(500).json({ message: 'Erro ao atualizar vaga.' });
     }
 };
 
