@@ -1,5 +1,5 @@
 -- Criação
-CREATE TABLE IF NOT EXISTS politica_preco (
+CREATE TABLE politica_preco (
     id_politica_preco INT AUTO_INCREMENT PRIMARY KEY,
     id_estacionamento INT NOT NULL,
     descricao VARCHAR(100) NOT NULL,
@@ -9,9 +9,11 @@ CREATE TABLE IF NOT EXISTS politica_preco (
     
     FOREIGN KEY (id_estacionamento) REFERENCES estacionamento(id_estacionamento)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+        
+    -- Impede que um estacionamento tenha duas políticas com a mesma descrição.
+    UNIQUE KEY (id_estacionamento, descricao)
 );
-
 -- Estrutura
 DESCRIBE politica_preco;
 
