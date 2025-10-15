@@ -1,4 +1,4 @@
-import {  criarVeiculo,  listarVeiculosPorUsuario,  obterVeiculoPorId,  atualizarVeiculo,excluirVeiculo} from "../models/Veiculo.js";
+import { criarVeiculo, listarVeiculosPorUsuario, obterVeiculoPorId, atualizarVeiculo, excluirVeiculo } from "../models/Veiculo.js";
 import { criarVeiculoSchema, atualizarVeiculoSchema } from '../schemas/veiculo.schema.js';
 import { paramsSchema } from '../schemas/params.schema.js';
 
@@ -85,7 +85,7 @@ export const atualizarVeiculoController = async (req, res) => {
         if (veiculoAlvo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você não pode alterar este veículo." });
         }
-        
+
         const veiculoAtualizado = await atualizarVeiculo(veiculoId, body);
         res.status(200).json({ message: "Veículo atualizado com sucesso!", veiculo: veiculoAtualizado });
     } catch (error) {
@@ -99,21 +99,29 @@ export const atualizarVeiculoController = async (req, res) => {
 
 export const excluirVeiculoController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO
         const { params } = paramsSchema.parse(req);
         const veiculoId = parseInt(params.id);
         const requisitante = req.usuario;
-        
-        // 2. EXECUÇÃO
+
         const veiculoAlvo = await obterVeiculoPorId(veiculoId);
         if (!veiculoAlvo) {
             return res.status(404).json({ message: "Veículo não encontrado." });
         }
-        
+
         if (veiculoAlvo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
-            return res.status(403).json({ message: "Acesso proibido. Você não pode excluir este veículo." });
+            return res.status(403).json({ message: "Acesso proibido. Você не pode excluir este veículo." });
         }
-        
+        // Verifica se o veículo possui reservas ativas antes de permitir a exclusão
+        const reservasAtivas = await prisma.reserva.findFirst({
+            where: {
+                id_veiculo: veiculoId,
+                status: 'ATIVA',
+            },
+        });
+
+        if (reservasAtivas) {
+            return res.status(409).json({ message: "Conflito: Não é possível excluir este veículo pois ele possui uma reserva ativa." });
+        }
         await excluirVeiculo(veiculoId);
         res.status(204).send();
     } catch (error) {

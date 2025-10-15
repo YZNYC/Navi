@@ -1,4 +1,4 @@
-import {criarReserva, listarReservasPorUsuario, listarReservasPorEstacionamento,  obterReservaPorId,  concluirOuCancelarReserva} from "../models/Reserva.js";
+import { criarReserva, listarReservasPorUsuario, listarReservasPorEstacionamento, obterReservaPorId, concluirOuCancelarReserva } from "../models/Reserva.js";
 import { criarReservaSchema } from "../schemas/reserva.schema.js";
 import { paramsSchema } from '../schemas/params.schema.js';
 import prisma from "../config/prisma.js";
@@ -22,7 +22,7 @@ export const criarReservaController = async (req, res) => {
     try {
         const { body } = criarReservaSchema.parse(req);
         const usuarioId = req.usuario.id_usuario;
-        
+
         const vagaExiste = await prisma.vaga.findUnique({ where: { id_vaga: body.id_vaga } });
         if (!vagaExiste) return res.status(404).json({ message: "Vaga não encontrada." });
 
@@ -31,7 +31,7 @@ export const criarReservaController = async (req, res) => {
             if (!veiculo) return res.status(404).json({ message: "Veículo não encontrado." });
             if (veiculo.id_usuario !== usuarioId) return res.status(403).json({ message: "Este veículo não pertence a você." });
         }
-        
+
         const novaReserva = await criarReserva(body, usuarioId);
         res.status(201).json({ message: "Reserva criada com sucesso!", reserva: novaReserva });
     } catch (error) {
@@ -66,7 +66,7 @@ export const obterReservaPorIdController = async (req, res) => {
         if (!permissao.permitido) {
             return res.status(permissao.status).json({ message: permissao.message });
         }
-        
+
         const reserva = await obterReservaPorId(params.id);
         res.status(200).json(reserva);
     } catch (error) {
@@ -81,22 +81,21 @@ export const obterReservaPorIdController = async (req, res) => {
 
 export const cancelarReservaController = async (req, res) => {
     try {
-        const { params } = paramsSchema.parse(req); // Valida o :reservaId (que é mapeado para :id no schema genérico)
+        const { params } = paramsSchema.parse(req);
         const requisitante = req.usuario;
 
         const permissao = await verificarPermissaoSobreReserva(params.id, requisitante);
         if (!permissao.permitido) {
             return res.status(permissao.status).json({ message: permissao.message });
         }
-        
-        // Adicional: regra de negócio para não cancelar reserva que não está ATIVA
+
         const reservaAlvo = await obterReservaPorId(params.id);
         if (reservaAlvo.status !== 'ATIVA') {
-            return res.status(400).json({ message: "Esta reserva não está mais ativa e não pode ser cancelada." });
+            return res.status(400).json({ message: "Ação inválida: esta reserva não está mais ativa." });
         }
-
         const reservaCancelada = await concluirOuCancelarReserva(params.id, 'CANCELADA');
         res.status(200).json({ message: "Reserva cancelada com sucesso!", reserva: reservaCancelada });
+
     } catch (error) {
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "ID de reserva inválido.", errors: error.flatten().fieldErrors });
@@ -110,7 +109,7 @@ export const cancelarReservaController = async (req, res) => {
 // Controlador usado nas rotas de estacionamento
 export const listarReservasDeEstacionamentoController = async (req, res) => {
     try {
-        const { estacionamentoId } = req.params; 
+        const { estacionamentoId } = req.params;
         const reservas = await listarReservasPorEstacionamento(estacionamentoId);
         res.status(200).json(reservas);
     } catch (error) {

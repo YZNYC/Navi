@@ -13,7 +13,7 @@ export const criarContratoController = async (req, res) => {
         if (!veiculo || veiculo.id_usuario !== requisitanteId) {
             return res.status(403).json({ message: "Acesso proibido. O veículo informado não pertence a você." });
         }
-        
+
         //Verificar se o usuário já tem um contrato ativo para este veículo.
         const contratoExistente = await prisma.contrato_mensalista.findFirst({
             where: { id_veiculo: body.id_veiculo, status: 'ATIVO' }
@@ -49,20 +49,18 @@ export const cancelarMeuContratoController = async (req, res) => {
     try {
         const { contratoId } = req.params;
         const requisitante = req.usuario;
-        
+
         const contratoAlvo = await obterContratoPorId(contratoId);
         if (!contratoAlvo) {
-            return res.status(404).json({ message: "Contrato não encontrado." });
+            return res.status(404).json({ message: "Contrato не encontrado." });
         }
 
-        // Apenas o dono do contrato pode cancelar.
         if (contratoAlvo.id_usuario !== requisitante.id_usuario) {
             return res.status(403).json({ message: "Acesso proibido. Você não pode cancelar este contrato." });
         }
-        
-        // Só pode cancelar um contrato que está 'ATIVO'.
+
         if (contratoAlvo.status !== 'ATIVO') {
-            return res.status(400).json({ message: "Este contrato não está ativo e não pode ser cancelado." });
+            return res.status(400).json({ message: "Ação inválida: este contrato não está mais ativo." });
         }
 
         const dadosAtualizacao = { status: 'CANCELADO', data_fim: new Date() };
@@ -78,7 +76,7 @@ export const cancelarMeuContratoController = async (req, res) => {
 
 export const listarContratosDeEstacionamentoController = async (req, res) => {
     try {
-     
+
         const { estacionamentoId } = req.params;
         const contratos = await listarContratosPorEstacionamento(estacionamentoId);
         res.status(200).json(contratos);
