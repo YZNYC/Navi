@@ -23,7 +23,7 @@ export default function LoginForm() {
 
             <div className="relative">
               <input
-                className="p-2 rounded-xl border w-full bg-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="p-2 rounded-xl border w-full focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
