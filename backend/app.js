@@ -5,7 +5,7 @@ console.log('--- Verificando variáveis de ambiente ---');
 console.log('DATABASE_URL lida:', process.env.DATABASE_URL ? 'SIM' : 'NÃO');
 console.log('------------------------------------');
 
-
+import cors from 'cors';
 import express from 'express';
 
 import authRoutes from './routes/authRoutes.js';
@@ -20,7 +20,7 @@ import cupomRoutes from './routes/CupomRoutes.js';
 const port = process.env.PORT || 3000;
 const app = express();
 
-
+app.use(cors());
 app.use(express.json());
 
 
