@@ -5,6 +5,7 @@ import Sobre from "@/components/sobre/page";
 import Funcionamento from "@/components/como-funciona/page";
 import Contact02Page from "@/components/contact-02/contact-02";
 import { Footer7 } from "@/components/footer/footer-7";
+import Sobre2 from "@/components/sobre2/page";
 
 
 export default function Home() {
@@ -23,11 +24,16 @@ export default function Home() {
       </section>
 
       <section>
+        <Funcionamento />
+      </section>
+
+      <section>
         <Sobre />
       </section>
 
       <section>
-        <Funcionamento />
+      <Sobre2/>
+
       </section>
 
       <section>

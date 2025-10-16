@@ -54,6 +54,7 @@ const Hero3 = () => {
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
 
   return (
+    <>
     <section className="relative flex items-center justify-center overflow-hidden">
       <motion.div
         style={{ opacity, scale }}
@@ -71,7 +72,7 @@ const Hero3 = () => {
       </div>
 
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-20">
+      <div className="relative z-10 max-w-7xl mx-auto h-[800px] px-6 lg:px-8 py-20">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div
             initial="hidden"
@@ -300,7 +301,10 @@ const Hero3 = () => {
           </motion.div>
         </div>
       </div>
+
     </section>
+
+    </>
   );
 };
 

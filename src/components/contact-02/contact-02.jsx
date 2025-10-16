@@ -9,7 +9,6 @@ import Link from "next/link";
 
 const Contact02Page = () => (
   <>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path className="fill-white dark:fill-yellow-400" d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"></path></svg>
     <div className="min-h-screen flex items-center justify-center py-16">
       <div className="w-full max-w-(--breakpoint-xl) mx-auto px-6 xl:px-0">
 
@@ -34,7 +33,7 @@ const Contact02Page = () => (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
 
 
-            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105  hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+            <div className="bg-white/10 dark:bg-gray-800/50 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105  hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
               <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
                 <MailIcon />
               </div>
@@ -50,7 +49,7 @@ const Contact02Page = () => (
             </div>
 
 
-            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+            <div className="bg-white/10 dark:bg-gray-800/50 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
               <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
                 <MessageCircle className="w-7 h-7" />
               </div>
@@ -64,7 +63,7 @@ const Contact02Page = () => (
             </div>
 
 
-            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+            <div className="bg-white/10 dark:bg-gray-800/50 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
               <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
                 <MapPinIcon />
               </div>
@@ -81,7 +80,7 @@ const Contact02Page = () => (
             </div>
 
 
-            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+            <div className="bg-white/10 dark:bg-gray-800/50 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
               <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
                 <PhoneIcon />
               </div>
@@ -97,7 +96,7 @@ const Contact02Page = () => (
             </div>
           </div>
 
-          <Card className="bg-accent dark:bg-gray-800 shadow-none py-0">
+          <Card className="bg-accent dark:bg-gray-800/50 shadow-none py-0">
             <CardContent className="p-6 md:p-8">
               <form>
                 <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">

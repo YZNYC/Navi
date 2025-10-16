@@ -69,7 +69,6 @@ export default function Funcionamento() {
     ];
     return (
         <>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path className="fill-white dark:fill-yellow-400" d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"></path></svg>
             <div className="relative max-w-7xl mx-auto px-6 lg:px-8 md:mb-14 py-14">
                 <motion.div
                     initial="hidden"
