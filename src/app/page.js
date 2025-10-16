@@ -1,5 +1,5 @@
 import Header from "@/components/navbar/page";
-import { Hero3 } from "../components/banner/page"
+import Hero3  from "../components/banner/page"
 import Navbar04Page from "@/components/navbar-04/navbar-04";
 import Sobre from "@/components/sobre/page";
 import Funcionamento from "@/components/como-funciona/page";
@@ -23,11 +23,11 @@ export default function Home() {
       </section>
 
       <section>
-        <Funcionamento />
+        <Sobre />
       </section>
 
       <section>
-        <Sobre />
+        <Funcionamento />
       </section>
 
       <section>

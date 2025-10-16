@@ -9,7 +9,7 @@ import Link from "next/link";
 
 const Contact02Page = () => (
   <>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path className="fill-gray-600 dark:fill-yellow-400" d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"></path></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path className="fill-white dark:fill-yellow-400" d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"></path></svg>
     <div className="min-h-screen flex items-center justify-center py-16">
       <div className="w-full max-w-(--breakpoint-xl) mx-auto px-6 xl:px-0">
 
@@ -18,79 +18,86 @@ const Contact02Page = () => (
           <span className="text-gray-600 dark:text-yellow-500">Começar?</span>
         </div>
 
-        <b className="text-white uppercase font-semibold text-sm">
-          Entre em contato conosco
-        </b>
-        <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-white">
-          Converse com nossa equipe amigável!
-        </h2>
-        <p className="mt-3 text-base sm:text-lg text-white/70 italic">
-          Adoraríamos ouvir sua opinião. Preencha este formulário ou envie-nos um e-mail.
-        </p>
+        <div className="text-center flex flex-col">
+          <b className="text-white uppercase font-semibold text-sm">
+            Entre em contato conosco
+          </b>
+          <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-white">
+            Converse com nossa equipe amigável!
+          </h2>
+          <p className="mt-3 text-base sm:text-lg text-white/70 italic">
+            Adoraríamos ouvir sua opinião. Preencha este formulário ou envie-nos um e-mail.
+          </p>
+        </div>
+
         <div className="mt-24 grid lg:grid-cols-2 gap-16 md:gap-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
-            <div>
-              <div
-                className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
+
+
+            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105  hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+              <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
                 <MailIcon />
               </div>
-              <h3 className="mt-6 font-semibold text-xl text-gray-600 dark:text-yellow-500">Email</h3>
-              <p className="my-2.5 text-white">
+              <h3 className="mt-5 text-white/70 dark:text-yellow-400 font-semibold text-xl">Email</h3>
+              <p className="my-3 text-gray-600 dark:text-gray-300">
                 Nossa equipe amigável está aqui para ajudar.
               </p>
               <Link
-                className="font-medium text-white"
+                className="mt-2 text-white/70 font-medium dark:text-white"
                 href="mailto:akashmoradiya3444@gmail.com">
                 akashmoradiya3444@gmail.com
               </Link>
             </div>
-            <div>
-              <div
-                className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
-                <MessageCircle />
+
+
+            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+              <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
+                <MessageCircle className="w-7 h-7" />
               </div>
-              <h3 className="mt-6 text-gray-600 font-semibold text-xl dark:text-yellow-500">Bate-papo ao vivo</h3>
-              <p className="my-2.5 text-white">
+              <h3 className="mt-5 text-white/70 dark:text-yellow-400 font-semibold text-xl">Bate-papo ao vivo</h3>
+              <p className="my-3 text-gray-600 dark:text-gray-300">
                 Nossa equipe amigável está aqui para ajudar.
               </p>
-              <Link className="font-medium text-white" href="#">
+              <Link href="#" className="mt-2 text-white/70 font-medium dark:text-white">
                 Iniciar novo bate-papo
               </Link>
             </div>
-            <div>
-              <div
-                className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
+
+
+            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+              <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
                 <MapPinIcon />
               </div>
-              <h3 className="mt-6 font-semibold text-xl text-gray-600 dark:text-yellow-500">Sede</h3>
-              <p className="my-2.5 text-white">
+              <h3 className="mt-5 text-white/70 dark:text-yellow-400 font-semibold text-xl">Bate-papo ao vivo</h3>
+              <p className="my-3 text-gray-600 dark:text-gray-300">
                 Venha nos cumprimentar.
               </p>
               <Link
-                className="font-medium text-white"
+                className="font-medium text-white/70 dark:text-white"
                 href="https://map.google.com"
                 target="_blank">
                 100 Smith Street Collingwood <br /> VIC 3066 AU
               </Link>
             </div>
-            <div>
-              <div
-                className="h-12 w-12 flex items-center justify-center bg-white/5 dark:bg-white/10 text-white rounded-full">
+
+
+            <div className="bg-white/10 dark:bg-gray-800 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-black/20 dark:hover:shadow-yellow-500/20">
+              <div className="h-14 w-14 flex items-center justify-center bg-white/20 dark:bg-yellow-500 text-white/70 rounded-full shadow-inner">
                 <PhoneIcon />
               </div>
-              <h3 className="mt-6 font-semibold text-xl text-gray-600 dark:text-yellow-500">Telefone</h3>
-              <p className="my-2.5 text-white">
+              <h3 className="mt-5 text-white/70 dark:text-yellow-400 font-semibold text-xl">Bate-papo ao vivo</h3>
+              <p className="my-3 text-gray-600 dark:text-gray-300">
                 Seg-Sex das 8h às 17h.
               </p>
               <Link
-                className="font-medium text-white"
+                className="font-medium text-white/70 dark:text-white"
                 href="tel:akashmoradiya3444@gmail.com">
                 +1 (555) 000-0000
               </Link>
             </div>
           </div>
 
-          <Card className="bg-accent shadow-none py-0">
+          <Card className="bg-accent dark:bg-gray-800 shadow-none py-0">
             <CardContent className="p-6 md:p-8">
               <form>
                 <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">

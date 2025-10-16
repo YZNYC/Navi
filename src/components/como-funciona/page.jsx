@@ -1,57 +1,148 @@
 'use client'
 
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import {
+    MapPin,
+    CreditCard,
+    CheckCircle2,
+    Users,
+    TrendingUp,
+} from "lucide-react";
 
 export default function Funcionamento() {
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                delayChildren: 0.3,
+                staggerChildren: 0.15
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 40, opacity: 0 },
+        visible: {
+          y: 0,
+          opacity: 1,
+          transition: {
+            type: "spring",
+            damping: 20,
+            stiffness: 100
+          }
+        }
+      };
+
+
     const fadeInUp = {
         initial: { opacity: 0, y: 40 },
         animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
     };
 
-    const staggerContainer = {
-        animate: { transition: { staggerChildren: 0.1 } }
-    };
-
     const steps = [
         {
-            title: "Encontre",
-            desc: "Navegue pelo mapa e veja as vagas disponíveis em tempo real perto de você."
+            number: "1",
+            title: "Cadastre-se Grátis",
+            description: "Crie sua conta em menos de 1 minuto",
+            icon: Users
         },
         {
-            title: "Reserve",
-            desc: "Garanta sua vaga com antecedência e evite o estresse de procurar um lugar."
+            number: "2",
+            title: "Busque Vagas",
+            description: "Visualize disponibilidade no mapa",
+            icon: MapPin
         },
         {
-            title: "Pague",
-            desc: "Finalize o pagamento de forma segura e 100% digital, direto no aplicativo."
+            number: "3",
+            title: "Reserve & Pague",
+            description: "Confirme e pague com segurança",
+            icon: CreditCard
+        },
+        {
+            number: "4",
+            title: "Estacione Feliz",
+            description: "Chegue e use o QR Code",
+            icon: CheckCircle2
         }
     ];
-
     return (
-        <section id="como-funciona" className="relative">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <motion.div initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.5 }} variants={staggerContainer} className="text-center mb-16">
-                    <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-gray-600 dark:text-yellow-500">Simples como 1, 2, 3</motion.h2>
-                    <motion.p variants={fadeInUp} className="mt-4 text-lg text-white">Comece a usar a Navi em segundos.</motion.p>
+        <>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path className="fill-white dark:fill-yellow-400" d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"></path></svg>
+            <div className="relative max-w-7xl mx-auto px-6 lg:px-8 md:mb-14 py-14">
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={containerVariants}
+                    className="text-center mb-20"
+                >
+                    <motion.div variants={itemVariants}>
+                        <Badge className="bg-yellow-100 text-yellow-700 mb-6 px-5 py-2.5 text-sm font-semibold">
+                            <TrendingUp className="w-4 h-4 mr-2" />
+                            Processo Simples
+                        </Badge>
+                    </motion.div>
+                    <motion.h2
+                        variants={itemVariants}
+                        className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
+                    >
+                        Como Funciona?
+                    </motion.h2>
+                    <motion.p
+                        variants={itemVariants}
+                        className="text-xl text-white max-w-3xl mx-auto leading-relaxed"
+                    >
+                        Apenas 4 passos simples para você nunca mais perder tempo procurando vaga
+                    </motion.p>
                 </motion.div>
 
-                <div className="grid md:grid-cols-3 gap-12 text-center text-white/70 font-semibold">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+                    <div className="hidden lg:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-orange-200 via-yellow-200 to-orange-200" />
+
                     {steps.map((step, index) => (
-                        <motion.div key={step.title}
+                        <motion.div
+                            key={index}
                             initial={{ opacity: 0, y: 50 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}>
-                            <div className="bg-white/10 rounded-xl p-6 backdrop-blur-md shadow-md transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-2xl cursor-pointer">
-                                <h3 className="mt-4 text-2xl font-semibold text-white">{step.title}</h3>
-                                <p className="mt-2 text-white font-semibold">{step.desc}</p>
+                            transition={{ delay: index * 0.15, type: "spring" }}
+                            whileHover={{ y: -10 }}
+                            className="relative"
+                        >
+                            <div className="text-center">
+                                <div className="relative inline-flex items-center justify-center mb-8">
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.5, 0.8, 0.5]
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            delay: index * 0.5
+                                        }}
+                                        className="absolute inset-0 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-3xl blur-2xl opacity-50"
+                                    />
+                                    <div className="relative w-24 h-24 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-3xl flex items-center justify-center shadow-2xl">
+                                        <step.icon className="w-12 h-12 text-white" />
+                                    </div>
+                                    <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-orange-100">
+                                        <span className="text-lg font-bold text-orange-600">{step.number}</span>
+                                    </div>
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-3">
+                                    {step.title}
+                                </h3>
+                                <p className="text-white leading-relaxed">
+                                    {step.description}
+                                </p>
                             </div>
                         </motion.div>
                     ))}
                 </div>
-
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path className="fill-gray-600 dark:fill-yellow-400" d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"></path></svg>
-        </section >
+        </>
     )
 }
