@@ -15,7 +15,8 @@ CREATE TABLE usuario (
     telefone VARCHAR(20),
     url_foto_perfil VARCHAR(255),
     papel ENUM('ADMINISTRADOR', 'PROPRIETARIO', 'MOTORISTA') NOT NULL,
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    data_criacao TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE
 );
 
 -- =================================================================================
