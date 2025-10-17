@@ -122,13 +122,13 @@ export default function Funcionamento() {
                                             repeat: Infinity,
                                             delay: index * 0.5
                                         }}
-                                        className="absolute inset-0 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-3xl blur-2xl opacity-50"
+                                        className="absolute inset-0 bg-gradient-to-br from-orange-500 to-yellow-500 dark:from-yellow-600 dark:to-orange-500 dark:bg-gradient-to-br rounded-3xl blur-2xl opacity-50"
                                     />
-                                    <div className="relative w-24 h-24 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-3xl flex items-center justify-center shadow-2xl">
+                                    <div className="relative w-24 h-24 bg-gradient-to-br from-orange-500 to-yellow-500 dark:from-yellow-400 dark:to-yellow-400 dark:bg-gradient-to-br rounded-3xl flex items-center justify-center shadow-2xl">
                                         <step.icon className="w-12 h-12 text-white" />
                                     </div>
                                     <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-orange-100">
-                                        <span className="text-lg font-bold text-orange-600">{step.number}</span>
+                                        <span className="text-lg font-bold text-orange-600 dark:text-gray-600">{step.number}</span>
                                     </div>
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">

@@ -113,7 +113,7 @@ const Hero3 = () => {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   size="lg"
-                  className="bg-white text-orange-600 hover:bg-gray-50 shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-8 py-7 font-semibold w-full sm:w-auto cursor-pointer"
+                  className="bg-white text-yellow-400 hover:bg-gray-50 shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-8 py-7 font-semibold w-full sm:w-auto cursor-pointer"
                 >
                   <Download className="w-5 h-5 mr-2" />
                   Baixar Grátis
@@ -191,7 +191,7 @@ const Hero3 = () => {
                       <div className="text-sm text-gray-500 mb-1">Bem-vindo de volta!</div>
                       <div className="text-2xl font-bold text-gray-900">Olá, João 👋</div>
                     </div>
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
                       J
                     </div>
                   </div>
@@ -211,7 +211,7 @@ const Hero3 = () => {
                   <motion.div
                     animate={{ y: [0, -5, 0] }}
                     transition={{ duration: 3, repeat: Infinity }}
-                    className="bg-gradient-to-br from-orange-500 to-yellow-500 rounded-3xl p-5 shadow-lg"
+                    className="bg-gradient-to-br from-yellow-500 to-yellow-500 rounded-3xl p-5 shadow-lg"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -232,7 +232,7 @@ const Hero3 = () => {
                         <div className="text-2xl font-bold text-white">R$ 12</div>
                       </div>
                     </div>
-                    <Button className="w-full mt-4 bg-white text-orange-600 hover:bg-gray-50 font-semibold">
+                    <Button className="w-full mt-4 bg-white text-yellow-600 hover:bg-gray-50 font-semibold">
                       Reservar Agora
                     </Button>
                   </motion.div>
@@ -267,11 +267,10 @@ const Hero3 = () => {
                   </motion.div>
                 </div>
 
-                {/* Bottom Navigation */}
                 <div className="absolute bottom-4 left-4 right-4 bg-gray-900 rounded-3xl px-6 py-4">
                   <div className="grid grid-cols-4 gap-4">
                     <div className="text-center">
-                      <div className="w-10 h-10 mx-auto bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center mb-1">
+                      <div className="w-10 h-10 mx-auto bg-gradient-to-br from-yellow-500 to-yellow-500 rounded-2xl flex items-center justify-center mb-1">
                         <MapPin className="w-5 h-5 text-white" />
                       </div>
                       <div className="text-[10px] text-white font-medium">Buscar</div>

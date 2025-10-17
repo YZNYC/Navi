@@ -16,46 +16,9 @@ export default function Sobre2() {
 
     return (
         <>
-            <section id="sobre" className="pt-40 pb-24 relative bg-gradient-to-r from-orange-500 to-orange-700 z-0 shadow-2xl shadow-cyan-950/70">
+            <section id="sobre" className="py-16 relative dark:bg-cyan-800/50 bg-orange-700/50 z-0 shadow-2xl shadow-yellow-950/70">
                 <div className="max-w-7xl mx-auto px-4 md:px-5 lg:px-5">
                     <div className="grid lg:grid-cols-2 grid-cols-1 items-center gap-16 lg:gap-36">
-
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.3 }}
-                            variants={container}
-                            className="flex flex-col items-center lg:items-start gap-6"
-                        >
-                            <motion.p
-                                variants={container}
-                                className="text-cyan-300 text-sm font-semibold uppercase tracking-widest"
-                            >
-                                SOLUÇÃO INTELIGENTE DE ESTACIONAMENTO
-                            </motion.p>
-
-                            <motion.h2
-                                variants={container}
-                                className="text-white text-4xl md:text-5xl font-black font-manrope text-center lg:text-left leading-tight"
-                            >
-                                Estacione de Forma Rápida, Simples e Segura
-                            </motion.h2>
-
-                            <motion.p
-                                variants={container}
-                                className="text-cyan-200 text-base md:text-lg leading-relaxed text-center lg:text-left"
-                            >
-                                Com nosso aplicativo, você encontra vagas de estacionamento em tempo real, compara preços e garante sua reserva antes mesmo de chegar ao local. Economize tempo, evite filas e aproveite a praticidade de uma experiência totalmente digital.
-                            </motion.p>
-
-                            <motion.button
-                                variants={container}
-                                className="w-full sm:w-fit px-10 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-extrabold text-lg rounded-full shadow-2xl shadow-cyan-500/50 transition-all duration-300 hover:scale-[1.05] hover:from-orange-500 hover:to-yellow-400 flex justify-center items-center gap-2 cursor-pointer"
-                            >
-                                Baixe o App Agora
-                                <ArrowRight className="h-6 w-6" />
-                            </motion.button>
-                        </motion.div>
 
                         <div className="flex justify-center">
                             <motion.img
@@ -70,6 +33,43 @@ export default function Sobre2() {
                                 onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x400/FFCC00/000000?text=App+Demo+GIF" }}
                             />
                         </div>
+
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.3 }}
+                            variants={container}
+                            className="flex flex-col items-center text-center lg:items-start gap-6"
+                        >
+                            <motion.p
+                                variants={container}
+                                className=" text-white text-sm font-semibold tracking-widest"
+                            >
+                                TECNOLOGIA PARA UM TRÂNSITO MAIS INTELIGENTE
+                            </motion.p>
+
+                            <motion.h2
+                                variants={container}
+                                className=" text-white text-4xl md:text-5xl font-black font-manrope text-center lg:text-left leading-tight"
+                            >
+                                Encontre e Estacione com Facilidade Total
+                            </motion.h2>
+
+                            <motion.p
+                                variants={container}
+                                className=" text-white text-base md:text-lg leading-relaxed text-center lg:text-left"
+                            >
+                                Nosso aplicativo conecta motoristas aos melhores estacionamentos da cidade em tempo real. Localize vagas disponíveis, compare valores, reserve com um toque e dirija com tranquilidade. Mais praticidade, menos estresse e tempo ganho no seu dia.
+                            </motion.p>
+
+                            <motion.button
+                                variants={container}
+                                className="w-full sm:w-fit px-10 py-4 bg-yellow-500 text-gray-900 font-extrabold text-lg rounded-full shadow-2xl shadow-yellow-500/50 transition-all duration-300 hover:scale-[1.05] hover:from-orange-500 hover:to-yellow-400 flex justify-center items-center gap-2 cursor-pointer"
+                            >
+                                Baixe Agora
+                                <ArrowRight className="h-6 w-6" />
+                            </motion.button>
+                        </motion.div>
                     </div>
                 </div>
             </section>

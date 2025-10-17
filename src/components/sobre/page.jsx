@@ -27,7 +27,7 @@ export default function Sobre() {
                 ></path>
             </svg>
 
-            <section id="sobre" className="py-24 relative bg-amber-800 z-0 shadow-2xl shadow-amber-950/70">
+            <section className="py-16 relative dark:bg-red-800/50 bg-red-800/60 z-0 shadow-2xl shadow-amber-950/70">
                 <div className="max-w-7xl mx-auto px-4 md:px-5 lg:px-5">
                     <div className="grid lg:grid-cols-2 grid-cols-1 items-center gap-16 lg:gap-36">
 
@@ -40,21 +40,21 @@ export default function Sobre() {
                         >
                             <motion.p
                                 variants={container}
-                                className="text-yellow-300 text-sm font-semibold uppercase tracking-widest"
+                                className="text-white text-sm font-semibold uppercase tracking-widest"
                             >
                                 NOSSA SOLUÇÃO INTELIGENTE
                             </motion.p>
 
                             <motion.h2
                                 variants={container}
-                                className="text-white text-4xl md:text-5xl font-black font-manrope text-center lg:text-left leading-tight"
+                                className= "text-white text-4xl md:text-5xl font-black font-manrope text-center lg:text-left leading-tight"
                             >
                                 Estacione de Forma Simples, Rápida e com Economia Garantida
                             </motion.h2>
 
                             <motion.p
                                 variants={container}
-                                className="text-amber-200 text-base md:text-lg leading-relaxed text-center lg:text-left"
+                                className="text-white  text-base md:text-lg leading-relaxed text-center lg:text-left"
                             >
                                 Pare de perder tempo e dinheiro. Com nosso aplicativo intuitivo, você localiza vagas de estacionamento disponíveis em tempo real, compara preços instantaneamente e garante sua reserva antes mesmo de sair de casa. Tecnologia e tranquilidade no seu dia a dia.
                             </motion.p>

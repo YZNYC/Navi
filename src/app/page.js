@@ -19,24 +19,23 @@ export default function Home() {
       <Navbar04Page />
       </section>
 
-      <section className="container mx-auto py-24">
+      <section id="home" className="container mx-auto py-24">
         <Hero3 />
       </section>
 
-      <section>
+      <section id="como-funciona">
         <Funcionamento />
       </section>
 
-      <section>
+      <section id="sobre">
         <Sobre />
       </section>
 
       <section>
       <Sobre2/>
-
       </section>
 
-      <section>
+      <section id="contato">
         <Contact02Page />
       </section>
 
