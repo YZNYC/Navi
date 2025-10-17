@@ -1,197 +1,167 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import axios from 'axios';
 import Image from 'next/image';
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-// --- Esquemas de Validação (Schemas) ---
 const loginSchema = z.object({
-    email: z.string().email("Por favor, insira um email válido."),
-    senha: z.string().min(1, "A senha é obrigatória."),
-});
-const cadastroSchema = z.object({
-    nome: z.string().min(3, "O nome deve ter no mínimo 3 caracteres."),
-    email: z.string().email("Por favor, insira um email válido."),
-    senha: z.string().min(8, "A senha deve ter no mínimo 8 caracteres."),
+    email: z.string().nonempty("O email é obrigatório.").email("Insira um email válido"),
+    senha: z.string().nonempty("A senha é obrigatória"),
 });
 
-// --- Componente Principal ---
+const cadastroSchema = z.object({
+    nome: z.string().min(2, "Nome muito curto"),
+    sobrenome: z.string().min(2, "Sobrenome muito curto"),
+    telefone: z.string().optional(),
+    email: z.string().nonempty("O email é obrigatório.").email("Insira um email válido"),
+    senha: z.string().min(8, "A senha precisa de no mínimo 8 caracteres"),
+});
+
+
 export default function AuthPage() {
     const [isLoginView, setIsLoginView] = useState(true);
-    const [apiError, setApiError] = useState('');
-    const [apiSuccess, setApiSuccess] = useState('');
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
-    const currentSchema = isLoginView ? loginSchema : cadastroSchema;
-
-    const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
-        resolver: zodResolver(currentSchema),
-        defaultValues: { nome: '', email: '', senha: '' },
-    });
+    const [isAnimating, setIsAnimating] = useState(false);
 
     const toggleView = () => {
-        reset(); setApiError(''); setApiSuccess('');
-        setIsLoginView(!isLoginView);
+        if (isAnimating) return;
+        setIsAnimating(true);
+        setTimeout(() => {
+            setIsLoginView(prev => !prev);
+            setIsAnimating(false);
+        }, 400); // Duração da animação da "cortina"
     };
 
+    return (
+        <>
+            <main className="min-h-screen flex items-center justify-center bg-[#fbfaf8] p-4 font-sans">
+                <div className="relative w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+
+                    <div className={`absolute inset-0 bg-yellow-400 z-20 transition-transform duration-500 ease-in-out ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`}></div>
+                    <div className={`absolute inset-0 bg-yellow-500 z-20 transition-transform duration-500 ease-in-out delay-100 ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`}></div>
+
+                    <div className="relative z-10 p-10">
+                        <div className={`transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+                            {isLoginView
+                                ? <AuthForm key="login" isLoginView={true} toggleView={toggleView} />
+                                : <AuthForm key="cadastro" isLoginView={false} toggleView={toggleView} />
+                            }
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <style jsx global>{`
+        /* ... CSS FIEL AO EXEMPLO COM SEU TEMA AMARELO ... */
+        :root {
+          --c-yellow: #FFD600; --c-yellow-dark: #f9a825; --c-text-on-yellow: #4E431B;
+          --c-input-bg: #FCFBF8; --c-input-border: #F3EAE0; --c-input-text: #6e5847;
+          --c-label-text: #b8aaa0; --c-error: #ef4444;
+        }
+        
+        .soft-input-wrapper { position: relative; }
+        .soft-input { width: 100%; font-size: 1rem; color: var(--c-input-text); background: var(--c-input-bg); border: 1px solid var(--c-input-border); border-radius: 14px; padding: 22px 16px 8px 16px; outline: none; transition: all 0.2s ease-out; position: relative; z-index: 1; }
+        .soft-label { position: absolute; top: 16px; left: 17px; color: var(--c-label-text); pointer-events: none; transition: all 0.2s ease-out; z-index: 2; }
+        .soft-input:focus + .soft-label, .soft-input:not(:placeholder-shown) + .soft-label { top: 7px; font-size: 0.75rem; color: var(--c-text-on-yellow); font-weight: 500; }
+        .accent-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--c-yellow-dark); transform: scaleX(0); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-radius: 0 0 14px 14px; }
+        .soft-input-wrapper:focus-within .accent-bar { transform: scaleX(1); }
+        .soft-input-wrapper.error .soft-input { border-color: var(--c-error); animation: shake 0.5s ease-out; }
+        .soft-input-wrapper.error .soft-label { color: var(--c-error); }
+        .error-message { color: var(--c-error); font-size: 0.8rem; padding: 4px 0 0 2px; }
+
+        @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-2px); } 40%, 60% { transform: translateX(2px); } }
+      `}</style>
+        </>
+    );
+}
+
+// --- Componente de Formulário Separado ---
+function AuthForm({ isLoginView, toggleView }) {
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setError } = useForm({
+        resolver: zodResolver(isLoginView ? loginSchema : cadastroSchema),
+        mode: 'onBlur',
+    });
+
     const onSubmit = async (data) => {
-        setApiError(''); setApiSuccess('');
         const url = isLoginView ? 'http://localhost:3000/auth/login' : 'http://localhost:3000/usuarios/cadastro';
+        let apiData = { ...data };
+        if (!isLoginView) {
+            apiData.nome = `${data.nome} ${data.sobrenome}`.trim();
+            delete apiData.sobrenome;
+        }
+
         try {
-            await axios.post(url, data);
-            setApiSuccess(isLoginView ? "Login bem-sucedido! Redirecionando..." : "Cadastro realizado! Por favor, faça seu login.");
-            if (!isLoginView) setTimeout(toggleView, 2000);
+            const response = await axios.post(url, apiData);
+            alert(isLoginView ? `Login bem-sucedido! Token: ${response.data.token}` : "Cadastro realizado! Faça seu login.");
+            if (!isLoginView) toggleView();
         } catch (error) {
-            setApiError(axios.isAxiosError(error) && error.response ? error.response.data.message : 'Não foi possível conectar ao servidor.');
+            const msg = axios.isAxiosError(error) && error.response ? error.response.data.message : 'Erro ao conectar.';
+            setError(isLoginView ? 'senha' : 'nome', { type: 'api', message: msg });
         }
     };
 
     return (
         <>
-            {/* --- FUNDO ANIMADO --- */}
-            <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-                <div className="absolute w-[300px] h-[250px] bg-yellow-500/20 rounded-full blur-3xl animate-blob top-[-10%] left-[-5%] animation-delay-2000"></div>
-                <div className="absolute w-[200px] h-[180px] bg-yellow-400/20 rounded-full blur-3xl animate-blob top-[60%] right-[-5%] animation-delay-4000"></div>
-                <div className="absolute w-[180px] h-[160px] bg-amber-500/10 rounded-full blur-3xl animate-blob top-[20%] right-[20%]"></div>
+            <div className="text-center mb-8">
+                <Image src="/dark.png" alt="Logo" width={56} height={56} className="mx-auto" />
+                <h1 className="mt-4 text-2xl font-bold text-gray-800">{isLoginView ? 'Bem-vindo de Volta' : 'Criar Conta'}</h1>
+                <p className="mt-1 text-sm text-gray-500">{isLoginView ? 'Acesse seu espaço tranquilo' : 'Junte-se a nós hoje'}</p>
             </div>
 
-            <main className="relative z-10 flex items-center justify-center min-h-screen p-4">
-                <div className="w-full max-w-sm px-8 py-10 bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl shadow-2xl">
-                    <div className="text-center mb-10">
-                        <div className="relative w-20 h-20 mx-auto mb-4">
-                            <div className="w-full h-full rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 shadow-[0_8px_16px_rgba(255,214,0,0.3)] animate-breathe flex items-center justify-center">
-                                <Image src="/dark.png" alt="Navi Logo" width={48} height={48} />
-                                <div className="absolute inset-0 bg-radial-gradient-yellow rounded-full animate-glow-pulse"></div>
-                            </div>
-                        </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight">
-                            {isLoginView ? 'Bem-vindo' : 'Crie sua conta'}
-                        </h1>
-                        <p className="text-sm text-gray-400 mt-2">
-                            {isLoginView ? 'Acesse seu painel' : 'Rápido e fácil'}
-                        </p>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+                {!isLoginView && (
+                    <div className="flex gap-4">
+                        <div className="w-1/2"><SoftInput id="nome" label="Nome" register={register('nome')} error={errors.nome} /></div>
+                        <div className="w-1/2"><SoftInput id="sobrenome" label="Sobrenome" register={register('sobrenome')} error={errors.sobrenome} /></div>
                     </div>
+                )}
+                {errors.nome && <span className="error-message">{errors.nome.message}</span>}
 
-                    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
 
-                        {!isLoginView && (
-                            <div className="relative">
-                                <input {...register('nome')} placeholder=" " id="nome" type="text" className="input-field peer" />
-                                <label htmlFor="nome" className="input-label">Nome Completo</label>
-                                {errors.nome && <p className="error-text">{errors.nome.message}</p>}
-                            </div>
-                        )}
+                <SoftInput id="email" type="email" label="Endereço de Email" register={register('email')} error={errors.email} />
+                <SoftInput id="senha" type="password" label="Senha" register={register('senha')} error={errors.senha} hasIcon={true} />
 
-                        <div className="relative">
-                            <input {...register('email')} placeholder=" " id="email" type="email" className="input-field peer" />
-                            <label htmlFor="email" className="input-label">Endereço de Email</label>
-                            {errors.email && <p className="error-text">{errors.email.message}</p>}
-                        </div>
+                {isLoginView && (
+                    <div className="flex items-center justify-between text-sm">
+                        {/* Lógica de Checkbox aqui */}
+                    </div>
+                )}
 
-                        <div className="relative">
-                            <input {...register('senha')} placeholder=" " id="password" type={isPasswordVisible ? 'text' : 'password'} className="input-field peer" />
-                            <label htmlFor="password" className="input-label">Senha</label>
-                            <button type="button" onClick={() => setIsPasswordVisible(!isPasswordVisible)} className="absolute right-3 top-3.5 text-gray-400 hover:text-yellow-400 transition">
-                                {/* Ícone de olho */}
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-                                    {isPasswordVisible ? <EyeIcon className="w-6 h-6" /> : <EyeSlashIcon className="w-6 h-6" />}
-                                </svg>
-                            </button>
-                            {errors.senha && <p className="error-text">{errors.senha.message}</p>}
-                        </div>
+                <button type="submit" disabled={isSubmitting} className="w-full font-semibold p-3.5 rounded-xl bg-yellow-400 text-yellow-900 transition-all duration-300 hover:bg-yellow-500 hover:shadow-lg hover:shadow-yellow-500/20 active:scale-95 disabled:opacity-70">
+                    {isLoginView ? 'Entrar' : 'Cadastrar'}
+                </button>
+            </form>
 
-                        {(apiError || apiSuccess) && <p className={`text-center text-sm ${apiError ? 'text-red-400' : 'text-green-400'}`}>{apiError || apiSuccess}</p>}
+            {/* Divisor Social e Botões */}
+            <div className="my-6 flex items-center gap-4">
+                <div className="h-px bg-gray-200 flex-1"></div>
+                <span className="text-xs text-gray-400 font-medium">ou</span>
+                <div className="h-px bg-gray-200 flex-1"></div>
+            </div>
+            <div className="flex gap-4">
+                <button className="flex-1 flex items-center justify-center gap-2 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 active:scale-95 transition-all">{/* Google */}</button>
+                <button className="flex-1 flex items-center justify-center gap-2 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 active:scale-95 transition-all">{/* Facebook */}</button>
+            </div>
 
-                        <button type="submit" disabled={isSubmitting} className="w-full py-3 font-bold text-gray-900 bg-yellow-400 rounded-lg hover:bg-yellow-500 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                            {isSubmitting ? (isLoginView ? 'Entrando...' : 'Criando...') : (isLoginView ? 'Entrar' : 'Criar Conta')}
-                        </button>
-                    </form>
-
-                    <p className="text-sm text-center text-gray-400">
-                        {isLoginView ? 'Não tem uma conta?' : 'Já possui uma conta?'}{' '}
-                        <button onClick={toggleView} className="font-medium text-yellow-400 hover:text-yellow-500 hover:underline">
-                            {isLoginView ? 'Cadastre-se' : 'Faça login'}
-                        </button>
-                    </p>
-                </div>
-            </main>
-
-            {/* --- CSS E ANIMAÇÕES GLOBAIS VIA JSX --- */}
-            <style jsx global>{`
-        .animate-blob {
-          animation: blob 10s infinite;
-        }
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animation-delay-2000 { animation-delay: -2s; }
-        .animation-delay-4000 { animation-delay: -4s; }
-
-        .animate-breathe {
-          animation: breathe 4s ease-in-out infinite;
-        }
-        @keyframes breathe {
-          0%, 100% { transform: scale(1); box-shadow: 0 8px 16px rgba(255,214,0,0.3); }
-          50% { transform: scale(1.05); box-shadow: 0 12px 20px rgba(255,214,0,0.4); }
-        }
-        .animate-glow-pulse {
-          animation: glow-pulse 3s ease-in-out infinite;
-        }
-        @keyframes glow-pulse {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.1); }
-        }
-
-        .input-field {
-          width: 100%;
-          background: transparent;
-          border: 1px solid #4B5563; /* Borda cinza */
-          border-radius: 8px;
-          padding: 14px;
-          color: white;
-          outline: none;
-          transition: border-color 0.3s;
-        }
-        .input-field:focus {
-          border-color: #FFD600; /* Amarelo */
-        }
-        
-        .input-label {
-          position: absolute;
-          top: 14px;
-          left: 14px;
-          color: #9CA3AF; /* Cinza claro */
-          pointer-events: none;
-          transition: all 0.2s ease-out;
-        }
-
-        /* Efeito de Label Flutuante */
-        .peer:focus + .input-label,
-        .peer:not(:placeholder-shown) + .input-label {
-          top: -10px;
-          left: 10px;
-          font-size: 0.75rem;
-          padding: 0 4px;
-          color: #FFD600; /* Amarelo */
-          background-color: #1a1a1a; /* Cor do fundo do Card */
-        }
-        
-        .error-text {
-            color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 4px;
-        }
-        .bg-radial-gradient-yellow {
-          background-image: radial-gradient(circle, rgba(255,214,0,0.3) 0%, transparent 70%);
-        }
-      `}</style>
+            <p className="mt-6 text-center text-sm text-gray-500">
+                {isLoginView ? 'Não tem uma conta?' : 'Já é um membro?'}{' '}
+                <button onClick={toggleView} className="font-semibold text-yellow-600 hover:underline">{isLoginView ? 'Cadastre-se' : 'Faça login'}</button>
+            </p>
         </>
+    );
+}
+
+
+// --- Componente de Input Reutilizado e Fiel ao Exemplo ---
+function SoftInput({ id, label, type, register, error }) {
+    return (
+        <div className={`soft-input-wrapper ${error ? 'error' : ''}`}>
+            <input id={id} type={type} placeholder=" " {...register} className="soft-input" />
+            <label htmlFor={id} className="soft-label">{label}</label>
+            <div className="accent-bar"></div>
+            {error && <span className="error-message">{error.message}</span>}
+        </div>
     );
 }
