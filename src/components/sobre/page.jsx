@@ -19,15 +19,15 @@ export default function Sobre() {
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 1000 100"
-                className="w-screen h-[120px]  -mb-16 z-50 block relative left-1/2 -translate-x-1/2"
+                className="w-screen h-[120px]  -mb-16 z-10 block relative left-1/2 -translate-x-1/2"
             >
                 <path
-                    className="fill-white dark:fill-yellow-400"
+                    className="fill-white dark:fill-yellow-600"
                     d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"
                 ></path>
             </svg>
 
-            <section className="py-16 relative dark:bg-red-800/50 bg-red-800/60 z-0 shadow-2xl shadow-amber-950/70">
+            <section className="py-16 relative dark:bg-slate-600/50 bg-red-800/60 z-0 shadow-2xl shadow-amber-950/70">
                 <div className="max-w-7xl mx-auto px-4 md:px-5 lg:px-5">
                     <div className="grid lg:grid-cols-2 grid-cols-1 items-center gap-16 lg:gap-36">
 
@@ -62,17 +62,29 @@ export default function Sobre() {
                         </motion.div>
 
                         <div className="flex justify-center">
-                            <motion.img
-                                src="/Parking4.png"
+                        <motion.img
+                                src="/Parking6.png"
                                 alt="Demonstração animada da interface do aplicativo de estacionamento"
                                 loading="lazy"
                                 initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
                                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
                                 whileHover={{ scale: 1.03, rotate: 1 }}
                                 transition={{ duration: 0.9, type: "spring", stiffness: 80 }}
-                                className="hidden md:block lg:mx-0 mx-auto w-full max-w-lg h-full rounded-[2.5rem] object-cover cursor-pointer transform-gpu"
+                                className="block dark:hidden lg:mx-0 mx-auto w-full max-w-lg h-full rounded-[2.5rem] object-cover cursor-pointer transform-gpu"
                                 onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x400/FFCC00/000000?text=App+Demo+GIF" }}
                             />
+                            <motion.img
+                                src="/Parking7.png"
+                                alt="Demonstração animada da interface do aplicativo de estacionamento"
+                                loading="lazy"
+                                initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+                                whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+                                whileHover={{ scale: 1.03, rotate: 1 }}
+                                transition={{ duration: 0.9, type: "spring", stiffness: 80 }}
+                                className="hidden dark:block lg:mx-0 mx-auto w-full max-w-lg h-full rounded-[2.5rem] object-cover cursor-pointer transform-gpu"
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x400/FFCC00/000000?text=App+Demo+GIF" }}
+                            />
+                            
                         </div>
                     </div>
                 </div>
@@ -81,10 +93,10 @@ export default function Sobre() {
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 1000 100"
-                className="w-screen h-[120px] -mb-15 z-50 block relative -mt-15 left-1/2 -translate-x-1/2"
+                className="w-screen h-[120px] -mb-15 z-10 block relative -mt-15 left-1/2 -translate-x-1/2"
             >
                 <path
-                    className="fill-white dark:fill-yellow-400"
+                    className="fill-white dark:fill-yellow-600"
                     d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"
                 ></path>
             </svg>

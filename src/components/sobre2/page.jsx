@@ -16,20 +16,31 @@ export default function Sobre2() {
 
     return (
         <>
-            <section id="sobre" className="py-16 relative dark:bg-cyan-800/50 bg-orange-700/50 z-0 shadow-2xl shadow-yellow-950/70">
+            <section id="sobre" className="py-16 relative dark:bg-cyan-900 bg-orange-700/50 z-0 shadow-2xl shadow-yellow-950/70">
                 <div className="max-w-7xl mx-auto px-4 md:px-5 lg:px-5">
                     <div className="grid lg:grid-cols-2 grid-cols-1 items-center gap-16 lg:gap-36">
 
                         <div className="flex justify-center">
-                            <motion.img
+                        <motion.img
                                 src="/Parking3.png"
-                                alt="Demonstração animada do aplicativo de estacionamento"
+                                alt="Demonstração animada da interface do aplicativo de estacionamento"
                                 loading="lazy"
                                 initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
                                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
                                 whileHover={{ scale: 1.03, rotate: 1 }}
                                 transition={{ duration: 0.9, type: "spring", stiffness: 80 }}
-                                className="hidden md:block lg:mx-0 mx-auto w-full max-w-lg h-full rounded-[2.5rem] object-cover cursor-pointer transform-gpu"
+                                className="block dark:hidden lg:mx-0 mx-auto w-full max-w-lg h-full rounded-[2.5rem] object-cover cursor-pointer transform-gpu"
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x400/FFCC00/000000?text=App+Demo+GIF" }}
+                            />
+                            <motion.img
+                                src="/Parking5.png"
+                                alt="Demonstração animada da interface do aplicativo de estacionamento"
+                                loading="lazy"
+                                initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+                                whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+                                whileHover={{ scale: 1.03, rotate: 1 }}
+                                transition={{ duration: 0.9, type: "spring", stiffness: 80 }}
+                                className="hidden dark:block lg:mx-0 mx-auto w-full max-w-lg h-full rounded-[2.5rem] object-cover cursor-pointer transform-gpu"
                                 onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x400/FFCC00/000000?text=App+Demo+GIF" }}
                             />
                         </div>
@@ -64,7 +75,7 @@ export default function Sobre2() {
 
                             <motion.button
                                 variants={container}
-                                className="w-full sm:w-fit px-10 py-4 bg-yellow-500 text-gray-900 font-extrabold text-lg rounded-full shadow-2xl shadow-yellow-500/50 transition-all duration-300 hover:scale-[1.05] hover:from-orange-500 hover:to-yellow-400 flex justify-center items-center gap-2 cursor-pointer"
+                                className="w-full sm:w-fit px-10 py-4 bg-yellow-500 dark:bg-yellow-600 text-white dark:text-black font-extrabold text-lg rounded-full shadow-2xl shadow-yellow-500/50 transition-all duration-300 hover:scale-[1.05] hover:from-orange-500 hover:to-yellow-400 flex justify-center items-center gap-2 cursor-pointer"
                             >
                                 Baixe Agora
                                 <ArrowRight className="h-6 w-6" />
@@ -77,10 +88,10 @@ export default function Sobre2() {
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 1000 100"
-                className="w-screen h-[120px] -mt-16 z-50 block relative left-1/2 -translate-x-1/2"
+                className="w-screen h-[120px] -mt-16 z-10 block relative left-1/2 -translate-x-1/2"
             >
                 <path
-                    className="fill-white dark:fill-yellow-400"
+                    className="fill-white dark:fill-yellow-600"
                     d="M990 45H535.5A35.2 35.2 0 0 1 500 11.6 35.2 35.2 0 0 1 464.5 45H10v10h454.5A35.2 35.2 0 0 1 500 88.4 35.2 35.2 0 0 1 535.5 55H990V45Z"
                 ></path>
             </svg>

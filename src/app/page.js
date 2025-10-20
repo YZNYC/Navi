@@ -23,7 +23,7 @@ export default function Home() {
         <Hero3 />
       </section>
 
-      <section id="como-funciona">
+      <section id="funcionamento">
         <Funcionamento />
       </section>
 

@@ -74,7 +74,7 @@ export default function NovoFormularioContato() {
                         variants={itemVariants}
                         className="text-5xl md:text-6xl font-extrabold text-white mb-4 leading-tight tracking-tight"
                     >
-                        Vamos Iniciar uma Conversa!
+                        Vamos Iniciar uma <span className='dark:text-yellow-600'>Conversa!</span>
                     </motion.h2>
                     <motion.p
                         variants={itemVariants}
@@ -107,7 +107,7 @@ export default function NovoFormularioContato() {
                                     variants={itemVariants}
                                     className="flex items-center space-x-4 group p-3 rounded-xl transition duration-300 hover:bg-yellow-50 dark:hover:bg-gray-700"
                                 >
-                                    <div className="p-4 bg-yellow-100 dark:bg-yellow-500 rounded-full flex-shrink-0 shadow-md">
+                                    <div className="p-4 bg-yellow-100 dark:bg-yellow-600 rounded-full flex-shrink-0 shadow-md">
                                         <item.icon className="w-6 h-6 text-yellow-700 dark:text-white" />
                                     </div>
                                     <div>
@@ -200,7 +200,7 @@ export default function NovoFormularioContato() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full flex items-center justify-center px-6 py-4 border border-transparent text-lg font-bold rounded-xl shadow-md text-gray-900 bg-yellow-500 hover:bg-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-500 focus:ring-opacity-50 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                className="w-full flex items-center justify-center px-6 py-4 border border-transparent text-lg font-bold rounded-xl shadow-md text-gray-900 bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-500 focus:ring-opacity-50 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {isSubmitting ? (
                                     <>

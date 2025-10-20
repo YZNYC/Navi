@@ -78,7 +78,7 @@ export default function Funcionamento() {
                     className="text-center mb-20"
                 >
                     <motion.div variants={itemVariants}>
-                        <Badge className="bg-yellow-100 text-yellow-700 mb-6 px-5 py-2.5 text-sm font-semibold">
+                        <Badge className="bg-gray-100 text-gray-700 mb-6 px-5 py-2.5 text-sm font-semibold">
                             <TrendingUp className="w-4 h-4 mr-2" />
                             Processo Simples
                         </Badge>
@@ -98,7 +98,7 @@ export default function Funcionamento() {
                 </motion.div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-                    <div className="hidden lg:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-orange-200 via-yellow-200 to-orange-200" />
+                    <div className="hidden lg:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-orange-200 via-yellow-200 to-orange-200 dark:from-gray-400 dark:to-gray-600 dark:bg-gradient-to-r" />
 
                     {steps.map((step, index) => (
                         <motion.div
@@ -122,9 +122,9 @@ export default function Funcionamento() {
                                             repeat: Infinity,
                                             delay: index * 0.5
                                         }}
-                                        className="absolute inset-0 bg-gradient-to-br from-orange-500 to-yellow-500 dark:from-yellow-600 dark:to-orange-500 dark:bg-gradient-to-br rounded-3xl blur-2xl opacity-50"
+                                        className="absolute inset-0 bg-gradient-to-br from-orange-500 to-yellow-500 dark:from-gray-700 dark:to-gray-800 dark:bg-gradient-to-br rounded-3xl blur-2xl opacity-50"
                                     />
-                                    <div className="relative w-24 h-24 bg-gradient-to-br from-orange-500 to-yellow-500 dark:from-yellow-400 dark:to-yellow-400 dark:bg-gradient-to-br rounded-3xl flex items-center justify-center shadow-2xl">
+                                    <div className="relative w-24 h-24 bg-gradient-to-br from-orange-500 to-yellow-500 dark:from-gray-400 dark:to-gray-600 dark:bg-gradient-to-br rounded-3xl flex items-center justify-center shadow-2xl">
                                         <step.icon className="w-12 h-12 text-white" />
                                     </div>
                                     <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-orange-100">
