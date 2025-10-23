@@ -101,7 +101,7 @@ export const HoveredLink = ({
   return (
     <a
       {...rest}
-      className="text-white dark:text-white hover:text-black/40 dark:hover:text-black/40 transition-transform duration-75 hover:scale-105 ">
+      className="text-white dark:text-gray-300 hover:text-black/40 dark:hover:text-black/40 transition-transform duration-75 hover:scale-105 ">
       {children}
     </a>
   );

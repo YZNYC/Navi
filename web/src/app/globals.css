@@ -45,7 +45,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #EAB308;
+  --background: #ffff;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -76,7 +76,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --background-gradient: linear-gradient(90deg, #f2b441, #ffc107, #ff8f00);
 }
+
 
 .dark {
   --background: oklch(0.145 0 0);
@@ -110,19 +112,22 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --background-gradient: linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-html, body {
-  scrollbar-width: none; 
+html,
+body {
+  scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
@@ -130,3 +135,11 @@ html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none;
 }
+
+body {
+  background: var(--background-gradient);
+}
+
+ .bg-gradient-hex {
+  background: linear-gradient(to bottom, #FBB430, #FBB430, #FBB430);
+} 
