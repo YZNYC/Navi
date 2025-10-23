@@ -70,7 +70,8 @@ model estacionamento {
   cnpj                       String                       @unique(map: "cnpj") @db.VarChar(18)
   url_foto_principal         String?                      @db.VarChar(255)
   endereco_completo          String                       @db.Text
-  localizacao                Unsupported("point")
+  latitude                   Decimal                      @db.Decimal(10, 8)
+  longitude                  Decimal                      @db.Decimal(10, 8)
   horario_abertura           DateTime?                    @db.Time(0)
   horario_fechamento         DateTime?                    @db.Time(0)
   dias_funcionamento         String?                      @db.VarChar(100)
@@ -83,7 +84,6 @@ model estacionamento {
   vaga                       vaga[]
 
   @@index([id_proprietario], map: "id_proprietario")
-  @@index([localizacao(length: 32)], map: "localizacao")
 }
 
 model estacionamento_funcionario {
@@ -179,7 +179,7 @@ model usuario {
   url_foto_perfil            String?                      @db.VarChar(255)
   papel                      usuario_papel
   data_criacao               DateTime                     @default(now()) @db.Timestamp(0)
-  ativo             Boolean?      @default(true)
+  ativo                      Boolean?                     @default(true)
   avaliacao                  avaliacao[]
   contrato_mensalista        contrato_mensalista[]
   estacionamento             estacionamento[]

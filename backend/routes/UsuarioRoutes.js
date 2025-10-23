@@ -1,7 +1,7 @@
 
 import express from 'express';
 import { listarUsuariosController,  obterUsuarioPorIdController,  criarUsuarioController,  atualizarUsuarioController, excluirUsuarioController} from '../controllers/UsuarioController.js';
-import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
+import { authMiddleware, authorize } from '../middlewares/authMiddlewares.js';
 
 const router = express.Router();
 

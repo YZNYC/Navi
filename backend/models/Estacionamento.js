@@ -11,13 +11,10 @@ const obterEstacionamentoPorId = async (id) => {
         where: { id_estacionamento: parseInt(id) },
     });
 };
-
 const criarEstacionamento = async (estacionamentoData) => {
-    const novoEstacionamento = await prisma.estacionamento.create({
-        data: estacionamentoData,
+    return await prisma.estacionamento.create({
+        data: estacionamentoData, 
     });
-
-    return novoEstacionamento.id_estacionamento;
 };
 
 const atualizarEstacionamento = async (id, estacionamentoData) => {
