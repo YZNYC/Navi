@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------
 // IMPORTAÇÕES
 // -----------------------------------------------------------------------------
+
 import { useState, useLayoutEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,15 +11,14 @@ import { z } from 'zod';
 import api from '../../lib/api';
 import Image from 'next/image';
 
+// -----------------------------------------------------------------------------
+// SCHEMAS DE VALIDAÇÃO (ZOD) - Sem alterações
+// -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-// SCHEMAS DE VALIDAÇÃO (ZOD)
-// -----------------------------------------------------------------------------
 const loginSchema = z.object({
     email: z.string().nonempty("O email é obrigatório").email({ message: "Insira um email válido" }),
     senha: z.string().nonempty("A senha é obrigatória"),
 });
-
 const cadastroSchema = z.object({
     nome: z.string().min(2, "O nome é muito curto"),
     sobrenome: z.string().min(2, "O sobrenome é muito curto"),
@@ -26,18 +26,16 @@ const cadastroSchema = z.object({
     email: z.string().nonempty("O email é obrigatório").email("Insira um email válido"),
     senha: z.string().min(8, "A senha precisa ter no mínimo 8 caracteres"),
 });
-
 const forgotPasswordSchema = z.object({
     email: z.string().nonempty("O email é obrigatório").email({ message: "Insira um email válido" }),
 });
 
-
 // -----------------------------------------------------------------------------
 // COMPONENTE PRINCIPAL DA PÁGINA
 // -----------------------------------------------------------------------------
+
 export default function AuthPage() {
     const backgroundSource = "/teste.png";
-
     return (
         <>
             <main className="min-h-screen flex items-center justify-center bg-[#F7F4F0] p-4 font-sans overflow-hidden">
@@ -49,10 +47,10 @@ export default function AuthPage() {
     );
 }
 
-
 // -----------------------------------------------------------------------------
 // GERENCIADOR DE VISUALIZAÇÃO E ANIMAÇÃO
 // -----------------------------------------------------------------------------
+
 const AuthViewManager = () => {
     const [view, setView] = useState('login');
     const [isAnimating, setIsAnimating] = useState(false);
@@ -62,8 +60,8 @@ const AuthViewManager = () => {
         const heights = {
             login: '720px',
             register: '870px',
-            // MELHORIA: A altura para o "Esqueci a Senha" foi aumentada para evitar cortes.
-            forgotPassword: '620px',
+
+            forgotPassword: '450px',
         };
         setContainerHeight(heights[view] || 'auto');
     }, [view]);
@@ -86,7 +84,7 @@ const AuthViewManager = () => {
                 {view === 'forgotPassword' && <ForgotPasswordForm onBackToLoginClick={() => changeView('login')} />}
             </div>
 
-            {/* Elementos da Animação */}
+
             <div className={`absolute inset-0 z-20 bg-[#FFFBEB] transition-transform duration-700 ease-[cubic-bezier(0.8,0,0.2,1)] ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`} style={{ transitionDelay: isAnimating ? '0s' : '600ms' }}></div>
             <div className={`absolute inset-0 z-30 bg-[#FFD600] transition-transform duration-700 ease-[cubic-bezier(0.8,0,0.2,1)] ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`} style={{ transitionDelay: isAnimating ? '100ms' : '400ms' }}></div>
             <div className={`absolute inset-0 z-40 bg-[#404040] transition-transform duration-700 ease-[cubic-bezier(0.8,0,0.2,1)] ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`} style={{ transitionDelay: isAnimating ? '200ms' : '200ms' }}>
@@ -95,19 +93,21 @@ const AuthViewManager = () => {
                 <div className="absolute inset-x-1/2 -translate-x-1/2 w-1.5 h-full top-0 opacity-40 overflow-hidden">
                     <div className="absolute w-full h-[200%]" style={{ background: 'repeating-linear-gradient(transparent, transparent 15px, #666 15px, #666 35px)', animation: isAnimating ? 'driveAnim 1.2s linear infinite' : 'none' }}></div>
                 </div>
-                <div className={`absolute top-full left-1/2 -translate-x-1/2 transition-transform duration-1000 ease-out ${isAnimating ? '-translate-y-[600px] delay-300' : 'translate-y-24'}`}>
-                    <CarIcon className="w-20" />
+
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 transition-transform duration-1000 ease-out ${isAnimating ? '-translate-y-[450px] delay-300' : 'translate-y-24'}`}>
+                    <CarIcon className="w-200 h-80" />
                 </div>
             </div>
         </div>
     );
 };
 
-
 // -----------------------------------------------------------------------------
 // SUB-COMPONENTES DE FORMULÁRIO
 // -----------------------------------------------------------------------------
+
 const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
+
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(loginSchema), mode: 'onBlur',
     });
@@ -125,13 +125,8 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
         try {
             const response = await api.post('/auth/login', data);
             const { token } = response.data;
-
-            if (lembrarDeMim) {
-                localStorage.setItem('authToken', token);
-            } else {
-                sessionStorage.setItem('authToken', token);
-            }
-
+            if (lembrarDeMim) localStorage.setItem('authToken', token);
+            else sessionStorage.setItem('authToken', token);
             setApiSuccess("Login bem-sucedido! Redirecionando...");
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Não foi possível conectar ao servidor.';
@@ -143,16 +138,15 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 
     return (
         <div className="p-6 sm:p-10 w-full flex flex-col">
+
             <div className="text-center mb-8">
                 <Image src="/light.png" alt="Logo" width={56} height={56} className="mx-auto" />
                 <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-gray-800 tracking-tight">Bem-vindo de Volta</h1>
                 <p className="mt-1 text-sm text-gray-500">Acesse seu painel</p>
             </div>
-
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
                 <SoftInput id="email" type="email" label="Endereço de Email" register={register('email')} error={errors.email} />
                 <SoftInput id="senha" type='password' label="Senha" register={register('senha')} error={errors.senha} hasIcon={true} />
-
                 <div className="flex items-center justify-between pt-1 text-sm">
                     <label className="flex items-center gap-2 text-yellow-600 cursor-pointer custom-checkbox">
                         <input type="checkbox" className="absolute opacity-0 w-0 h-0" checked={lembrarDeMim} onChange={(e) => setLembrarDeMim(e.target.checked)} />
@@ -162,17 +156,22 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
                     <button type="button" onClick={onForgotPasswordClick} className="font-semibold text-yellow-600 underline-grow">Esqueci a senha</button>
                 </div>
 
-                {apiSuccess && <p className='text-green-600 font-semibold text-sm text-center pt-2'>{apiSuccess}</p>}
-                {errors.apiError && <p className='text-red-500 text-sm text-center pt-2'>{errors.apiError.message}</p>}
-
-                <div className="pt-4"><button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Aguarde...' : 'Entrar'}</button></div>
+                <div>
+                    {apiSuccess && <p className='text-green-600 font-semibold'>{apiSuccess}</p>}
+                    {errors.apiError && <p className='text-red-500'>{errors.apiError.message}</p>}
+                </div>
+                <div className="pt-2">
+                    <button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Aguarde...' : 'Entrar'}</button>
+                </div>
             </form>
+
 
             <div className="my-6 flex items-center gap-4"><div className="h-px bg-gray-200 flex-1"></div><span className="text-xs text-gray-400 font-medium">ou</span><div className="h-px bg-gray-200 flex-1"></div></div>
             <div className="flex flex-col sm:flex-row gap-4">
                 <button type="button" onClick={() => { setGoogleLoading(true); setTimeout(() => setGoogleLoading(false), 2000); }} className="social-button">{googleLoading ? <span className="loader"></span> : <GoogleIcon className="w-5 h-5" />} Google</button>
                 <button type="button" onClick={() => { setFacebookLoading(true); setTimeout(() => setFacebookLoading(false), 2000); }} className="social-button">{facebookLoading ? <span className="loader"></span> : <FacebookIcon className="w-5 h-5" />} Facebook</button>
             </div>
+
             <div className="mt-8 text-center text-sm text-gray-500">
                 Não tem uma conta?
                 <button onClick={onRegisterClick} className="font-semibold text-yellow-600 underline-grow ml-1">Cadastre-se</button>
@@ -181,12 +180,12 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
     );
 };
 
+
 const RegisterForm = ({ onLoginClick }) => {
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(cadastroSchema), mode: 'onBlur',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    // MELHORIA: Estados para loading dos botões sociais adicionados.
     const [googleLoading, setGoogleLoading] = useState(false);
     const [facebookLoading, setFacebookLoading] = useState(false);
     const [apiSuccess, setApiSuccess] = useState('');
@@ -235,7 +234,6 @@ const RegisterForm = ({ onLoginClick }) => {
                 <div className="pt-4"><button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Cadastrando...' : 'Criar Conta'}</button></div>
             </form>
 
-            {/* MELHORIA: Botões sociais adicionados de volta ao formulário de cadastro. */}
             <div className="my-6 flex items-center gap-4"><div className="h-px bg-gray-200 flex-1"></div><span className="text-xs text-gray-400 font-medium">ou</span><div className="h-px bg-gray-200 flex-1"></div></div>
             <div className="flex flex-col sm:flex-row gap-4">
                 <button type="button" onClick={() => { setGoogleLoading(true); setTimeout(() => setGoogleLoading(false), 2000); }} className="social-button">{googleLoading ? <span className="loader"></span> : <GoogleIcon className="w-5 h-5" />} Google</button>
@@ -251,7 +249,8 @@ const RegisterForm = ({ onLoginClick }) => {
 };
 
 const ForgotPasswordForm = ({ onBackToLoginClick }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm({
+
+    const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(forgotPasswordSchema), mode: 'onBlur',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -259,27 +258,41 @@ const ForgotPasswordForm = ({ onBackToLoginClick }) => {
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
+        clearErrors("apiError");
         setApiSuccess('');
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setApiSuccess('Se este email estiver cadastrado, um link de recuperação foi enviado!');
-        setIsSubmitting(false);
-        setTimeout(() => onBackToLoginClick(), 3000);
-    };
 
+        try {
+            const response = await api.post('/auth/forgot-password', data);
+            setApiSuccess(response.data.message);
+            setTimeout(() => onBackToLoginClick(), 5000);
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Erro ao processar sua solicitação.';
+            setError("apiError", { type: 'custom', message: errorMessage });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
     return (
         <div className="p-6 sm:p-10 w-full flex flex-col">
             <div className="text-center mb-8">
                 <Image src="/light.png" alt="Logo" width={56} height={56} className="mx-auto" />
-                <h1 className="mt-4 text-2xl font-bold">Recuperar Senha</h1>
-                <p className="mt-1 text-sm text-gray-500">Insira seu email para receber o link.</p>
+                <h1 className="mt-4 text-2xl font-bold text-gray-800 tracking-tight">Esqueceu sua senha?</h1>
+                <p className="mt-1 text-sm text-gray-500">Insira seu email e enviaremos um link para você criar uma nova senha.</p>
             </div>
+
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-                <SoftInput id="email" type="email" label="Endereço de Email" register={register('email')} error={errors.email} />
+                <SoftInput id="email" type="email" label="Seu endereço de Email" register={register('email')} error={errors.email} />
 
-                {apiSuccess && <p className='text-green-600 font-semibold text-sm text-center pt-2'>{apiSuccess}</p>}
+                <div >
+                    {apiSuccess && <p className='text-green-600 font-semibold'>{apiSuccess}</p>}
+                    {errors.apiError && <p className='text-red-500'>{errors.apiError.message}</p>}
+                </div>
 
-                <div className="pt-4"><button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Enviando...' : 'Enviar Link'}</button></div>
+                <div className="pt-2">
+                    <button type="submit" disabled={isSubmitting || !!apiSuccess} className="main-button">{isSubmitting ? 'Enviando...' : 'Enviar Link de Recuperação'}</button>
+                </div>
             </form>
+
             <div className="mt-8 text-center text-sm text-gray-500">
                 Lembrou da senha?
                 <button onClick={onBackToLoginClick} className="font-semibold text-yellow-600 underline-grow ml-1">Faça login</button>
@@ -289,18 +302,11 @@ const ForgotPasswordForm = ({ onBackToLoginClick }) => {
 };
 
 
-// --- O RESTO DOS COMPONENTES (INPUT, BACKGROUND, ESTILOS, ÍCONES) ---
-// (Sem alterações, omitidos por brevidade, mas estão no seu código original)
-
 // -----------------------------------------------------------------------------
-// COMPONENTES DE UI REUTILIZÁVEIS
+// COMPONENTES DE UI E ESTILOS
 // -----------------------------------------------------------------------------
 
-/**
- * Componente de Input customizado com animações.
- */
 function SoftInput({ id, label, type = 'text', register, error, hasIcon = false }) {
-    // Estado interno para visibilidade da senha
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const togglePasswordVisibility = () => setIsPasswordVisible(prev => !prev);
 
@@ -319,63 +325,217 @@ function SoftInput({ id, label, type = 'text', register, error, hasIcon = false 
     );
 }
 
-/**
- * Componente que renderiza um vídeo ou imagem como fundo de tela.
- */
 function DynamicBackground({ src }) {
     const isVideo = /\.(mp4|webm)$/i.test(src);
     return isVideo
         ? <video className="absolute inset-0 w-full h-full object-cover -z-10" autoPlay loop muted><source src={src} type={`video/${src.split('.').pop()}`} /></video>
         : <Image src={src} alt="background" fill className="absolute inset-0 object-cover -z-10 opacity-40" />;
 }
-
-
-// -----------------------------------------------------------------------------
-// ESTILOS GLOBAIS E ÍCONES
-// -----------------------------------------------------------------------------
-
-/**
- * Componente que injeta os estilos globais na página usando `style jsx`.
- */
 function GlobalStyles() {
     return (
         <style jsx global>{`
             :root {
-                --c-yellow: #FFD600; --c-yellow-dark: #f9a825; --c-text-on-yellow: #4E431B;
-                --c-input-bg: #FCFBF8; --c-input-border: #F3EAE0; --c-input-text: #6e5847;
-                --c-label-text: #b8aaa0; --c-error: #ef4444;
+                --c-yellow: #FFD600; 
+                --c-yellow-dark: #f9a825; 
+                --c-text-on-yellow: #4E431B;
+                --c-input-bg: #FCFBF8; 
+                --c-input-border: #F3EAE0; 
+                --c-input-text: #6e5847;
+                --c-label-text: #b8aaa0; 
+                --c-error: #ef4444;
             }
-            .main-button { width: 100%; padding: 14px; font-weight: 600; color: var(--c-text-on-yellow); background: var(--c-yellow); border-radius: 14px; transition: all 0.3s; }
-            .main-button:disabled { background-color: #f9a82580; cursor: not-allowed; }
-            .social-button { flex: 1; display: inline-flex; justify-content: center; align-items: center; gap: 8px; padding: 12px; font-weight: 500; color: #374151; background: #fff; border: 1px solid #dcdfe2; border-radius: 12px; transition: all 0.2s; }
-            .soft-input-wrapper { position: relative; overflow: hidden; border-radius: 14px; }
-            .soft-input { width: 100%; font-size: 1rem; color: var(--c-input-text); background: var(--c-input-bg); border: 1px solid var(--c-input-border); border-radius: 14px; padding: 26px 18px 10px 18px; outline: none; transition: all 0.2s ease-out; position: relative; z-index: 1; }
-            .soft-input[type="password"]::-ms-reveal { display: none; }
-            .soft-label { position: absolute; top: 18px; left: 19px; color: var(--c-label-text); pointer-events: none; transition: all 0.2s ease-out; z-index: 2; }
-            .soft-input:focus + .soft-label, .soft-input:not(:placeholder-shown) + .soft-label { top: 8px; font-size: 0.75rem; color: var(--c-text-on-yellow); font-weight: 500; }
-            .accent-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--c-yellow-dark); transform: scaleX(0); transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1); transform-origin: left; z-index: 3; }
-            .soft-input-wrapper:focus-within .accent-bar { transform: scaleX(1); }
-            .soft-input-wrapper.error .soft-input { border-color: var(--c-error); animation: shake 0.5s ease-out; }
-            .error-message { position: absolute; bottom: 0; left: 2px; color: var(--c-error); font-size: 0.8rem; }
-            .loader { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(249, 168, 37, 0.2); border-top-color: var(--c-yellow-dark); animation: spin 1s linear infinite; }
-            .underline-grow { position: relative; text-decoration: none; padding-bottom: 2px;}
-            .underline-grow::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 0; background-color: var(--c-yellow-dark); transition: width 0.3s ease-in-out; }
-            .underline-grow:hover::after { width: 100%; }
-            .custom-checkbox .checkbox-visual { display: flex; align-items: center; justify-content: center; width: 1rem; height: 1rem; border: 1px solid #9ca3af; border-radius: 0.25rem; transition: all 0.2s; }
-            .custom-checkbox .check-icon { width: 0.75rem; height: 0.75rem; color: var(--c-text-on-yellow); opacity: 0; transform: scale(0.5); transition: all 0.2s; }
-            .custom-checkbox input:checked + .checkbox-visual { background-color: var(--c-yellow); border-color: var(--c-yellow-dark); }
-            .custom-checkbox input:checked + .checkbox-visual .check-icon { opacity: 1; transform: scale(1); }
-            @keyframes shake { 10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-2px)}40%,60%{transform:translateX(2px)} }
-            @keyframes spin { to { transform: rotate(360deg); } }
-            @keyframes driveAnim { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+
+            .main-button { 
+                width: 100%; 
+                padding: 14px; 
+                font-weight: 600; 
+                color: var(--c-text-on-yellow); 
+                background: var(--c-yellow); 
+                border-radius: 14px; 
+                transition: all 0.25s ease-out; /* Transição mais rápida e suave */
+            }
+
+            .main-button:hover:not(:disabled) {
+                background-color: #ffde33; /* Amarelo um pouco mais claro no hover */
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(249, 168, 37, 0.2);
+            }
+
+            .main-button:disabled { 
+                background-color: #f9a82580; 
+                cursor: not-allowed; 
+            }
+            
+            .social-button { 
+                flex: 1; 
+                display: inline-flex; 
+                justify-content: center; 
+                align-items: center; 
+                gap: 8px; 
+                padding: 12px; 
+                font-weight: 500; 
+                color: #374151; 
+                background: #fff; 
+                border: 1px solid #dcdfe2; 
+                border-radius: 12px; 
+                transition: all 0.2s; 
+            }
+            .social-button:hover {
+                border-color: #ccc;
+                background-color: #f9fafb;
+            }
+            
+            .soft-input-wrapper { 
+                position: relative; 
+                overflow: hidden; 
+                border-radius: 14px; 
+            }
+            
+            .soft-input { 
+                width: 100%; 
+                font-size: 1rem; 
+                color: var(--c-input-text); 
+                background: var(--c-input-bg); 
+                border: 1px solid var(--c-input-border); 
+                border-radius: 14px; 
+                padding: 26px 18px 10px 18px; 
+                outline: none; 
+                transition: all 0.2s ease-out; 
+                position: relative; 
+                z-index: 1; 
+            }
+            
+            .soft-input[type="password"]::-ms-reveal { 
+                display: none; 
+            }
+            
+            .soft-label { 
+                position: absolute; 
+                top: 18px; 
+                left: 19px; 
+                color: var(--c-label-text); 
+                pointer-events: none; 
+                transition: all 0.2s ease-out; 
+                z-index: 2; 
+            }
+            
+            .soft-input:focus + .soft-label, 
+            .soft-input:not(:placeholder-shown) + .soft-label { 
+                top: 8px; 
+                font-size: 0.75rem; 
+                color: var(--c-text-on-yellow); 
+                font-weight: 500; 
+            }
+            
+            .accent-bar { 
+                position: absolute; 
+                bottom: 0; 
+                left: 0; 
+                right: 0; 
+                height: 2px; 
+                background: var(--c-yellow-dark); 
+                transform: scaleX(0); 
+                transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1); 
+                transform-origin: left; 
+                z-index: 3; 
+            }
+            
+            .soft-input-wrapper:focus-within .accent-bar { 
+                transform: scaleX(1); 
+            }
+            
+            .soft-input-wrapper.error .soft-input { 
+                border-color: var(--c-error); 
+                animation: shake 0.5s ease-out; 
+            }
+            
+            .error-message { 
+                position: absolute; 
+                bottom: -5px; 
+                left: 2px; 
+                color: var(--c-error); 
+                font-size: 0.8rem; 
+            }
+            
+            .loader { 
+                width: 18px; 
+                height: 18px; 
+                border-radius: 50%; 
+                border: 3px solid rgba(249, 168, 37, 0.2); 
+                border-top-color: var(--c-yellow-dark); 
+                animation: spin 1s linear infinite; 
+            }
+            
+            .underline-grow { 
+                position: relative; 
+                text-decoration: none; 
+                padding-bottom: 2px;
+            }
+            
+            .underline-grow::after { 
+                content: ''; 
+                position: absolute; 
+                width: 0; 
+                height: 1px; 
+                bottom: 0; 
+                left: 0; 
+                background-color: var(--c-yellow-dark); 
+                transition: width 0.3s ease-in-out; 
+            }
+            
+            .underline-grow:hover::after { 
+                width: 100%; 
+            }
+            
+            .custom-checkbox .checkbox-visual { 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                width: 1rem; 
+                height: 1rem; 
+                border: 1px solid #9ca3af; 
+                border-radius: 0.25rem; 
+                transition: background-color 0.2s, border-color 0.2s; 
+            }
+            
+            .custom-checkbox .check-icon { 
+                width: 0.75rem; 
+                height: 0.75rem; 
+                color: var(--c-text-on-yellow); 
+                opacity: 0; 
+                transform: scale(0.5); 
+                transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out; 
+            }
+            
+            .custom-checkbox input:checked + .checkbox-visual { 
+                background-color: var(--c-yellow); 
+                border-color: var(--c-yellow-dark); 
+            }
+            
+            .custom-checkbox input:checked + .checkbox-visual .check-icon { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+
+            @keyframes shake { 
+                10%,90%{transform:translateX(-1px)}
+                20%,80%{transform:translateX(2px)}
+                30%,50%,70%{transform:translateX(-2px)}
+                40%,60%{transform:translateX(2px)} 
+            }
+            
+            @keyframes spin { 
+                to { transform: rotate(360deg); } 
+            }
+
+            @keyframes driveAnim { 
+                from { transform: translateY(-50%); } 
+                to { transform: translateY(0); } 
+            }
         `}</style>
     );
 }
 
-
-/**
- * Ícones SVG como componentes React.
- */
 function CheckIcon(props) { return (<svg fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>); }
 function CarIcon(props) { return (<svg viewBox="0 0 120 260" xmlns="http://www.w3.org/2000/svg" {...props}> <defs> <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5" result="coloredBlur" /><feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs><path d="M 50,10 C 30,10 20,25 20,50 L 20,210 C 20,235 30,250 50,250 L 70,250 C 90,250 100,235 100,210 L 100,50 C 100,25 90,10 70,10 L 50,10 Z" fill="#FFD600" /><path d="M 85,70 L 35,70 L 30,100 L 30,190 L 35,220 L 85,220 L 90,190 L 90,100 L 85,70 Z" fill="#111" fillOpacity="0.8" /><path d="M 25,40 L 95,40 L 90,55 L 30,55 Z" fill="#fff" filter="url(#glow)" /><path d="M 25,220 L 95,220 L 90,205 L 30,205 Z" fill="#EF4444" filter="url(#glow)" /></svg>); }
 function EyeIcon(props) { return (<svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>); }
