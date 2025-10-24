@@ -1,5 +1,9 @@
 'use client';
 
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES
+// -----------------------------------------------------------------------------
+
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +12,9 @@ import api from '../../lib/api';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
+// -----------------------------------------------------------------------------
+// SCHEMAS DE VALIDAÇÃO (ZOD) - Sem alterações
+// -----------------------------------------------------------------------------
 
 
 const resetSchema = z.object({
@@ -18,8 +25,10 @@ const resetSchema = z.object({
   path: ["confirmarSenha"], 
 });
 
+// -----------------------------------------------------------------------------
+// FORMULÁRIO RESETAR SENHA
+// -----------------------------------------------------------------------------
 
-// Forms e Lógica da Página
 export default function ResetPasswordPage() {
 
     const [isMounted, setIsMounted] = useState(false);

@@ -59,8 +59,7 @@ const AuthViewManager = () => {
     useLayoutEffect(() => {
         const heights = {
             login: '720px',
-            register: '870px',
-
+            register: '900px',
             forgotPassword: '450px',
         };
         setContainerHeight(heights[view] || 'auto');
@@ -71,6 +70,11 @@ const AuthViewManager = () => {
         setIsAnimating(true);
         setTimeout(() => setView(newView), 700);
         setTimeout(() => setIsAnimating(false), 1600);
+    };
+    const maxHeightClasses = {
+        login: 'max-h-[90vh] sm:max-h-[720px]',
+        register: 'max-h-[95vh] sm:max-h-[870px]',
+        forgotPassword: 'max-h-[90vh] sm:max-h-[620px]',
     };
 
     return (
@@ -103,7 +107,7 @@ const AuthViewManager = () => {
 };
 
 // -----------------------------------------------------------------------------
-// SUB-COMPONENTES DE FORMULÁRIO
+// FORMULÁRIOS LOGIN
 // -----------------------------------------------------------------------------
 
 const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
@@ -180,8 +184,12 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
     );
 };
 
+// -----------------------------------------------------------------------------
+// FORMULÁRIOS REGISTRO
+// -----------------------------------------------------------------------------
 
 const RegisterForm = ({ onLoginClick }) => {
+    // A lógica de hooks e a função onSubmit permanecem as mesmas.
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(cadastroSchema), mode: 'onBlur',
     });
@@ -194,15 +202,15 @@ const RegisterForm = ({ onLoginClick }) => {
         setIsSubmitting(true);
         clearErrors("apiError");
         setApiSuccess('');
-
+        
         let apiData = { ...data };
         apiData.nome = `${data.nome} ${data.sobrenome}`.trim();
         delete apiData.sobrenome;
-
+        
         try {
             await api.post('/usuarios/cadastro', apiData);
             setApiSuccess("Cadastro realizado! Você será redirecionado para o login.");
-            setTimeout(() => onLoginClick(), 2500);
+            setTimeout(() => onLoginClick(), 2500); 
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Erro ao realizar o cadastro.';
             setError("apiError", { type: 'custom', message: errorMessage });
@@ -210,44 +218,54 @@ const RegisterForm = ({ onLoginClick }) => {
             setIsSubmitting(false);
         }
     };
-
+    
     return (
-        <div className="p-6 sm:p-10 w-full flex flex-col">
-            <div className="text-center mb-8">
+       
+         <div className="p-4 sm:p-10 w-full flex flex-col h-full">
+            <div className="text-center mb-6 sm:mb-8">
                 <Image src="/light.png" alt="Logo" width={56} height={56} className="mx-auto" />
-                <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-gray-800 tracking-tight">Crie Sua Conta</h1>
+           
+                <h1 className="mt-2 sm:mt-4 text-2xl sm:text-3xl font-bold text-gray-800 tracking-tight">Crie Sua Conta</h1>
                 <p className="mt-1 text-sm text-gray-500">Rápido e sem complicações</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3 sm:space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
                     <SoftInput id="nome" label="Nome" register={register('nome')} error={errors.nome} />
                     <SoftInput id="sobrenome" label="Sobrenome" register={register('sobrenome')} error={errors.sobrenome} />
                 </div>
+                
                 <SoftInput id="telefone" label="Telefone (Opcional)" type="tel" register={register('telefone')} error={errors.telefone} />
                 <SoftInput id="email" type="email" label="Endereço de Email" register={register('email')} error={errors.email} />
                 <SoftInput id="senha" type="password" label="Senha" register={register('senha')} error={errors.senha} hasIcon={true} />
 
-                {apiSuccess && <p className='text-green-600 font-semibold text-sm text-center pt-2'>{apiSuccess}</p>}
-                {errors.apiError && <p className='text-red-500 text-sm text-center pt-2'>{errors.apiError.message}</p>}
-
-                <div className="pt-4"><button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Cadastrando...' : 'Criar Conta'}</button></div>
+                <div >
+                    {apiSuccess && <p className='text-green-600 font-semibold'>{apiSuccess}</p>}
+                    {errors.apiError && <p className='text-red-500'>{errors.apiError.message}</p>}
+                </div>
+                
+                <div className="pt-2">
+                    <button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Cadastrando...' : 'Criar Conta'}</button>
+                </div>
             </form>
 
-            <div className="my-6 flex items-center gap-4"><div className="h-px bg-gray-200 flex-1"></div><span className="text-xs text-gray-400 font-medium">ou</span><div className="h-px bg-gray-200 flex-1"></div></div>
+            <div className="my-4 sm:my-6 flex items-center gap-4"><div className="h-px bg-gray-200 flex-1"></div><span className="text-xs text-gray-400 font-medium">ou</span><div className="h-px bg-gray-200 flex-1"></div></div>
             <div className="flex flex-col sm:flex-row gap-4">
                 <button type="button" onClick={() => { setGoogleLoading(true); setTimeout(() => setGoogleLoading(false), 2000); }} className="social-button">{googleLoading ? <span className="loader"></span> : <GoogleIcon className="w-5 h-5" />} Google</button>
                 <button type="button" onClick={() => { setFacebookLoading(true); setTimeout(() => setFacebookLoading(false), 2000); }} className="social-button">{facebookLoading ? <span className="loader"></span> : <FacebookIcon className="w-5 h-5" />} Facebook</button>
             </div>
 
-            <div className="mt-8 text-center text-sm text-gray-500">
+            <div className="mt-6 sm:mt-8 text-center text-sm text-gray-500">
                 Já é um membro?
                 <button onClick={onLoginClick} className="font-semibold text-yellow-600 underline-grow ml-1">Faça login</button>
             </div>
-        </div>
+         </div>
     );
 };
 
+// -----------------------------------------------------------------------------
+// FORMULÁRIOS ESQUECI A SENHA
+// -----------------------------------------------------------------------------
 const ForgotPasswordForm = ({ onBackToLoginClick }) => {
 
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
@@ -542,8 +560,4 @@ function EyeIcon(props) { return (<svg fill="none" viewBox="0 0 24 24" strokeWid
 function EyeSlashIcon(props) { return (<svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L6.228 6.228" /></svg>); }
 function GoogleIcon(props) { return (<svg viewBox="0 0 24 24" {...props}><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" /><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" /><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" /></svg>) }
 function FacebookIcon(props) { return (<svg className="w-6 h-6 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"></path></svg>) }
-import LoginForm from "@/components/login-form";
 
-export default function LoginPage() {
-  return <LoginForm />;
-}
