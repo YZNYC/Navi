@@ -15,7 +15,12 @@ CREATE TABLE usuario (
     telefone VARCHAR(20),
     url_foto_perfil VARCHAR(255),
     papel ENUM('ADMINISTRADOR', 'PROPRIETARIO', 'MOTORISTA') NOT NULL,
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE,
+
+    -- Colunas para recuperação de senha
+    resetToken VARCHAR(255) NULL UNIQUE,
+    resetTokenExpires DATETIME NULL
 );
 
 -- =================================================================================
@@ -28,7 +33,8 @@ CREATE TABLE estacionamento (
     cnpj VARCHAR(18) NOT NULL UNIQUE,
     url_foto_principal VARCHAR(255),
     endereco_completo TEXT NOT NULL,
-    localizacao POINT NOT NULL, -- CAMPO NOVO: Substitui latitude e longitude por um tipo geoespacial otimizado.
+    latitude DECIMAL(10, 8) NOT NULL,    
+    longitude DECIMAL(10, 8) NOT NULL,      
     horario_abertura TIME,
     horario_fechamento TIME,
     dias_funcionamento VARCHAR(100),
@@ -36,11 +42,8 @@ CREATE TABLE estacionamento (
     
     FOREIGN KEY (id_proprietario) REFERENCES usuario(id_usuario)
         ON DELETE RESTRICT
-        ON UPDATE CASCADE,
-
-    SPATIAL INDEX(localizacao) -- ÍNDICE NOVO: Essencial para buscas rápidas por proximidade.
+        ON UPDATE CASCADE
 );
-
 -- =================================================================================
 -- Permite que proprietários concedam acesso a seus estacionamentos para outros usuários.
 -- =================================================================================
