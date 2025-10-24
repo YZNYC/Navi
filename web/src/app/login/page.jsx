@@ -255,7 +255,7 @@ const RegisterForm = ({ onLoginClick }) => {
                 <button type="button" onClick={() => { setFacebookLoading(true); setTimeout(() => setFacebookLoading(false), 2000); }} className="social-button">{facebookLoading ? <span className="loader"></span> : <FacebookIcon className="w-5 h-5" />} Facebook</button>
             </div>
 
-            <div className="mt-6 sm:mt-8 text-center text-sm text-gray-500">
+            <div className="mt-6 sm:mt-8 text-center text-sm text-gray-500 p-8">
                 Já é um membro?
                 <button onClick={onLoginClick} className="font-semibold text-yellow-600 underline-grow ml-1">Faça login</button>
             </div>

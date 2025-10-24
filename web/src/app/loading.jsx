@@ -1,11 +1,14 @@
+// -----------------------------------------------------------------------------
+// VER ISSO DPS EM
+// -----------------------------------------------------------------------------
+
+
 'use client';
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 export default function Loading() {
-  // Este componente será exibido automaticamente pelo Next.js
-  // enquanto o conteúdo da página principal estiver carregando.
-  
+
   return (
     <main className="min-h-screen w-full flex flex-col items-center justify-center bg-[#F7F4F0]">
       <div className="w-64 h-64">
