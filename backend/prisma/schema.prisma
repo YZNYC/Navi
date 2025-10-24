@@ -180,6 +180,8 @@ model usuario {
   papel                      usuario_papel
   data_criacao               DateTime                     @default(now()) @db.Timestamp(0)
   ativo                      Boolean?                     @default(true)
+  resetToken                 String?                      @unique(map: "resetToken") @db.VarChar(255)
+  resetTokenExpires          DateTime?                    @db.DateTime(0)
   avaliacao                  avaliacao[]
   contrato_mensalista        contrato_mensalista[]
   estacionamento             estacionamento[]
@@ -187,6 +189,10 @@ model usuario {
   log                        log[]
   reserva                    reserva[]
   veiculo                    veiculo[]
+  model usuario {
+  resetToken          String?    @unique
+  resetTokenExpires   DateTime?
+}
 }
 
 model vaga {

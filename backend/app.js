@@ -1,8 +1,5 @@
 
 import 'dotenv/config';
-
-console.log('--- Verificando variáveis de ambiente ---');
-console.log('DATABASE_URL lida:', process.env.DATABASE_URL ? 'SIM' : 'NÃO');
 console.log('------------------------------------');
 
 import cors from 'cors';
