@@ -189,10 +189,6 @@ model usuario {
   log                        log[]
   reserva                    reserva[]
   veiculo                    veiculo[]
-  model usuario {
-  resetToken          String?    @unique
-  resetTokenExpires   DateTime?
-}
 }
 
 model vaga {
