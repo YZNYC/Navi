@@ -1,12 +1,20 @@
 'use client';
 
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES E ELEMENTOS AUXILIARES
+// -----------------------------------------------------------------------------
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Check, CheckCircle, Clock, BarChart } from 'lucide-react';
 
-// --- DADOS PARA OS CARDS DE PÚBLICO ---
+
+// -----------------------------------------------------------------------------
+// DADOS PARA OS CARDS DE PÚBLICO
+// -----------------------------------------------------------------------------
+
 const tiers = {
   motorista: {
     individual: { name: "Para o Motorista", description: "Tudo que você precisa para estacionar sem estresse.", features: ["Encontre vagas em tempo real", "Reserve com antecedência", "Pague direto pelo app", "Gerencie seus veículos"] },
@@ -22,14 +30,16 @@ const tiers = {
   },
 };
 
-// --- DADOS PARA A GRADE DE FEATURES ---
 const secondaryFeatures = [
   { icon: CheckCircle, title: 'Check-in e Check-out Simples', description: 'Registre a entrada e saída de veículos com apenas alguns cliques.' },
   { icon: Clock, title: 'Controle de Tempo Real', description: 'Acompanhe o tempo de permanência de cada veículo e evite erros na cobrança.' },
   { icon: BarChart, title: 'Relatórios Claros', description: 'Acesse relatórios de faturamento para entender a performance do seu negócio.' },
 ];
 
-// --- SUB-COMPONENTES INTERNOS ---
+// -----------------------------------------------------------------------------
+// CARDS DE PREÇO
+// -----------------------------------------------------------------------------
+
 const PricingCard = ({ tier, isColetivo, className }) => {
   const data = isColetivo ? tier.coletivo : tier.individual;
   return (
@@ -50,6 +60,10 @@ const PricingCard = ({ tier, isColetivo, className }) => {
   );
 };
 
+// -----------------------------------------------------------------------------
+// CARD DE FEATURE
+// -----------------------------------------------------------------------------
+
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <div className="flex flex-col items-center text-center p-6 py-8 group">
     <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/70 dark:bg-slate-800/50 shadow-lg border border-white/20 dark:border-slate-700 transition-all duration-300 ease-in-out group-hover:bg-[#FFD600] group-hover:dark:bg-indigo-500 group-hover:scale-110 group-hover:shadow-xl">
@@ -64,67 +78,69 @@ const HalfCircle = (props) => (
   <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full ${props.className}`} />
 );
 
-// --- COMPONENTE PRINCIPAL ---
+// -----------------------------------------------------------------------------
+// CONTEUDO PRINCIPAL 
+// -----------------------------------------------------------------------------
+
 const SecondaryFeaturesSection = () => {
   const [isColetivo, setIsColetivo] = useState(false);
 
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
-      
-      {/* Camadas de Fundo (Claro e Escuro) */}
+
+
       <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }}></div>
-      <div  style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }}></div>
-      
-      {/* Decorações de Fundo */}
+      <div style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }}></div>
+
       <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -left-1/4 w-3/5 h-3/5 rounded-full bg-[#ff8f00] dark:bg-purple-600/30 blur-[150px] filter -z-10"></div>
       <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -right-1/4 w-3/5 h-3/5 rounded-full bg-[#f2b441] dark:bg-blue-600/30 blur-[150px] filter -z-10"></div>
-      <HalfCircle 
-        className="absolute top-0 -left-[125px] sm:-left-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white" 
+      <HalfCircle
+        className="absolute top-0 -left-[125px] sm:-left-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white"
       />
-      <HalfCircle 
+      <HalfCircle
         className="absolute bottom-0 -right-[125px] sm:-right-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white transform rotate-180"
       />
-      
-      {/* Container Principal do Conteúdo */}
+
+
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
-        
-        {/* Bloco da Grade de Features */}
+
+
         <div className="relative">
-            <div className="mx-auto max-w-4xl text-left">
-              <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-indigo-400">Painel do Proprietário</p>
-              <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-white">Gerenciamento Descomplicado</h2>
-              <p className="mt-6 max-w-2xl text-xl text-gray-800 dark:text-slate-300">Ferramentas poderosas para você ter o controle total do seu estacionamento, onde quer que esteja.</p>
-            </div>
-            <div className="mt-20 mx-auto w-11/12 max-w-screen-xl">
-              <div className="p-8 sm:p-12 bg-white/30 dark:bg-slate-800/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10 sm:gap-x-8 lg:gap-x-16">
-                  {secondaryFeatures.map((feature, index) => (
-                    <FeatureCard key={index} {...feature} />
-                  ))}
-                </div>
+          <div className="mx-auto max-w-4xl text-left">
+            <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-indigo-400">Painel do Proprietário</p>
+            <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-white">Gerenciamento Descomplicado</h2>
+            <p className="mt-6 max-w-2xl text-xl text-gray-800 dark:text-slate-300">Ferramentas poderosas para você ter o controle total do seu estacionamento, onde quer que esteja.</p>
+          </div>
+          <div className="mt-20 mx-auto w-11/12 max-w-screen-xl">
+            <div className="p-8 sm:p-12 bg-white/30 dark:bg-slate-800/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10 sm:gap-x-8 lg:gap-x-16">
+                {secondaryFeatures.map((feature, index) => (
+                  <FeatureCard key={index} {...feature} />
+                ))}
               </div>
             </div>
+          </div>
         </div>
 
-        {/* Bloco dos Cards de Público */}
+
         <div className="mt-24 sm:mt-32">
-            <div className="mx-auto max-w-4xl text-center">
-              <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-indigo-400">Nossos Perfis</p>
-              <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-white">Uma Solução para Cada Necessidade</h2>
-              <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-800 dark:text-slate-300">
-                Seja você um motorista buscando praticidade ou um gestor querendo otimizar, o Navi tem a ferramenta certa.
-              </p>
-            </div>
-            <div className="mt-16 flex items-center justify-center gap-4">
-              <Label htmlFor="toggle-view" className={`font-medium ${isColetivo ? 'text-gray-500' : 'text-slate-800 dark:text-white'}`}>Individual</Label>
-              <Switch id="toggle-view" checked={isColetivo} onCheckedChange={setIsColetivo} />
-              <Label htmlFor="toggle-view" className={`font-medium ${!isColetivo ? 'text-gray-500' : 'text-slate-800 dark:text-white'}`}>Corporativo/Público</Label>
-            </div>
-            <div className="mt-16 mx-auto w-full max-w-screen-xl grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
-              <PricingCard tier={tiers.motorista} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md" />
-              <PricingCard tier={tiers.proprietario} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md transform lg:scale-105" />
-              <PricingCard tier={tiers.admin} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md" />
-            </div>
+          <div className="mx-auto max-w-4xl text-center">
+            <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-indigo-400">Nossos Perfis</p>
+            <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-white">Uma Solução para Cada Necessidade</h2>
+            <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-800 dark:text-slate-300">
+              Seja você um motorista buscando praticidade ou um gestor querendo otimizar, o Navi tem a ferramenta certa.
+            </p>
+          </div>
+          <div className="mt-16 flex items-center justify-center gap-4">
+            <Label htmlFor="toggle-view" className={`font-medium ${isColetivo ? 'text-gray-500' : 'text-slate-800 dark:text-white'}`}>Individual</Label>
+            <Switch id="toggle-view" checked={isColetivo} onCheckedChange={setIsColetivo} />
+            <Label htmlFor="toggle-view" className={`font-medium ${!isColetivo ? 'text-gray-500' : 'text-slate-800 dark:text-white'}`}>Corporativo/Público</Label>
+          </div>
+          <div className="mt-16 mx-auto w-full max-w-screen-xl grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
+            <PricingCard tier={tiers.motorista} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md" />
+            <PricingCard tier={tiers.proprietario} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md transform lg:scale-105" />
+            <PricingCard tier={tiers.admin} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md" />
+          </div>
         </div>
       </div>
     </section>

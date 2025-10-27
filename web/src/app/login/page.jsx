@@ -189,7 +189,6 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 // -----------------------------------------------------------------------------
 
 const RegisterForm = ({ onLoginClick }) => {
-    // A lógica de hooks e a função onSubmit permanecem as mesmas.
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(cadastroSchema), mode: 'onBlur',
     });

@@ -1,6 +1,14 @@
-// src/components/FeaturesSection.jsx
+"use client";
+
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES E ELEMENTOS AUXILIARES
+// -----------------------------------------------------------------------------
 
 import { MapPin, Smartphone, Car, Wallet, UserCheck, Star } from 'lucide-react';
+
+// -----------------------------------------------------------------------------
+// DADOS PARA OS CARDS DE PÚBLICO
+// -----------------------------------------------------------------------------
 
 const features = [
   { icon: MapPin, title: 'Mapa em Tempo Real', description: 'Encontre vagas livres perto de você instantaneamente, sem estresse e sem voltas.' },
@@ -10,6 +18,11 @@ const features = [
   { icon: UserCheck, title: 'Acesso para Proprietários', description: 'Gerencie seu estacionamento, monitore a ocupação e controle seu faturamento em um painel completo.' },
   { icon: Star, title: 'Avalie sua Experiência', description: 'Dê sua nota e ajude outros motoristas a encontrarem os melhores estacionamentos da cidade.' },
 ];
+
+// -----------------------------------------------------------------------------
+// CARD DE FEATURE
+// -----------------------------------------------------------------------------
+
 
 const FeatureCard = ({ icon: Icon, title, description }) => {
   return (
@@ -23,16 +36,20 @@ const FeatureCard = ({ icon: Icon, title, description }) => {
   );
 };
 
-// Componente do círculo (funcional)
 const HalfCircle = (props) => (
   <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full ${props.className}`} />
 );
+
+// -----------------------------------------------------------------------------
+// CONTEUDO PRINCIPAL
+// -----------------------------------------------------------------------------
+
 
 const FeaturesSection = () => {
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
       
-      {/* Camadas de Fundo (Claro e Escuro) */}
+
       <div 
         className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0"
         style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }}
@@ -41,16 +58,13 @@ const FeaturesSection = () => {
         style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }}
       ></div>
 
-      {/* Círculos de Fundo */}
+
       <div aria-hidden="true" className="absolute top-1/2 -translate-y-1/2 -left-1/4 w-3/5 h-3/5 rounded-full bg-[#ff8f00] dark:bg-purple-600/30 blur-[150px] filter -z-10"></div>
       <div aria-hidden="true" className="absolute top-1/2 -translate-y-1/2 -right-1/4 w-3/5 h-3/5 rounded-full bg-[#f2b441] dark:bg-blue-600/30 blur-[150px] filter -z-10"></div>
       <HalfCircle 
         className="absolute top-0 -left-[125px] sm:-left-[190px] opacity-20 dark:opacity-20 border-[#ffffff]/50 dark:border-white" 
       />
       
-      {/* --- NOVA ESTRUTURA PARA CONTROLE TOTAL --- */}
-      
-      {/* Bloco de Título - INDEPENDENTE */}
       <div className="relative z-10 mx-auto max-w-4xl text-center px-4 sm:px-6 lg:px-8">
         <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-indigo-400">
           Como Funciona
@@ -63,8 +77,6 @@ const FeaturesSection = () => {
         </p>
       </div>
 
-      {/* Bloco do Retângulo - INDEPENDENTE */}
-      {/* ESTA É A CLASSE QUE CONTROLA O TAMANHO. Altere w-11/12 se quiser maior ou menor */}
       <div className="relative z-10 mt-20 mx-auto w-11/12 max-w-screen-xl">
         <div className="p-8 sm:p-12 
                        bg-white/30 dark:bg-slate-800/30 
