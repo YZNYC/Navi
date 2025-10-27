@@ -85,7 +85,7 @@ Projeto integrador *(TCC – SENAI)* que tem como objetivo desenvolver uma **sol
 ---
 
 ## 📐 Arquitetura
-(./docs/diagramas/diagrama_arquitetura.png)
+(./docs/diagramas/)
 
 ---
 
