@@ -10,7 +10,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Check, CheckCircle, Clock, BarChart } from 'lucide-react';
 
-
 // -----------------------------------------------------------------------------
 // DADOS PARA OS CARDS DE PÚBLICO
 // -----------------------------------------------------------------------------
@@ -43,19 +42,19 @@ const secondaryFeatures = [
 const PricingCard = ({ tier, isColetivo, className }) => {
   const data = isColetivo ? tier.coletivo : tier.individual;
   return (
-    <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-amber-400 dark:border-indigo-500' : 'border-gray-200 dark:border-slate-800'} ${className}`}>
-      {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-amber-400 dark:bg-indigo-500 text-white dark:text-white px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
-      <h3 className="text-xl font-semibold text-slate-800 dark:text-white">{data.name}</h3>
-      <p className="mt-4 text-gray-500 dark:text-slate-400 flex-grow">{data.description}</p>
+    <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-amber-400 dark:border-[#efb000]' : 'border-gray-200/50 dark:border-slate-800'} ${className}`}>
+      {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-[#efb000] dark:bg-[#efb000] text-gray-900 dark:text-gray-900 px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
+      <h3 className="text-xl font-semibold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">{data.name}</h3>
+      <p className="mt-4 text-white/90 [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-400 dark:[text-shadow:none] flex-grow">{data.description}</p>
       <ul className="mt-8 space-y-4">
         {data.features.map((feature, i) => (
           <li key={i} className="flex items-center gap-3">
-            <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
-            <span className="text-gray-700 dark:text-slate-300">{feature}</span>
+            <Check className="h-5 w-5 text-amber-500 dark:text-[#f6bb00] flex-shrink-0" />
+            <span className="text-white/90 [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-300 dark:[text-shadow:none]">{feature}</span>
           </li>
         ))}
       </ul>
-      <Button className="mt-10 w-full" variant={tier.individual.mostPopular ? 'default' : 'outline'}>Saiba Mais</Button>
+      <Button className="mt-10 w-full bg-[#efb000] text-gray-900 font-bold hover:bg-[#f6bb00]" variant={tier.individual.mostPopular ? 'default' : 'outline'}>Saiba Mais</Button>
     </div>
   );
 };
@@ -66,11 +65,11 @@ const PricingCard = ({ tier, isColetivo, className }) => {
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <div className="flex flex-col items-center text-center p-6 py-8 group">
-    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/70 dark:bg-slate-800/50 shadow-lg border border-white/20 dark:border-slate-700 transition-all duration-300 ease-in-out group-hover:bg-[#FFD600] group-hover:dark:bg-indigo-500 group-hover:scale-110 group-hover:shadow-xl">
-      <Icon className="h-10 w-10 text-orange-900 dark:text-indigo-400 transition-colors duration-300 group-hover:text-white" />
+    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/70 dark:bg-slate-800/50 shadow-lg border border-white/20 dark:border-slate-700 transition-all duration-300 ease-in-out group-hover:bg-[#FFD600] group-hover:dark:bg-slate-900 group-hover:scale-110 group-hover:shadow-xl">
+      <Icon className="h-10 w-10 text-orange-900 dark:text-[#f6bb00] transition-colors duration-300 group-hover:text-white" />
     </div>
-    <h3 className="mt-6 text-xl font-bold text-slate-800 dark:text-slate-100">{title}</h3>
-    <p className="mt-4 text-base text-gray-700 dark:text-slate-400 leading-relaxed">{description}</p>
+    <h3 className="mt-6 text-xl font-bold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-100 dark:[text-shadow:none]">{title}</h3>
+    <p className="mt-4 text-base text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-400 dark:[text-shadow:none] leading-relaxed">{description}</p>
   </div>
 );
 
@@ -79,7 +78,7 @@ const HalfCircle = (props) => (
 );
 
 // -----------------------------------------------------------------------------
-// CONTEUDO PRINCIPAL 
+// CONTEUDO PRINCIPAL
 // -----------------------------------------------------------------------------
 
 const SecondaryFeaturesSection = () => {
@@ -87,29 +86,26 @@ const SecondaryFeaturesSection = () => {
 
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
-
-
+      
       <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }}></div>
       <div style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }}></div>
-
-      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -left-1/4 w-3/5 h-3/5 rounded-full bg-[#ff8f00] dark:bg-purple-600/30 blur-[150px] filter -z-10"></div>
-      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -right-1/4 w-3/5 h-3/5 rounded-full bg-[#f2b441] dark:bg-blue-600/30 blur-[150px] filter -z-10"></div>
+      
+      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -left-1/4 w-3/5 h-3/5 rounded-full bg-[#ff8f00] dark:bg-[#d08700]/20 blur-[150px] filter -z-10"></div>
+      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -right-1/4 w-3/5 h-3/5 rounded-full bg-[#f2b441] dark:bg-[#f6bb00]/20 blur-[150px] filter -z-10"></div>
+      
       <HalfCircle
-        className="absolute top-0 -left-[125px] sm:-left-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white"
+        className="absolute top-0 -left-[125px] sm:-left-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white/50"
       />
       <HalfCircle
-        className="absolute bottom-0 -right-[125px] sm:-right-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white transform rotate-180"
+        className="absolute bottom-0 -right-[125px] sm:-right-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white/50 transform rotate-180"
       />
-
-
+      
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
-
-
         <div className="relative">
           <div className="mx-auto max-w-4xl text-left">
-            <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-indigo-400">Painel do Proprietário</p>
-            <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-white">Gerenciamento Descomplicado</h2>
-            <p className="mt-6 max-w-2xl text-xl text-gray-800 dark:text-slate-300">Ferramentas poderosas para você ter o controle total do seu estacionamento, onde quer que esteja.</p>
+            <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-[#efb000]">Painel do Proprietário</p>
+            <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">Gerenciamento Descomplicado</h2>
+            <p className="mt-6 max-w-2xl text-xl text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-300 dark:[text-shadow:none]">Ferramentas poderosas para você ter o controle total do seu estacionamento, onde quer que esteja.</p>
           </div>
           <div className="mt-20 mx-auto w-11/12 max-w-screen-xl">
             <div className="p-8 sm:p-12 bg-white/30 dark:bg-slate-800/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700">
@@ -122,19 +118,18 @@ const SecondaryFeaturesSection = () => {
           </div>
         </div>
 
-
         <div className="mt-24 sm:mt-32">
           <div className="mx-auto max-w-4xl text-center">
-            <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-indigo-400">Nossos Perfis</p>
-            <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-white">Uma Solução para Cada Necessidade</h2>
-            <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-800 dark:text-slate-300">
+            <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-[#efb000]">Nossos Perfis</p>
+            <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">Uma Solução para Cada Necessidade</h2>
+            <p className="mt-6 max-w-2xl mx-auto text-xl text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-300 dark:[text-shadow:none]">
               Seja você um motorista buscando praticidade ou um gestor querendo otimizar, o Navi tem a ferramenta certa.
             </p>
           </div>
           <div className="mt-16 flex items-center justify-center gap-4">
-            <Label htmlFor="toggle-view" className={`font-medium ${isColetivo ? 'text-gray-500' : 'text-slate-800 dark:text-white'}`}>Individual</Label>
+            <Label htmlFor="toggle-view" className={`font-medium transition-colors ${isColetivo ? 'text-gray-200/50 dark:text-gray-500' : 'text-white dark:text-white'}`}>Individual</Label>
             <Switch id="toggle-view" checked={isColetivo} onCheckedChange={setIsColetivo} />
-            <Label htmlFor="toggle-view" className={`font-medium ${!isColetivo ? 'text-gray-500' : 'text-slate-800 dark:text-white'}`}>Corporativo/Público</Label>
+            <Label htmlFor="toggle-view" className={`font-medium transition-colors ${!isColetivo ? 'text-gray-200/50 dark:text-gray-500' : 'text-white dark:text-white'}`}>Corporativo/Público</Label>
           </div>
           <div className="mt-16 mx-auto w-full max-w-screen-xl grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
             <PricingCard tier={tiers.motorista} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md" />
