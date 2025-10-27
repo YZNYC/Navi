@@ -140,6 +140,9 @@ body {
   background: var(--background-gradient);
 }
 
- .bg-gradient-hex {
+ /* .bg-gradient-hex {
   background: linear-gradient(to bottom, #FBB430, #FBB430, #FBB430);
+}  */
+   .bg-gradient-hex {
+  background: white;
 } 

@@ -302,6 +302,7 @@ const Hero3 = () => {
       </div>
 
     </section>
+    
 
     </>
   );
