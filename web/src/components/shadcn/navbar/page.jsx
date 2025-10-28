@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from "react";
-import { HoveredLink } from "../ui/navbar-menu";
+import { HoveredLink } from "../../ui/navbar-menu";
 import { ModeToggle } from "../darkmode/darkMode";
 
 export default function Header() {

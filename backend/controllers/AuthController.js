@@ -27,7 +27,8 @@ export const login = async (req, res) => {
         const token = jwt.sign(
             {
                 id_usuario: usuario.id_usuario,
-                papel: usuario.papel 
+                papel: usuario.papel,
+                nome: usuario.nome
             },
             process.env.JWT_SECRET, 
             {

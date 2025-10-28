@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { ModeToggle } from "../components/darkmode/darkMode";
+import { ModeToggle } from "./shadcn/darkmode/darkMode";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
