@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
         }
 
         try {
-            const response = await api.post(`/auth/reset-password/${token}`, {
+            const response = await api.post(`/auth/resetar-senha/${token}`, {
                 novaSenha: data.novaSenha,
             });
 
