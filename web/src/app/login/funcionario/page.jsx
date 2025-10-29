@@ -279,7 +279,7 @@ const ForgotPasswordForm = ({ onBackToLoginClick }) => {
         setApiSuccess('');
 
         try {
-            const response = await api.post('/auth/esqueceu-senha', data);
+            const response = await api.post('/auth/forgot-password', data);
             setApiSuccess(response.data.message);
             setTimeout(() => onBackToLoginClick(), 5000);
         } catch (error) {

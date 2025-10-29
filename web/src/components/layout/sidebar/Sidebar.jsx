@@ -1,121 +1,90 @@
 // src/components/Layout/Sidebar/Sidebar.jsx
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { FaBuilding } from "react-icons/fa6"; // Certifique-se de que FaBuilding é de 'react-icons/fa6'
-import { FaUsers } from "react-icons/fa";
-import { FaRobot } from "react-icons/fa";
+import Link from 'next/link';
+// Certifique-se de que 'lucide-react' está instalado
+import { LayoutDashboard, ChevronUp, Users, ParkingCircle, BarChart3, Settings, LifeBuoy } from 'lucide-react';
 
-//  ÍCONES PRINCIPAIS (mantidos iguais)
-const IconDashboard = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>;
-const IconClipboardList = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>;
-const IconChartBar = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>;
-const IconUserGroup = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 014.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 014.5 0Z" /></svg>;
-const IconClipboardCheck = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
-const IconChevronUp = ({ className }) => <svg className={`w-5 h-5 transition-transform ${className}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>;
-const IconBriefcase = () => <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
-const IconBookOpen = () => <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
-const IconPencilAlt = () => <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>;
-const IconYouTube = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M19.615 3.184a.75.75 0 00-.563-.424C17.522 2.5 12 2.5 12 2.5s-5.522 0-7.052.26a.75.75 0 00-.563.424C3.125 4.888 2.5 8.125 2.5 12s.625 7.112 1.885 8.816a.75.75 0 00.563.424C6.478 21.5 12 21.5 12 21.5s5.522 0 7.052-.26a.75.75 0 00.563-.424C20.875 19.112 21.5 15.875 21.5 12s-.625-7.112-1.885-8.816zM9.5 15.584V8.416a.5.5 0 01.77-.42l5.576 3.583a.5.5 0 010 .84l-5.576 3.584a.5.5 0 01-.77-.42z" clipRule="evenodd"></path></svg>;
-const IconInstagram = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.08 2.525c.636-.247 1.363-.416 2.427-.465C9.53 2.013 9.884 2 12.315 2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm5.5-8.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5z" clipRule="evenodd"></path></svg>;
-const IconFacebook = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd"></path></svg>;
-const IconTwitter = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>;
-const IconChat = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" /></svg>
-
-
-export default function Sidebar() {
-    const [isDropUpOpen, setDropUpOpen] = useState(false);
-    const dropUpRef = useRef(null);
+export default function Sidebar({ isOpen, onToggle }) {
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
     const pathname = usePathname();
 
     const navItems = [
-        { name: "Dashboard", href: "/admin", icon: <IconDashboard /> },
-        { name: "Navi IA", href: "/admin/navi-ia", icon: <FaRobot/> },
-        { name: "Estabelecimentos", href: "/admin/estabelecimentos", icon: <FaBuilding /> },
-        { name: "Usuários", href: "/admin/usuarios", icon: <FaUsers/> },
-        { name: "Relatórios", href: "/admin/relatorios", icon: <IconChartBar /> },
+        { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+        { name: "Estacionamentos", href: "/admin/estacionamentos", icon: ParkingCircle },
+        { name: "Usuários", href: "/admin/usuarios", icon: Users },
+        { name: "Relatórios", href: "/admin/relatorios", icon: BarChart3 },
     ];
     
-    const portalLinks = [
-        { name: "Secretaria Digital", href: "", icon: <IconPencilAlt /> },
-        { name: "Biblioteca", href: "", icon: <IconBookOpen /> },
-        { name: "Portal de Vagas", href: "", icon: <IconBriefcase /> },
-    ];
-
-    useEffect(() => {
-        function handleClickOutside(event) { if (dropUpRef.current && !dropUpRef.current.contains(event.target)) setDropUpOpen(false); }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     return (
-        // Este div agora tem 'h-full' para garantir que preenche a altura do seu contêiner pai (<aside> no AdminLayout)
-        <div className="bg-yellow-500 text-white flex flex-col justify-between h-full">
-           
-            <div>
-                <nav className="flex-1 p-4 space-y-2 mt-4">
+        <>
+            {/* Backdrop para fechar a sidebar no mobile */}
+            <div
+                onClick={onToggle}
+                className={`fixed inset-0 bg-black/60 z-30 lg:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            ></div>
+
+            <aside
+                className={`fixed top-0 left-0 h-full bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex flex-col z-40 transition-transform duration-300 ease-in-out 
+                w-full sm:w-80 lg:static lg:translate-x-0  {/* <<< MUDANÇA ESTÁ AQUI */}
+                ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+                ${isOpen ? 'lg:w-64' : 'lg:w-20'}
+                `}
+            >
+                {/* O conteúdo da sidebar agora começa diretamente com a navegação */}
+                <nav className="flex-1 p-4 space-y-2 mt-4 overflow-y-auto">
                     {navItems.map((item) => {
-                        const isActive = pathname === item.href;
+                        const isActive = pathname.startsWith(item.href);
+                        const Icon = item.icon;
                         return (
-                            <a key={item.name} href={item.href}
-                               className={`flex items-center gap-4 p-3 rounded-lg transition-colors duration-200 
-                                ${isActive ? 'bg-red-800/50 text-white font-bold border-l-4 border-red-500' : 'border-l-4 border-transparent text-white hover:bg-yellow-700/50'}`}
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                title={!isOpen ? item.name : ''}
+                                className={`flex items-center gap-4 p-3 rounded-lg transition-colors group
+                                ${isActive ? 'bg-amber-500/10 text-amber-500 font-semibold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}
+                                ${!isOpen && 'lg:justify-center'}`}
                             >
-                               {item.icon}
-                               <span>{item.name}</span>
-                            </a>
+                                <Icon className="w-6 h-6 shrink-0" />
+                                <span className={`transition-all duration-200 ${!isOpen && 'lg:hidden'}`}>{item.name}</span>
+                            </Link>
                         );
                     })}
                 </nav>
-            </div>
-            
-    
-            <div className='flex flex-col'>
-            
-                <div className="p-1 border-t border-white/30">
-                    <div ref={dropUpRef} className="relative">
-                         {isDropUpOpen && (
-                             <div className="absolute bottom-full left-0 right-0 mb-4 bg-yellow-400 rounded-md shadow-lg border ">
-                                 <ul className="p-2 space-y-1">
-                                     {portalLinks.map(link => (
-                                         <li key={link.name}>
-                                            <a href={link.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 w-full p-2 text-sm rounded-md hover:bg-yellow-500/50">{link.icon}{link.name}</a>
-                                        </li>
-                                     ))}
-                                 </ul>
+                
+                {/* --- SEÇÃO INFERIOR ("FOOTER") --- */}
+                <div className="shrink-0">
+                    {/* Drop-up de "Outros Portais" */}
+                    <div className={`relative px-4 pt-2 border-t border-slate-200 dark:border-slate-700 ${!isOpen && 'lg:hidden'}`}>
+                         <button 
+                            onClick={() => setDropdownOpen(!isDropdownOpen)} 
+                            className="w-full flex justify-between items-center p-2 rounded-lg "
+                         >
+                             <span className="font-semibold text-sm">Outros Portais</span>
+                             <ChevronUp className={`w-5 h-5 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                         </button>
+                         {isDropdownOpen && (
+                             <div className="absolute bottom-full left-0 right-0 p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+                                <div className="space-y-2">
+                                    <a href="#" className="block text-sm p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-600">Portal A</a>
+                                    <a href="#" className="block text-sm p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-600">Portal B</a>
+                                </div>
                              </div>
                          )}
-                         <button onClick={() => setDropUpOpen(!isDropUpOpen)} className="w-full flex cursor-pointer items-center justify-between p-3 text-left rounded-lg hover:bg-yellow-700/20 transition-colors">
-                            <span className='text-white cursor-pointer'>Outros Portais</span><IconChevronUp className={`cursor-pointer transition-transform duration-300 ${isDropUpOpen ? 'rotate-180' : ''}`} />
-                        </button>
+                    </div>
+                
+                    {/* Informações de Contato */}
+                    <div className={`p-4 border-t border-slate-200 dark:border-slate-700 ${!isOpen && 'lg:hidden'}`}>
+                        <h4 className="font-semibold text-sm text-slate-800 dark:text-white">Navi Systems</h4>
+                        <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                            <p><strong>Telefone:</strong> (11) 9999-8888</p>
+                            <p><strong>Email:</strong> contato@navi.com.br</p>
+                        </div>
                     </div>
                 </div>
-
-                <div className="p-4 border-t border-white/30">
-                    <div>
-                        <h4 className="font-semibold text-sm text-white">NAVI</h4>
-                        <p className="text-xs text-white">"Sistema inteligente de gestão de estacionamentos"</p>
-                    </div>
-                    <div className="pt-2 mt-1 space-y-2 text-xs">
-                        <p className="text-white">
-                            <strong className="text-white font-medium">Telefone:</strong> (11) 4227-7450
-                        </p>
-                        <p className="text-white">
-                            <strong className="text-white font-medium">Email:</strong> senai.scs@sp.senai.br
-                        </p>
-                    </div>
-                    <div className="pt-4 mt-4 flex justify-center items-center gap-4 border-t border-white/30">
-                        <a href="https://youtu.be/xvFZjo5PgG0?si=vbf1lNNazWvn-6Pr" target="_blank" rel="noopener noreferrer" className="text-white hover:text-red-500 transition-colors" title="YouTube"><IconYouTube/></a>
-                        <a href="" target="_blank" rel="noopener noreferrer" className="text-white hover:text-pink-500 transition-colors" title="Instagram"><IconInstagram/></a>
-                        <a href="" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-500 transition-colors" title="Facebook"><IconFacebook/></a>
-                        <a href="" target="_blank" rel="noopener noreferrer" className="text-white hover:text-black transition-colors" title="Twitter (X)"><IconTwitter/></a>
-                    </div>
-                     <div className="mt-4 pt-2 text-center">
-                         <p className="text-xs text-white">© {new Date().getFullYear()} Navi</p>
-                     </div>
-                </div>
-            </div>
-        </div>
+            </aside>
+        </>
     );
 }
