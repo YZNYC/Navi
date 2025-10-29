@@ -1,49 +1,66 @@
+// src/controllers/AuthController.js
+
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import { enviarEmailResetSenha } from '../services/email.service.js';
+import { z } from 'zod';
+
+// Define um schema de validação para os dados de login.
+const loginSchema = z.object({
+  email: z.string().email("Formato de email inválido."),
+  senha: z.string().min(1, "A senha é obrigatória."),
+});
 
 export const login = async (req, res) => {
     try {
-        const { email, senha } = req.body;
+        // 1. VALIDAÇÃO DE ENTRADA (usando o Zod que já temos)
+        const { email, senha } = loginSchema.parse(req.body);
 
-        // 1. Encontra o usuário pelo email
-        const usuario = await prisma.usuario.findUnique({ where: { email } });
+        // 2. BUSCA O USUÁRIO NO BANCO
+        const usuario = await prisma.usuario.findUnique({
+            where: { email },
+        });
 
-        // 2. Verifica se o usuário existe E se está ativo
+        // 3. VERIFICA SE O USUÁRIO EXISTE E SE ESTÁ ATIVO
         if (!usuario || !usuario.ativo) {
-           
             return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
-        // 3. Compara a senha enviada com a senha criptografada no banco
+        // 4. COMPARA A SENHA ENVIADA COM A SENHA CRIPTOGRAFADA
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
         if (!senhaCorreta) {
             return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
-        // 4. Se tudo estiver correto, gera o Token JWT
+        // 5. GERA O TOKEN JWT
         const token = jwt.sign(
-            {
-                id_usuario: usuario.id_usuario,
-                papel: usuario.papel,
-                nome: usuario.nome
-            },
-            process.env.JWT_SECRET, 
-            {
-                expiresIn: '8h', 
-            }
+            { id_usuario: usuario.id_usuario, papel: usuario.papel },
+            process.env.JWT_SECRET,
+            { expiresIn: '8h' }
         );
 
+        // 6. PREPARA A RESPOSTA, REMOVENDO A SENHA DO OBJETO DE USUÁRIO
+        // Esta é a maneira segura de remover um campo de um objeto.
+        const { senha: _, ...usuarioSemSenha } = usuario;
+        
+        // ----------------------------------------------------//
+        // --- A MUDANÇA ESTÁ AQUI ---
+        // ----------------------------------------------------//
+        // 7. ENVIA A RESPOSTA DE SUCESSO COMPLETA
+        // A resposta agora inclui o token E o objeto 'usuarioSemSenha'.
         res.status(200).json({
             message: 'Login realizado com sucesso!',
-            token: token
+            token: token,
+            usuario: usuarioSemSenha
         });
 
     } catch (error) {
-        console.error('Erro no processo de login:', error);
-        res.status(500).json({ message: 'Ocorreu um erro interno.' });
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
+        }
+        
+        console.error('Erro detalhado no processo de login:', error);
+        res.status(500).json({ message: 'Ocorreu um erro interno no servidor.' });
     }
 };
 
