@@ -20,10 +20,10 @@ export default function MapCard({ title }) {
           className="rounded-lg"
         />
         {/* Marcadores de exemplo (você os adicionaria dinamicamente) */}
-        <div className="absolute top-1/4 left-1/4 bg-indigo-600 text-white rounded-full p-1 shadow-md">
+        <div className="absolute top-1/4 left-1/4 bg-yellow-600 text-white rounded-full p-1 shadow-md">
           <MapPin className="w-4 h-4" />
         </div>
-        <div className="absolute bottom-1/3 right-1/3 bg-indigo-600 text-white rounded-full p-1 shadow-md">
+        <div className="absolute bottom-1/3 right-1/3 bg-yellow-600 text-white rounded-full p-1 shadow-md">
           <MapPin className="w-4 h-4" />
         </div>
         

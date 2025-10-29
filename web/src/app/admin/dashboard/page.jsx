@@ -129,12 +129,12 @@ export default function DashboardPage() {
             </section>
             
             {/* SEÇÃO 5: GESTÃO DE CUPONS (Aqui ficaria o link/card para o CRUD de Cupons) */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 mb-8">
+            <div className=" mt-25 bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Gestão de Cupons Globais</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Gerencie a criação, edição e desativação de cupons promocionais para toda a plataforma Navi.
                 </p>
-                <Link href="/admin/cupons" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <Link href="/admin/cupons" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Ir para Gestão de Cupons
                 </Link>
             </div>

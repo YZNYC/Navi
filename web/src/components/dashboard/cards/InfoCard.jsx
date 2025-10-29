@@ -29,7 +29,7 @@ const InfoCard = ({ title, value, change, icon: Icon, unit = '' }) => {
           {title}
         </h3>
         {/* CORREÇÃO: Aplica cor de destaque ao ícone */}
-        {Icon && <Icon className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />}
+        {Icon && <Icon className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />}
       </div>
       
       {/* Valor Principal */}

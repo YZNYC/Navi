@@ -11,7 +11,7 @@ export default function EngagementReportCard({ topEstablishments = [], topReserv
   const formatCount = (count) => count.toLocaleString('pt-BR');
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 flex flex-col h-full">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 flex flex-col h-5xl">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Relatório de Engajamento</h3>
       
       <div className="space-y-6 flex-1">
@@ -27,7 +27,7 @@ export default function EngagementReportCard({ topEstablishments = [], topReserv
                 topEstablishments.map((est) => (
                     <li key={est.id} className="flex justify-between items-center py-2 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-md px-1 cursor-pointer">
                         <span className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-1">
-                            <ChevronRight className="w-3 h-3 text-indigo-500" /> {est.name}
+                            <ChevronRight className="w-3 h-3 text-yellow-500" /> {est.name}
                         </span>
                         <span className="text-sm text-gray-600 dark:text-gray-400">
                             {formatRating(est.rating)} <span className="text-yellow-500">★</span>
@@ -41,7 +41,7 @@ export default function EngagementReportCard({ topEstablishments = [], topReserv
         {/* Mais Reservados */}
         <div>
           <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
-            <Bookmark className="w-4 h-4 text-pink-500" /> Top Reservas
+            <Bookmark className="w-4 h-4 text-yellow-500" /> Top Reservas
           </h4>
           <ul className="divide-y divide-gray-200 dark:divide-slate-700">
             {topReservations.length === 0 ? (
@@ -50,7 +50,7 @@ export default function EngagementReportCard({ topEstablishments = [], topReserv
                 topReservations.map((est) => (
                     <li key={est.id} className="flex justify-between items-center py-2 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-md px-1 cursor-pointer">
                         <span className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-1">
-                            <ChevronRight className="w-3 h-3 text-indigo-500" /> {est.name}
+                            <ChevronRight className="w-3 h-3 text-yellow-500" /> {est.name}
                         </span>
                         <span className="text-sm text-gray-600 dark:text-gray-400">
                             {formatCount(est.reservations)} reservas
@@ -64,7 +64,7 @@ export default function EngagementReportCard({ topEstablishments = [], topReserv
       
       {/* Opção para ver relatório completo */}
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
-          <Link href="/admin/relatorios" className="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center">
+          <Link href="/admin/relatorios" className="text-sm font-medium text-yellow-500 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 flex items-center">
               Ver Relatório Completo <ChevronRight className="w-4 h-4 ml-1" />
           </Link>
       </div>

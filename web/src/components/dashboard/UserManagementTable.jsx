@@ -44,13 +44,13 @@ export default function UserManagementTable({ users }) { // Recebe 'users' via p
           <input
             type="text"
             placeholder="Pesquisar por nome, email..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white"
+            className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-900 dark:text-white"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <select
-          className="bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value)}
         >
@@ -59,7 +59,7 @@ export default function UserManagementTable({ users }) { // Recebe 'users' via p
           <option value="proprietario">Proprietário</option>
         </select>
         <select
-          className="bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
@@ -92,7 +92,7 @@ export default function UserManagementTable({ users }) { // Recebe 'users' via p
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <select
-                      className="bg-transparent border border-gray-300 dark:border-slate-600 rounded-md py-1 px-2 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="bg-transparent border border-gray-300 dark:border-slate-600 rounded-md py-1 px-2 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-yellow-500"
                       value={user.role}
                       onChange={(e) => handleChangeRole(user.id, e.target.value)}
                     >
@@ -109,7 +109,7 @@ export default function UserManagementTable({ users }) { // Recebe 'users' via p
                         checked={user.isActive}
                         onChange={() => handleToggleStatus(user.id)}
                       />
-                      <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-2 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                      <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-2 peer-focus:ring-yellow-300 dark:peer-focus:ring-yellow-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-400"></div>
                       <span className={`ml-3 text-sm font-medium ${user.isActive ? 'text-green-500' : 'text-red-500'}`}>
                         {user.isActive ? 'Ativo' : 'Inativo'}
                       </span>
@@ -118,7 +118,7 @@ export default function UserManagementTable({ users }) { // Recebe 'users' via p
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       onClick={() => handleViewDetails(user.id)}
-                      className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
+                      className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 mr-2"
                       title="Ver Detalhes"
                     >
                       <Eye className="w-5 h-5" />

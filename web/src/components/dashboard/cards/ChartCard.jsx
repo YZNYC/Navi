@@ -11,7 +11,7 @@ export default function ChartCard({ title, subtitle, children, dropdownOptions, 
         </div>
         {dropdownOptions && (
           <select
-            className="bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md py-1 px-3 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md py-1 px-3 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
             value={selectedDropdown}
             onChange={(e) => onDropdownChange && onDropdownChange(e.target.value)}
           >
