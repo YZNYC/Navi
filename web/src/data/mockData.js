@@ -1,3 +1,5 @@
+// src/data/mockDashboardData.js
+
 export const mockDashboardData = {
   summary: {
     newUsers: { value: 1250, change: 12.5 }, // %
@@ -5,6 +7,7 @@ export const mockDashboardData = {
     activeSubscribers: { value: 780, change: 8.3 },
     platformRevenue: { value: 15200.75, change: 5.1 }, // R$
   },
+  
   charts: {
     platformRevenue: [
       { name: 'Jan', platform: 4000, establishments: 24000 },
@@ -47,3 +50,22 @@ export const mockDashboardData = {
     ],
   },
 };
+
+// --- MOCK DE DADOS DE USUÁRIOS (Adicionado para resolver o ReferenceError) ---
+export const mockUsers = [
+  { id: 1, name: 'João Silva', email: 'joao.silva@email.com', role: 'motorista', isActive: true },
+  { id: 2, name: 'Maria Oliveira', email: 'maria.o@email.com', role: 'proprietario', isActive: false },
+  { id: 3, name: 'Carlos Santos', email: 'carlos.s@email.com', role: 'motorista', isActive: true },
+  { id: 4, name: 'Ana Souza', email: 'ana.s@email.com', role: 'proprietario', isActive: true },
+  { id: 5, name: 'Pedro Costa', email: 'pedro.c@email.com', role: 'motorista', isActive: true },
+  { id: 6, name: 'Luciana Lima', email: 'luciana.l@email.com', role: 'motorista', isActive: false },
+];
+
+// --- MOCK DE DADOS DE ESTACIONAMENTOS (Adicionado para resolver o ReferenceError) ---
+export const mockEstablishments = [
+  { id: 101, name: 'Park Central', cnpj: '12.345.678/0001-90', address: 'Rua A, 123 - Centro', status: 'verified', rating: 4.8 },
+  { id: 102, name: 'Garagem Express', cnpj: '98.765.432/0001-10', address: 'Av. Brasil, 456 - Bairro X', status: 'pending', rating: 4.5 },
+  { id: 103, name: 'Vaga Segura', cnpj: '11.222.333/0001-40', address: 'Praça da Liberdade, 789', status: 'verified', rating: 4.6 },
+  { id: 104, name: 'AutoPark Premium', cnpj: '44.555.666/0001-70', address: 'Travessa Y, 10 - Zona Oeste', status: 'deactivated', rating: 4.2 },
+  { id: 105, name: 'Estacione Fácil', cnpj: '77.888.999/0001-20', address: 'Rua Z, 500 - Zona Sul', status: 'pending', rating: 3.9 },
+];
