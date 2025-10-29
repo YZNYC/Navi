@@ -7,8 +7,9 @@
 import { useState, useLayoutEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import api from '../../lib/api';
+import api from '../../../lib/api';
 import Image from 'next/image';
 
 // -----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ const AuthViewManager = () => {
         const heights = {
             login: '720px',
             register: '900px',
-            forgotPassword: '450px',
+            forgotPassword: '480px',
         };
         setContainerHeight(heights[view] || 'auto');
     }, [view]);
@@ -112,14 +113,17 @@ const AuthViewManager = () => {
 
 const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 
+    const router = useRouter();
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(loginSchema), mode: 'onBlur',
     });
+    
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [facebookLoading, setFacebookLoading] = useState(false);
     const [lembrarDeMim, setLembrarDeMim] = useState(true);
     const [apiSuccess, setApiSuccess] = useState('');
+ 
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -128,12 +132,34 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 
         try {
             const response = await api.post('/auth/login', data);
-            const { token } = response.data;
-            if (lembrarDeMim) localStorage.setItem('authToken', token);
-            else sessionStorage.setItem('authToken', token);
-            setApiSuccess("Login bem-sucedido! Redirecionando...");
+
+            if (response.data && response.data.token && response.data.usuario) {
+                const { token, usuario } = response.data;
+                const userDataToStore = {
+                    nome: usuario.nome,
+                    email: usuario.email,
+                    papel: usuario.papel
+                };
+
+                if (lembrarDeMim) {
+                    localStorage.setItem('authToken', token);
+                    localStorage.setItem('usuario', JSON.stringify(userDataToStore));
+                } else {
+                    sessionStorage.setItem('authToken', token);
+                    sessionStorage.setItem('usuario', JSON.stringify(userDataToStore));
+                }
+
+                setApiSuccess("Login bem-sucedido! Redirecionando ...");
+
+                setTimeout(() => {
+                    router.push('/admin/dashboard');
+                }, 1500);
+
+            } else {
+                throw new Error("Resposta inesperada do servidor.");
+            }
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Não foi possível conectar ao servidor.';
+            const errorMessage = error.response?.data?.message || 'Não foi possível conectar ou resposta inválida do servidor.';
             setError("apiError", { type: 'custom', message: errorMessage });
         } finally {
             setIsSubmitting(false);
@@ -142,15 +168,17 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 
     return (
         <div className="p-6 sm:p-10 w-full flex flex-col">
-
+    
             <div className="text-center mb-8">
                 <Image src="/light.png" alt="Logo" width={56} height={56} className="mx-auto" />
                 <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-gray-800 tracking-tight">Bem-vindo de Volta</h1>
                 <p className="mt-1 text-sm text-gray-500">Acesse seu painel</p>
             </div>
+
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
                 <SoftInput id="email" type="email" label="Endereço de Email" register={register('email')} error={errors.email} />
                 <SoftInput id="senha" type='password' label="Senha" register={register('senha')} error={errors.senha} hasIcon={true} />
+                
                 <div className="flex items-center justify-between pt-1 text-sm">
                     <label className="flex items-center gap-2 text-yellow-600 cursor-pointer custom-checkbox">
                         <input type="checkbox" className="absolute opacity-0 w-0 h-0" checked={lembrarDeMim} onChange={(e) => setLembrarDeMim(e.target.checked)} />
@@ -164,13 +192,18 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
                     {apiSuccess && <p className='text-green-600 font-semibold'>{apiSuccess}</p>}
                     {errors.apiError && <p className='text-red-500'>{errors.apiError.message}</p>}
                 </div>
+
                 <div className="pt-2">
                     <button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Aguarde...' : 'Entrar'}</button>
                 </div>
             </form>
 
+            <div className="my-6 flex items-center gap-4">
+                <div className="h-px bg-gray-200 flex-1"></div>
+                <span className="text-xs text-gray-400 font-medium">ou</span>
+                <div className="h-px bg-gray-200 flex-1"></div>
+            </div>
 
-            <div className="my-6 flex items-center gap-4"><div className="h-px bg-gray-200 flex-1"></div><span className="text-xs text-gray-400 font-medium">ou</span><div className="h-px bg-gray-200 flex-1"></div></div>
             <div className="flex flex-col sm:flex-row gap-4">
                 <button type="button" onClick={() => { setGoogleLoading(true); setTimeout(() => setGoogleLoading(false), 2000); }} className="social-button">{googleLoading ? <span className="loader"></span> : <GoogleIcon className="w-5 h-5" />} Google</button>
                 <button type="button" onClick={() => { setFacebookLoading(true); setTimeout(() => setFacebookLoading(false), 2000); }} className="social-button">{facebookLoading ? <span className="loader"></span> : <FacebookIcon className="w-5 h-5" />} Facebook</button>
@@ -188,7 +221,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 // FORMULÁRIOS REGISTRO
 // -----------------------------------------------------------------------------
 
-const RegisterForm = ({ onLoginClick }) => {
+const RegisterForm = ({ onLoginClick, role = "ADMINISTRADOR" }) => {
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(cadastroSchema), mode: 'onBlur',
     });
@@ -196,34 +229,43 @@ const RegisterForm = ({ onLoginClick }) => {
     const [googleLoading, setGoogleLoading] = useState(false);
     const [facebookLoading, setFacebookLoading] = useState(false);
     const [apiSuccess, setApiSuccess] = useState('');
-
+    
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         clearErrors("apiError");
         setApiSuccess('');
-        
-        let apiData = { ...data };
-        apiData.nome = `${data.nome} ${data.sobrenome}`.trim();
-        delete apiData.sobrenome;
-        
+
         try {
-            await api.post('/usuarios/cadastro', apiData);
-            setApiSuccess("Cadastro realizado! Você será redirecionado para o login.");
-            setTimeout(() => onLoginClick(), 2500); 
+            const response = await api.post('/auth/login', data);
+
+            const { token, usuario } = response.data;
+
+            if (lembrarDeMim) {
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('usuario', JSON.stringify(usuario));
+            } else {
+                sessionStorage.setItem('authToken', token);
+                sessionStorage.setItem('usuario', JSON.stringify(usuario));
+            }
+
+            setApiSuccess("Login bem-sucedido! Redirecionando...");
+            setTimeout(() => {
+                router.push('/admin/dashboard');
+            }, 1500);
+
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Erro ao realizar o cadastro.';
+            const errorMessage = error.response?.data?.message || 'Não foi possível conectar ao servidor.';
             setError("apiError", { type: 'custom', message: errorMessage });
         } finally {
             setIsSubmitting(false);
         }
     };
-    
     return (
-       
-         <div className="p-4 sm:p-10 w-full flex flex-col h-full">
+
+        <div className="p-4 sm:p-10 w-full flex flex-col h-full">
             <div className="text-center mb-6 sm:mb-8">
                 <Image src="/light.png" alt="Logo" width={56} height={56} className="mx-auto" />
-           
+
                 <h1 className="mt-2 sm:mt-4 text-2xl sm:text-3xl font-bold text-gray-800 tracking-tight">Crie Sua Conta</h1>
                 <p className="mt-1 text-sm text-gray-500">Rápido e sem complicações</p>
             </div>
@@ -233,7 +275,7 @@ const RegisterForm = ({ onLoginClick }) => {
                     <SoftInput id="nome" label="Nome" register={register('nome')} error={errors.nome} />
                     <SoftInput id="sobrenome" label="Sobrenome" register={register('sobrenome')} error={errors.sobrenome} />
                 </div>
-                
+
                 <SoftInput id="telefone" label="Telefone (Opcional)" type="tel" register={register('telefone')} error={errors.telefone} />
                 <SoftInput id="email" type="email" label="Endereço de Email" register={register('email')} error={errors.email} />
                 <SoftInput id="senha" type="password" label="Senha" register={register('senha')} error={errors.senha} hasIcon={true} />
@@ -242,7 +284,7 @@ const RegisterForm = ({ onLoginClick }) => {
                     {apiSuccess && <p className='text-green-600 font-semibold'>{apiSuccess}</p>}
                     {errors.apiError && <p className='text-red-500'>{errors.apiError.message}</p>}
                 </div>
-                
+
                 <div className="pt-2">
                     <button type="submit" disabled={isSubmitting} className="main-button">{isSubmitting ? 'Cadastrando...' : 'Criar Conta'}</button>
                 </div>
@@ -258,7 +300,7 @@ const RegisterForm = ({ onLoginClick }) => {
                 Já é um membro?
                 <button onClick={onLoginClick} className="font-semibold text-yellow-600 underline-grow ml-1">Faça login</button>
             </div>
-         </div>
+        </div>
     );
 };
 
