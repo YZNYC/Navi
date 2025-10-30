@@ -5,7 +5,7 @@ export const criarUsuarioSchema = z.object({
     nome: z.string({ required_error: "O nome é obrigatório." }).min(3, "O nome precisa de no mínimo 3 caracteres."),
     email: z.string({ required_error: "O email é obrigatório." }).email("Formato de email inválido."),
     senha: z.string({ required_error: "A senha é obrigatória." }).min(3, "A senha precisa de no mínimo 8 caracteres."),
-    papel: z.enum(['ADMINISTRADOR', 'PROPRIETARIO', 'MOTORISTA']).optional(),
+    papel: z.enum(['ADMINISTRADOR', 'PROPRIETARIO', 'FUNCIONARIO', 'MOTORISTA']).optional(),
     telefone: z.string().optional(),
   }),
 });

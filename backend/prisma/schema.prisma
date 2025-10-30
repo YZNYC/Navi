@@ -264,12 +264,6 @@ enum pagamento_metodo {
   DINHEIRO
 }
 
-enum usuario_papel {
-  ADMINISTRADOR
-  PROPRIETARIO
-  MOTORISTA
-}
-
 enum pagamento_status {
   PENDENTE
   APROVADO
@@ -282,4 +276,11 @@ enum reserva_status {
   CONCLUIDA
   CANCELADA
   EXPIRADA
+}
+
+enum usuario_papel {
+  ADMINISTRADOR
+  PROPRIETARIO
+  FUNCIONARIO
+  MOTORISTA
 }
