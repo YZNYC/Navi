@@ -8,7 +8,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import api from '../../lib/api'; 
+import api from '../../../lib/api'; 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
@@ -72,7 +72,7 @@ export default function ResetPasswordPage() {
 
             setApiSuccess(response.data.message);
             setTimeout(() => {
-                router.push('/');
+                router.push('/login');
             }, 3000);
 
         } catch (error) {
@@ -130,7 +130,7 @@ export default function ResetPasswordPage() {
                         className={`mt-auto pt-8 text-center text-sm text-gray-500 transition-opacity duration-700 delay-500 ${isMounted ? 'opacity-100' : 'opacity-0'}`}
                     >
                         Lembrou da senha?
-                        <a href="/" className="font-semibold text-yellow-600 underline-grow ml-1">Fazer login</a>
+                        <a href="/login" className="font-semibold text-yellow-600 underline-grow ml-1">Fazer login</a>
                     </div>
                 </div>
             </div>

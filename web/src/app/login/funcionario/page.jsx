@@ -117,7 +117,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(loginSchema), mode: 'onBlur',
     });
-    
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [facebookLoading, setFacebookLoading] = useState(false);
@@ -152,7 +152,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
                 setApiSuccess("Login bem-sucedido! Redirecionando ...");
 
                 setTimeout(() => {
-                    router.push('/funcionario/dashboard'); 
+                    router.push('/funcionario/dashboard');
                 }, 1500);
 
             } else {
@@ -168,7 +168,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 
     return (
         <div className="p-6 sm:p-10 w-full flex flex-col">
-    
+
             <div className="text-center mb-8">
                 <Image src="/light.png" alt="Logo" width={56} height={56} className="mx-auto" />
                 <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-gray-800 tracking-tight">Bem-vindo de Volta</h1>
@@ -178,7 +178,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
                 <SoftInput id="email" type="email" label="Endereço de Email" register={register('email')} error={errors.email} />
                 <SoftInput id="senha" type='password' label="Senha" register={register('senha')} error={errors.senha} hasIcon={true} />
-                
+
                 <div className="flex items-center justify-between pt-1 text-sm">
                     <label className="flex items-center gap-2 text-yellow-600 cursor-pointer custom-checkbox">
                         <input type="checkbox" className="absolute opacity-0 w-0 h-0" checked={lembrarDeMim} onChange={(e) => setLembrarDeMim(e.target.checked)} />
@@ -210,7 +210,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
             </div>
 
             <div className="mt-8 text-center text-sm text-gray-500">
-                Não tem uma conta?
+                Ainda não tem uma conta na plataforma?
                 <button onClick={onRegisterClick} className="font-semibold text-yellow-600 underline-grow ml-1">Cadastre-se</button>
             </div>
         </div>
@@ -222,39 +222,35 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 // -----------------------------------------------------------------------------
 
 const RegisterForm = ({ onLoginClick, role = "FUNCIONARIO" }) => {
+
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(cadastroSchema), mode: 'onBlur',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [googleLoading, setGoogleLoading] = useState(false);
-    const [facebookLoading, setFacebookLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false); 
+    const [facebookLoading, setFacebookLoading] = useState(false); 
     const [apiSuccess, setApiSuccess] = useState('');
-    
+
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         clearErrors("apiError");
         setApiSuccess('');
-
+        
+        let apiData = { ...data };
+        apiData.nome = `${data.nome} ${data.sobrenome}`.trim();
+        delete apiData.sobrenome;
+        
+        apiData.papel = role;
+        
         try {
-            const response = await api.post('/auth/login', data);
-
-            const { token, usuario } = response.data;
-
-            if (lembrarDeMim) {
-                localStorage.setItem('authToken', token);
-                localStorage.setItem('usuario', JSON.stringify(usuario));
-            } else {
-                sessionStorage.setItem('authToken', token);
-                sessionStorage.setItem('usuario', JSON.stringify(usuario));
-            }
-
-            setApiSuccess("Login bem-sucedido! Redirecionando...");
-            setTimeout(() => {
-                router.push('/admin/dashboard');
-            }, 1500);
+        
+            await api.post('/usuarios/cadastro', apiData);
+            
+            setApiSuccess("Cadastro realizado! Você será redirecionado para o login.");
+            setTimeout(() => onLoginClick(), 2500); 
 
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Não foi possível conectar ao servidor.';
+            const errorMessage = error.response?.data?.message || 'Erro ao realizar o cadastro.';
             setError("apiError", { type: 'custom', message: errorMessage });
         } finally {
             setIsSubmitting(false);
@@ -296,8 +292,8 @@ const RegisterForm = ({ onLoginClick, role = "FUNCIONARIO" }) => {
                 <button type="button" onClick={() => { setFacebookLoading(true); setTimeout(() => setFacebookLoading(false), 2000); }} className="social-button">{facebookLoading ? <span className="loader"></span> : <FacebookIcon className="w-5 h-5" />} Facebook</button>
             </div>
 
-            <div className="mt-6 sm:mt-8 text-center text-sm text-gray-500 p-8">
-                Já é um membro?
+            <div className=" sm:mt-8 text-center text-sm text-gray-500 p-8">
+                Você já é um membro da plataforma?
                 <button onClick={onLoginClick} className="font-semibold text-yellow-600 underline-grow ml-1">Faça login</button>
             </div>
         </div>
@@ -307,6 +303,7 @@ const RegisterForm = ({ onLoginClick, role = "FUNCIONARIO" }) => {
 // -----------------------------------------------------------------------------
 // FORMULÁRIOS ESQUECI A SENHA
 // -----------------------------------------------------------------------------
+
 const ForgotPasswordForm = ({ onBackToLoginClick }) => {
 
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
@@ -321,7 +318,7 @@ const ForgotPasswordForm = ({ onBackToLoginClick }) => {
         setApiSuccess('');
 
         try {
-            const response = await api.post('/auth/forgot-password', data);
+            const response = await api.post('/auth/esqueceu-senha', data);
             setApiSuccess(response.data.message);
             setTimeout(() => onBackToLoginClick(), 5000);
         } catch (error) {
