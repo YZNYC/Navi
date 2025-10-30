@@ -4,87 +4,163 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-// Certifique-se de que 'lucide-react' está instalado
-import { LayoutDashboard, ChevronUp, Users, ParkingCircle, BarChart3, Settings, LifeBuoy } from 'lucide-react';
+// Importamos o hook de autenticação para saber o papel do usuário
+import { useAuth } from '../../../contexts/AuthContext'; 
+
+// Importe TODOS os ícones que serão usados em todas as versões
+import { 
+    LayoutDashboard, ChevronUp, Users, ParkingCircle, BarChart3, Bot, 
+    FileText, MessageSquare, Cog, LifeBuoy, Wallet, Ticket, KeyRound, CheckSquare, Wind
+} from 'lucide-react';
+
+
+// -- Estruturas de Menu para cada Papel --
+
+const adminNavItems = [
+    { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { name: "Navi IA", href: "/admin/navi-ia", icon: Bot },
+    { name: "Estabelecimentos", href: "/admin/estabelecimentos", icon: ParkingCircle },
+    { name: "Usuários", href: "/admin/usuarios", icon: Users },
+    { name: "Relatórios", href: "/admin/relatorios", icon: BarChart3 },
+    { name: "Chat", href: "/admin/chat", icon: MessageSquare },
+    { name: "Logs", href: "/admin/logs", icon: FileText },
+];
+
+const proprietarioNavItems = [
+    { name: "Dashboard", href: "/proprietario/dashboard", icon: LayoutDashboard },
+    { name: "Navi IA", href: "/proprietario/navi-ia", icon: Bot },
+    {
+        name: "Estabelecimento", icon: ParkingCircle,
+        subItems: [
+            { name: "Criação de Vaga", href: "/proprietario/vagas" },
+            { name: "Funcionários", href: "/proprietario/funcionarios" },
+        ]
+    },
+    {
+        name: "Financeiro", icon: Wallet,
+        subItems: [
+            { name: "Política de Preço", href: "/proprietario/politicas" },
+            { name: "Planos Mensais", href: "/proprietario/planos" },
+            { name: "Cupons", href: "/proprietario/cupons" },
+        ]
+    },
+    { name: "Chat", href: "/proprietario/chat", icon: MessageSquare },
+    { name: "Logs", href: "/proprietario/logs", icon: FileText },
+];
+
+const gestorNavItems = [
+    { name: "Dashboard", href: "/gestor/dashboard", icon: LayoutDashboard },
+    { name: "Ocupação", href: "/gestor/ocupacao", icon: Wind },
+    { name: "Reservas", href: "/gestor/reservas", icon: CheckSquare },
+    { name: "Ativação de Plano", href: "/gestor/ativacao-plano", icon: KeyRound },
+    { name: "Chat", href: "/gestor/chat", icon: MessageSquare },
+];
+
 
 export default function Sidebar({ isOpen, onToggle }) {
-    const [isDropdownOpen, setDropdownOpen] = useState(false);
+    // Pegamos o 'user' do nosso contexto de autenticação
+    const { user } = useAuth();
     const pathname = usePathname();
 
-    const navItems = [
-        { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-        { name: "Estacionamentos", href: "/admin/estacionamentos", icon: ParkingCircle },
-        { name: "Usuários", href: "/admin/usuarios", icon: Users },
-        { name: "Relatórios", href: "/admin/relatorios", icon: BarChart3 },
-    ];
+    // -- LÓGICA PRINCIPAL: Escolhe qual menu exibir --
+    let navItems;
+    if (user?.papel === 'ADMINISTRADOR') {
+        navItems = adminNavItems;
+    } else if (user?.papel === 'PROPRIETARIO') {
+        navItems = proprietarioNavItems;
+    } else { 
+        // Supondo que 'GESTOR' e 'OPERADOR' usem o mesmo menu mais simples
+        // Adicione um 'else if' se o menu do OPERADOR for diferente
+        navItems = gestorNavItems; 
+    }
     
     return (
         <>
-            {/* Backdrop para fechar a sidebar no mobile */}
             <div
                 onClick={onToggle}
-                className={`fixed inset-0 bg-black/60 z-30 lg:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-            ></div>
-
+                className={`fixed inset-0 bg-black/60 z-30 lg:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            />
             <aside
-                className={`fixed top-0 left-0 h-full bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex flex-col z-40 transition-transform duration-300 ease-in-out 
-                w-full sm:w-80 lg:static lg:translate-x-0  {/* <<< MUDANÇA ESTÁ AQUI */}
-                ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-                ${isOpen ? 'lg:w-64' : 'lg:w-20'}
-                `}
-            >
-                {/* O conteúdo da sidebar agora começa diretamente com a navegação */}
-                <nav className="flex-1 p-4 space-y-2 mt-4 overflow-y-auto">
-                    {navItems.map((item) => {
-                        const isActive = pathname.startsWith(item.href);
-                        const Icon = item.icon;
-                        return (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                title={!isOpen ? item.name : ''}
-                                className={`flex items-center gap-4 p-3 rounded-lg transition-colors group
-                                ${isActive ? 'bg-amber-500/10 text-amber-500 font-semibold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}
-                                ${!isOpen && 'lg:justify-center'}`}
-                            >
-                                <Icon className="w-6 h-6 shrink-0" />
-                                <span className={`transition-all duration-200 ${!isOpen && 'lg:hidden'}`}>{item.name}</span>
-                            </Link>
-                        );
-                    })}
+                className={`fixed top-0 left-0 h-full bg-slate-800 text-slate-400 flex flex-col z-40
+                             transition-all duration-300 ease-in-out
+                             ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                             ${isOpen ? 'w-72 sm:w-64' : 'lg:w-20'}`}>
+                
+                {/* Espaço em branco no topo, como solicitado */}
+                <div className="h-20 shrink-0 border-b border-slate-700"></div>
+
+                <nav className="flex-1 px-4 py-4 space-y-1">
+                    {navItems.map((item) => (
+                        <NavItem key={item.name} item={item} isOpen={isOpen} />
+                    ))}
                 </nav>
                 
-                {/* --- SEÇÃO INFERIOR ("FOOTER") --- */}
-                <div className="shrink-0">
-                    {/* Drop-up de "Outros Portais" */}
-                    <div className={`relative px-4 pt-2 border-t border-slate-200 dark:border-slate-700 ${!isOpen && 'lg:hidden'}`}>
-                         <button 
-                            onClick={() => setDropdownOpen(!isDropdownOpen)} 
-                            className="w-full flex justify-between items-center p-2 rounded-lg "
-                         >
-                             <span className="font-semibold text-sm">Outros Portais</span>
-                             <ChevronUp className={`w-5 h-5 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                         </button>
-                         {isDropdownOpen && (
-                             <div className="absolute bottom-full left-0 right-0 p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
-                                <div className="space-y-2">
-                                    <a href="#" className="block text-sm p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-600">Portal A</a>
-                                    <a href="#" className="block text-sm p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-600">Portal B</a>
-                                </div>
-                             </div>
-                         )}
-                    </div>
-                
-                    {/* Informações de Contato */}
-                    <div className={`p-4 border-t border-slate-200 dark:border-slate-700 ${!isOpen && 'lg:hidden'}`}>
-                        <h4 className="font-semibold text-sm text-slate-800 dark:text-white">Navi Systems</h4>
-                        <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
-                            <p><strong>Telefone:</strong> (11) 9999-8888</p>
-                            <p><strong>Email:</strong> contato@navi.com.br</p>
-                        </div>
-                    </div>
+                {/* --- Footer Melhorado e Permanente --- */}
+                <div className={`shrink-0 border-t border-slate-700 p-4 space-y-4 ${!isOpen && 'lg:hidden'}`}>
+                    <a href="#" className="flex items-center gap-3 p-2 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-white">
+                        <Cog className="w-5 h-5"/><span>Configurações</span>
+                    </a>
+                    <a href="#" className="flex items-center gap-3 p-2 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-white">
+                        <LifeBuoy className="w-5 h-5"/><span>Suporte</span>
+                    </a>
                 </div>
             </aside>
         </>
     );
 }
+
+// Componente auxiliar para os itens de menu (com lógica de dropdown)
+const NavItem = ({ item, isOpen }) => {
+    const pathname = usePathname();
+    const [isSubMenuOpen, setSubMenuOpen] = useState(false);
+
+    // Se o item tiver sub-itens, ele é um dropdown
+    if (item.subItems) {
+        const isSubMenuActive = item.subItems.some(sub => pathname.startsWith(sub.href));
+        return (
+            <div>
+                <button
+                    onClick={() => setSubMenuOpen(!isSubMenuOpen)}
+                    className={`w-full flex items-center justify-between gap-4 p-3 rounded-lg transition-colors group
+                    ${isSubMenuActive ? 'text-amber-400' : 'hover:bg-slate-700'}
+                    ${!isOpen && 'lg:justify-center'}`}
+                >
+                    <div className="flex items-center gap-4">
+                        <item.icon className="w-6 h-6 shrink-0" />
+                        <span className={`transition-opacity duration-200 ${!isOpen && 'lg:hidden'}`}>{item.name}</span>
+                    </div>
+                    <ChevronUp className={`w-4 h-4 shrink-0 transition-transform ${!isSubMenuOpen && 'rotate-180'} ${!isOpen && 'lg:hidden'}`} />
+                </button>
+                {isSubMenuOpen && isOpen && (
+                    <div className="pl-8 space-y-1 mt-1">
+                        {item.subItems.map(subItem => {
+                            const isSubActive = pathname.startsWith(subItem.href);
+                            return (
+                                <Link key={subItem.name} href={subItem.href}
+                                    className={`block p-2 rounded-md text-sm
+                                    ${isSubActive ? 'text-amber-400 font-semibold' : 'hover:bg-slate-700'}`}>
+                                    - {subItem.name}
+                                </Link>
+                            )
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    }
+    
+    // Item de menu normal
+    const isActive = pathname.startsWith(item.href);
+    return (
+        <Link
+            href={item.href}
+            title={!isOpen ? item.name : ''}
+            className={`flex items-center gap-4 p-3 rounded-lg group transition-colors
+            ${isActive ? 'bg-amber-500 text-white font-semibold' : 'hover:bg-slate-700'}
+            ${!isOpen && 'lg:justify-center'}`}
+        >
+            <item.icon className="w-6 h-6 shrink-0" />
+            <span className={`whitespace-nowrap transition-opacity ${!isOpen && 'lg:hidden'}`}>{item.name}</span>
+        </Link>
+    );
+};
