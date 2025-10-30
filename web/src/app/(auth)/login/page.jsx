@@ -1,19 +1,12 @@
 'use client';
 
-// -----------------------------------------------------------------------------
-// IMPORTAÇÕES
-// -----------------------------------------------------------------------------
-
 import { useState, useLayoutEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import api from '../../lib/api';
+import api from '../../../lib/api';
 import Image from 'next/image';
 
-// -----------------------------------------------------------------------------
-// SCHEMAS DE VALIDAÇÃO (ZOD) - Sem alterações
-// -----------------------------------------------------------------------------
 
 const loginSchema = z.object({
     email: z.string().nonempty("O email é obrigatório").email({ message: "Insira um email válido" }),
@@ -29,10 +22,6 @@ const cadastroSchema = z.object({
 const forgotPasswordSchema = z.object({
     email: z.string().nonempty("O email é obrigatório").email({ message: "Insira um email válido" }),
 });
-
-// -----------------------------------------------------------------------------
-// COMPONENTE PRINCIPAL DA PÁGINA
-// -----------------------------------------------------------------------------
 
 export default function AuthPage() {
     const backgroundSource = "/teste.png";
@@ -189,6 +178,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 // -----------------------------------------------------------------------------
 
 const RegisterForm = ({ onLoginClick }) => {
+    // A lógica de hooks e a função onSubmit permanecem as mesmas.
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(cadastroSchema), mode: 'onBlur',
     });

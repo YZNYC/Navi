@@ -1,10 +1,10 @@
 import Header from "@/components/navbar/page";
-import Hero3 from "../components/banner/page"
+import Hero3 from "../../components/banner/page"
 import Navbar04Page from "@/components/navbar-04/navbar-04";
 import { Footer7 } from "@/components/footer/footer-7";
-import FeaturesSection from '../components/teste/FeaturesSection';
-import ShowcaseSection from '../components/teste/ShowcaseSection';
-import SecondaryFeaturesSection from '../components/teste/FeaturesSection2';
+import FeaturesSection from '../../components/teste/FeaturesSection';
+import ShowcaseSection from '../../components/teste/ShowcaseSection';
+import SecondaryFeaturesSection from '../../components/teste/FeaturesSection2';
 
 
 export default function Home() {

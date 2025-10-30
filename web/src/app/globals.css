@@ -79,7 +79,6 @@
   --background-gradient: linear-gradient(90deg, #f2b441, #ffc107, #ff8f00);
 }
 
-
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);

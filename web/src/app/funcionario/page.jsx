@@ -1,41 +1,27 @@
-'use client';
+import Layout from './layout'; 
 
-import React, { useState } from 'react';
-import DynamicContent from '../../components/content/DynamicContent';
-import Sidebar from '../../components/sidebar/page';
-import Header from '../../components/header-funcionario/page';
-
-const menuItems = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'users', label: 'Gerenciar Usuários' },
-  { key: 'settings', label: 'Configurações' },
-];
-
-export default function FuncionarioPage() {
-  const [activeKey, setActiveKey] = useState('dashboard');
-
-  const pageTitle = menuItems.find(item => item.key === activeKey)?.label || 'Funcionário';
-
+export default function DashboardPage() {
   return (
-    <div className="flex min-h-screen bg-gray-50">
-
-      <Sidebar
-        menuItems={menuItems}
-        activeKey={activeKey}
-        setActiveKey={setActiveKey}
-      />
-
-      <div className="flex flex-col flex-grow overflow-hidden">
-
-        <Header
-          pageTitle={pageTitle}
-        />
-
-        <main className="flex-grow p-10 overflow-y-auto">
-          <DynamicContent contentName={activeKey} />
-        </main>
-
+    <Layout>
+      <h1 className="text-3xl font-extrabold text-gray-800 mb-6">
+        Seja Bem-vindo!
+      </h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-indigo-500">
+          <p className="text-sm text-gray-500">Notificações</p>
+          <p className="text-2xl font-semibold text-gray-900">3 Novas</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-green-500">
+          <p className="text-sm text-gray-500">Tarefas Pendentes</p>
+          <p className="text-2xl font-semibold text-gray-900">5</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-yellow-500">
+          <p className="text-sm text-gray-500">Horas Registradas</p>
+          <p className="text-2xl font-semibold text-gray-900">160h</p>
+        </div>
       </div>
-    </div>
+      
+    </Layout>
   );
 }
