@@ -7,16 +7,19 @@ export const mockDashboardData = {
     activeSubscribers: { value: 780, change: 8.3 },
     platformRevenue: { value: 15200.75, change: 5.1 }, // R$
   },
-  
+
   charts: {
     platformRevenue: [
-      { name: 'Jan', platform: 4000, establishments: 24000 },
+      { name: 'Jan', platform: 4000, establishments: 4000 },
       { name: 'Fev', platform: 3000, establishments: 13980 },
       { name: 'Mar', platform: 2000, establishments: 9800 },
-      { name: 'Abr', platform: 2780, establishments: 39080 },
-      { name: 'Mai', platform: 1890, establishments: 48000 },
-      { name: 'Jun', platform: 2390, establishments: 38000 },
-      { name: 'Jul', platform: 3490, establishments: 43000 },
+      { name: 'Abr', platform: 2780, establishments: 3080 },
+      { name: 'Mai', platform: 1890, establishments: 20000 },
+      { name: 'Jun', platform: 9090, establishments: 38000 },
+      { name: 'Jul', platform: 7490, establishments: 48000 },
+      { name: 'Ago', platform: 3090, establishments: 10000 },
+      { name: 'Set', platform: 6790, establishments: 18000 },
+      { name: 'Out', platform: 9490, establishments: 40000 },
     ],
     userGrowth: [
       { name: 'Jan', motoristas: 2000, estacionamentos: 50 },
@@ -25,7 +28,10 @@ export const mockDashboardData = {
       { name: 'Abr', motoristas: 2800, estacionamentos: 68 },
       { name: 'Mai', motoristas: 3100, estacionamentos: 75 },
       { name: 'Jun', motoristas: 3400, estacionamentos: 80 },
-      { name: 'Jul', motoristas: 3800, estacionamentos: 90 },
+      { name: 'Jul', motoristas: 3800, estacionamentos: 990 },
+      { name: 'Ago', motoristas: 2930, estacionamentos: 750 },
+      { name: 'Set', motoristas: 4000, estacionamentos: 890 },
+      { name: 'Out', motoristas: 5200, estacionamentos: 620 },
     ],
     vacancyUtilization: [
       { name: 'Seg', total: 500, ocupadas: 350, livres: 150 },
@@ -68,4 +74,6 @@ export const mockEstablishments = [
   { id: 103, name: 'Vaga Segura', cnpj: '11.222.333/0001-40', address: 'Praça da Liberdade, 789', status: 'verified', rating: 4.6 },
   { id: 104, name: 'AutoPark Premium', cnpj: '44.555.666/0001-70', address: 'Travessa Y, 10 - Zona Oeste', status: 'deactivated', rating: 4.2 },
   { id: 105, name: 'Estacione Fácil', cnpj: '77.888.999/0001-20', address: 'Rua Z, 500 - Zona Sul', status: 'pending', rating: 3.9 },
+  { id: 106, name: 'Estacionamento do Manão', cnpj: '12.573.999/0001-59', address: 'Rua L, 20 - Zona Norte', status: 'pending', rating: 2.9 },
+  { id: 107, name: 'Estaci Park', cnpj: '77.694.382/0001-20', address: 'Rua M, 80 - Zona Leste', status: 'pending', rating: 2.1 },
 ];
