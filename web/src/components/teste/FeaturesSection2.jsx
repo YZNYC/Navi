@@ -90,8 +90,8 @@ const SecondaryFeaturesSection = () => {
       <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }}></div>
       <div style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }}></div>
       
-      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -left-1/4 w-3/5 h-3/5 rounded-full bg-[#ff8f00] dark:bg-[#d08700]/20 blur-[150px] filter -z-10"></div>
-      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -right-1/4 w-3/5 h-3/5 rounded-full bg-[#f2b441] dark:bg-[#f6bb00]/20 blur-[150px] filter -z-10"></div>
+      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -left-1/4 w-3/5 h-2/5 rounded-full bg-[#ff8f00] dark:bg-[#d08700]/20 blur-[150px] filter -z-10"></div>
+      <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -right-1/4 w-3/5 h-2/5 rounded-full bg-[#f2b441] dark:bg-[#f6bb00]/20 blur-[150px] filter -z-10"></div>
       
       <HalfCircle
         className="absolute top-0 -left-[125px] sm:-left-[190px] opacity-20 dark:opacity-20 border-white/50 dark:border-white/50"
