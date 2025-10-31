@@ -6,20 +6,17 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import Link from "next/link"; // A tag 'Link' do Next.js ainda é útil para acessibilidade e semântica
+import { ModeToggle } from "../darkmode/darkMode"; // <-- 1. Importe o ModeToggle
 
 // Componente para criar os itens do menu com a lógica de rolagem
 const SmoothScrollMenuItem = ({ href, children, onLinkClick }) => {
   
   const handleClick = (e) => {
     e.preventDefault();
-    
-    // 1. Chama a função para fechar o menu mobile, se ela for passada
     if (onLinkClick) {
       onLinkClick();
     }
     
-    // 2. Lógica de rolagem suave
     const targetId = href.substring(1);
     const targetElement = document.getElementById(targetId);
     
@@ -34,7 +31,6 @@ const SmoothScrollMenuItem = ({ href, children, onLinkClick }) => {
   return (
     <NavigationMenuItem>
       <NavigationMenuLink asChild>
-        {/* Usamos a tag 'a' diretamente para controle total do 'onClick' */}
         <a href={href} onClick={handleClick}>{children}</a>
       </NavigationMenuLink>
     </NavigationMenuItem>
@@ -42,13 +38,12 @@ const SmoothScrollMenuItem = ({ href, children, onLinkClick }) => {
 };
 
 // --- SEU COMPONENTE 'NavMenu' MODIFICADO ---
-// Ele agora pode receber uma função 'onLinkClick' para fechar o menu ao navegar
 export const NavMenu = ({ onLinkClick }) => (
   <NavigationMenu orientation="vertical">
     <NavigationMenuList
-      className="gap-3 space-x-0 data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-start data-[orientation=vertical]:justify-start"
+      // Adicionei 'h-full flex-col' para garantir que o layout ocupe a altura
+      className="gap-4 space-x-0 w-full flex h-full flex-col items-start justify-start p-4"
     >
-      {/* Agora usamos o componente 'SmoothScrollMenuItem' para cada link */}
       <SmoothScrollMenuItem href="#inicio" onLinkClick={onLinkClick}>Início</SmoothScrollMenuItem>
       <SmoothScrollMenuItem href="#funcionalidades" onLinkClick={onLinkClick}>Funcionalidades</SmoothScrollMenuItem>
       <SmoothScrollMenuItem href="#showcase" onLinkClick={onLinkClick}>Objetivo</SmoothScrollMenuItem>
@@ -58,6 +53,16 @@ export const NavMenu = ({ onLinkClick }) => (
       <SmoothScrollMenuItem href="#video" onLinkClick={onLinkClick}>Vídeo</SmoothScrollMenuItem>
       <SmoothScrollMenuItem href="#noticias" onLinkClick={onLinkClick}>Melhorias</SmoothScrollMenuItem>
       <SmoothScrollMenuItem href="#contato" onLinkClick={onLinkClick}>Contato</SmoothScrollMenuItem>
+      
+      {/* Separador visual (opcional) */}
+      <div className="w-full border-t border-slate-200 dark:border-slate-800 my-4" />
+
+      {/* --- 2. ADICIONE O BOTÃO DE TEMA AQUI --- */}
+      <div className="w-full flex justify-between items-center">
+          <span className="text-sm font-medium text-slate-500">Mudar tema</span>
+          <ModeToggle />
+      </div>
+
     </NavigationMenuList>
   </NavigationMenu>
 );
