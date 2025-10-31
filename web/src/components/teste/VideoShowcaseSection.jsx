@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 // --- COMPONENTE DECORATIVO QUE USAMOS ---
 // MODIFICADO
 const HalfCircle = (props) => (
-  <div className={`w-[380px] h-[190px] border-l-[40px] border-t-[40px] border-r-[40px] rounded-t-full ${props.className}`} />
+  <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full border-white/20 dark:border-[#ffffff]/50 ${props.className}`} />
 );
+
 
 const VideoShowcaseSection = () => {
   const videoRef = useRef(null);
@@ -22,7 +23,7 @@ const VideoShowcaseSection = () => {
         setIsPlaying(true);
       } else {
         videoRef.current.pause();
-        setIsPlaying(false);
+        setIsPlaying(false);  
       }
     }
   };
