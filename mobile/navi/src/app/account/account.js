@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import { Link } from 'expo-router';
 
 const openDb = async () => {
   return await SQLite.openDatabaseAsync('navi.db');
@@ -98,9 +99,14 @@ export const LoginForm = () => {
 
   return (
     <View style={styles.container}>
+      <View style={{ alignItems: "center" }}>
+        <Text style={{ fontWeight: "bold", fontSize: 25 }}>Bem-vindo de volta</Text>
+        <Text style={{ color: "#6e727a" }}>Faça login para continuar</Text>
+      </View>
+
       <TextInput
         style={styles.input}
-        placeholder="E-mail"
+        placeholder="Endereço de Email"
         value={form.email}
         onChangeText={(text) => setForm({ ...form, email: text })}
         keyboardType="email-address"
@@ -113,8 +119,10 @@ export const LoginForm = () => {
         onChangeText={(text) => setForm({ ...form, senha: text })}
         secureTextEntry={true}
       />
+
+      <Link href="/forgot">Esqueceu a senha?</Link>
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Login</Text>
+        <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -147,13 +155,13 @@ const styles = StyleSheet.create({
     height: 45,
     borderColor: '#ccc',
     borderWidth: 1,
-    marginBottom: 15,
+    marginTop: 30,
     paddingHorizontal: 10,
     borderRadius: 8,
     fontSize: 16,
   },
   button: {
-    backgroundColor: "#ffa500",
+    backgroundColor: "#FFDE33",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
@@ -163,6 +171,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: "#fff",
+    color: "#4E431B",
   },
 });
