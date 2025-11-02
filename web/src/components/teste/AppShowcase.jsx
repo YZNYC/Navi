@@ -102,7 +102,7 @@ const AppShowcaseSection = () => {
           </div>
 
           {/* Botões de Navegação (Abaixo do Carrossel) */}
-          <div className="mt-8 flex justify-center items-center gap-4 z-20">
+          <div className="mt-8 flex justify-center items-center gap-4">
             <button onClick={prevSlide} className="w-14 h-14 rounded-full bg-white/20 dark:bg-slate-800/40 backdrop-blur-sm border border-white/30 dark:border-slate-700 flex items-center justify-center text-white hover:bg-white/40 dark:hover:bg-slate-700 transition-colors">
               <ChevronLeft className="w-6 h-6" />
             </button>
