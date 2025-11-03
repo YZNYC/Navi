@@ -1,60 +1,75 @@
+// src/app/page.js
 import Header from "@/components/shadcn/navbar/page";
-import Hero3 from "../components/landingpage/banner/page"
-import Navbar04Page from "@/components/shadcn/navbar-04/navbar-04";
+import Hero3 from "../components/landingpage/banner/page";
+import Navbar04Page from "@/components/shadcn/navbar-04/navbar-04"; // Você tem 2 navbars, verifique qual quer usar
 import { Footer7 } from "@/components/shadcn/footer/footer-7";
 import FeaturesSection from '../components/teste/FeaturesSection';
 import ShowcaseSection from '../components/teste/ShowcaseSection';
 import SecondaryFeaturesSection from '../components/teste/FeaturesSection2';
 import AppShowcaseSection from '../components/teste/AppShowcase';
-import CtaFaqSection from '../components/teste/CtaFaqSection';
+import FaqSection from '../components/teste/CtaFaqSection'; // Supondo o nome que demos anteriormente
 import VideoShowcaseSection from '../components/teste/VideoShowcaseSection';
+import NewsSection from '../components/teste/NewsSection';
+import ContactSection from '../components/teste/ContactSection'; // Renomeei de 'ContatcForm'
 
 export default function Home() {
   return (
     <>
-      <section>
-        <Header />
-      </section>
+      {/* O Header já é 'fixed', não precisa estar em uma section */}
+      <Header />
 
-      <section>
-        <Navbar04Page />
-      </section>
+      {/* Não tenho certeza do que é Navbar04Page, se for outra navbar, considere remover para não ter duplicidade */}
+      <Navbar04Page />
 
-      <section id="home" className="container mx-auto py-24">
+      {/* A seção principal do 'Hero' */}
+      <section id="inicio" className="container mx-auto py-24">
         <Hero3 />
       </section>
 
-      <section>
+      {/* Seção de Funcionalidades */}
+      <section id="funcionalidades">
         <FeaturesSection />
       </section>
 
-      <section>
-        < ShowcaseSection />
+      {/* Seção de Demonstração (Motorista) */}
+      <section id="showcase">
+        <ShowcaseSection />
       </section>
 
-      <section>
+      {/* Seção de Perfis/Painel */}
+      <section id="perfis">
         <SecondaryFeaturesSection />
       </section>
 
-      <section>
-        < AppShowcaseSection />
+      {/* Seção com Screenshots do App */}
+      <section id="app">
+        <AppShowcaseSection />
       </section>
 
-      <section>
-        <CtaFaqSection />
+      {/* Seção de FAQ */}
+      <section id="faq">
+        <FaqSection />
       </section>
 
-      <section>
+      {/* Seção de Vídeo */}
+      <section id="video">
         <VideoShowcaseSection />
       </section>
 
-
-
-
-      <section>
-        <Footer7 />
+      {/* Seção de Notícias/Melhorias Futuras */}
+      <section id="noticias">
+        <NewsSection />
       </section>
 
+      {/* Seção de Contato */}
+      <section id="contato">
+        <ContactSection />
+      </section>
+
+
+
+      {/* O Footer não precisa estar em uma section */}
+      <Footer7 />
     </>
   );
 }

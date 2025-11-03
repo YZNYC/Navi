@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 // --- COMPONENTE DECORATIVO QUE USAMOS ---
 // MODIFICADO
 const HalfCircle = (props) => (
-  <div className={`w-[380px] h-[190px] border-l-[40px] border-t-[40px] border-r-[40px] rounded-t-full ${props.className}`} />
+  <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full border-white/20 dark:border-[#ffffff]/50 ${props.className}`} />
 );
+
 
 const VideoShowcaseSection = () => {
   const videoRef = useRef(null);
@@ -22,17 +23,17 @@ const VideoShowcaseSection = () => {
         setIsPlaying(true);
       } else {
         videoRef.current.pause();
-        setIsPlaying(false);
+        setIsPlaying(false);  
       }
     }
   };
 
-  return (
+return (
     <section className="relative min-h-screen flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       
       {/* --- FUNDOS DE TEMA (corrigido para o modo escuro funcionar) --- */}
       <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }} />
-      <div style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
+      <div className="" style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
       
       {/* --- ELEMENTOS DECORATIVOS --- */}
 
@@ -58,7 +59,7 @@ const VideoShowcaseSection = () => {
         onMouseEnter={() => setShowButton(true)}
         onMouseLeave={() => { if(isPlaying) setShowButton(false) }}
       >
-        <div className="relative p-2 rounded-3xl bg-gradient-to-br from-white/10 to-white/0 dark:from-[#efb000]/30 dark:to-transparent shadow-2xl">
+        <div className="relative p-2 rounded-3xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 shadow-2xl">
             
             <div aria-hidden="true" className="absolute top-0 left-0 w-12 h-12 bg-white/10 dark:bg-slate-900/50 rounded-full -translate-x-1/2 -translate-y-1/2 blur-md" />
             <div aria-hidden="true" className="absolute bottom-0 right-0 w-12 h-12 bg-white/10 dark:bg-slate-900/50 rounded-full translate-x-1/2 translate-y-1/2 blur-md" />

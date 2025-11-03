@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 // --- DADOS DO FAQ ---
 const faqData = [
     { question: "Como funciona o Navi?", answer: "O Navi conecta você a uma rede de estacionamentos. Pelo mapa, você vê as vagas livres, reserva a sua, paga pelo app e estaciona sem complicações. Proprietários gerenciam tudo em um painel online." },
-    { question: "Quais métodos de pagamento são aceitos?", answer: "Atualmente, aceitamos pagamentos via Pix e os principais cartões de crédito e débito, tudo processado com segurança através do nosso parceiro de pagamentos." },
-    { question: "Posso cancelar uma reserva?", answer: "Sim! Você pode cancelar sua reserva diretamente pelo aplicativo. Dependendo da política do estacionamento, o cancelamento pode ser gratuito até um certo tempo antes do horário reservado." },
+    { question: "Funciona em Qualquer celular?", answer: "Sim! Por ser feito em React Native, ele automaticamente tem portabilidade para todos os sistemas operacionais, porém não testamos em iPhones ainda." },
+    { question: "Prentendemos Seguir com ele?", answer: "Essa resposta é difícil, pois após o curso cada um irá continuar sua vida, mas se for da vontade de todos, por que não?" },
 ];
 
 // --- SUB-COMPONENTE DO FAQ ITEM ---
@@ -27,37 +27,36 @@ const FaqItem = ({ item }) => {
     );
 };
 
-// --- COMPONENTE DO ANEL DECORATIVO ---
 const DecorativeRing = ({ className }) => ( <div aria-hidden="true" className={`absolute w-64 h-64 border-[35px] rounded-full z-10 ${className}`} /> );
-
 
 // -----------------------------------------------------------------------------
 // COMPONENTE PRINCIPAL
 // -----------------------------------------------------------------------------
 const FaqSection = () => {
   return (
-    // 1. O "CONTÊINER PAI" TRANSPARENTE
-    // Ele tem 'relative' para posicionar os anéis e 'py' para criar o espaço vazio.
-    <div className="relative py-24 sm:py-32">
-        
-        {/* 2. ANÉIS DECORATIVOS
-            Posicionados em relação ao contêiner pai, para que fiquem nas bordas da seção colorida abaixo. */}
-        <DecorativeRing className="
-            top-0 right-0 
-            -translate-y-[calc(50%-theme(spacing.24))] sm:-translate-y-[calc(50%-theme(spacing.32))] 
-            translate-x-1/2 
-            border-white/50 dark:border-slate-700/60 opacity-20 dark:opacity-20"
-        />
-        <DecorativeRing className="
-            bottom-0 left-0 
-            translate-y-[calc(50%-theme(spacing.24))] sm:translate-y-[calc(50%-theme(spacing.32))] 
-            -translate-x-1/2 
-           border-white/50 dark:border-slate-700/60  opacity-20 dark:opacity-20"
-        />
+    // ADICIONE UM CONTAINER PAI COM overflow-x-hidden
+    <div className="overflow-x-hidden">
+      {/* 
+        O "CONTÊINER PAI" que você tinha continua aqui, 
+        mas agora ele está seguro dentro do container com overflow.
+      */}
+      <div className="relative py-24 sm:py-32">
+          
+          <DecorativeRing className="
+              top-0 right-0 
+              -translate-y-[calc(50%-theme(spacing.24))] sm:-translate-y-[calc(50%-theme(spacing.32))] 
+              translate-x-1/2 
+              border-white/50 dark:border-slate-700/60 opacity-20"
+          />
+          <DecorativeRing className="
+              bottom-0 left-0 
+              translate-y-[calc(50%-theme(spacing.24))] sm:translate-y-[calc(50%-theme(spacing.32))] 
+              -translate-x-1/2 
+             border-white/50 dark:border-slate-700/60 opacity-20"
+          />
 
-        {/* 3. A "FAIXA" COLORIDA DO FAQ
-            Esta seção tem a cor de fundo e o 'overflow-hidden' para conter seus próprios brilhos internos. */}
-        <section className="relative bg-white/20 dark:bg-slate-900 overflow-hidden py-24 sm:py-32">
+          {/* O resto do seu código (a faixa colorida do FAQ) permanece exatamente o mesmo */}
+           <section className="relative bg-white/20 dark:bg-slate-900 overflow-hidden py-24 sm:py-32">
             <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center relative z-0">
                 <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white dark:text-white">
                     Perguntas Frequentes
@@ -75,8 +74,8 @@ const FaqSection = () => {
                 </div>
             </div>
         </section>
+      </div>
     </div>
   );
 };
-
 export default FaqSection;
