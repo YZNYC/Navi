@@ -129,6 +129,11 @@ export const LoginForm = () => {
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
+
+      <View style={{ display: "flex", flexDirection: "row" }}>
+        <Text>Não tem uma conta? </Text>
+        <Link href="/register" style={{}}>Cadastre-se</Link>
+      </View>
     </View>
   );
 }
