@@ -1,3 +1,7 @@
+//useLogin
+import { useLogin } from '../../providers/loginProvider';
+
+//importando bibliotecas
 import { useState, useEffect } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as SQLite from 'expo-sqlite';
@@ -48,6 +52,7 @@ export default function Account() {
 }
 
 export const LoginForm = () => {
+  const { setUser } = useLogin();
   const [form, setForm] = useState({
     email: '',
     senha: ''
@@ -74,8 +79,6 @@ export const LoginForm = () => {
       }
 
       const db = await openDb();
-
-      // Busca o usuário no banco de dados.
       const user = await db.getFirstAsync(
         'SELECT * FROM usuario WHERE email = ? AND senha = ?',
         [form.email.trim(), form.senha.trim()]
@@ -84,6 +87,8 @@ export const LoginForm = () => {
       if (!user) {
         throw new Error('Credenciais inválidas.');
       }
+
+      setUser(user);
 
       Alert.alert('Login bem-sucedido!', `Bem-vindo, ${user.nome}!`);
       setForm({
@@ -120,7 +125,7 @@ export const LoginForm = () => {
         secureTextEntry={true}
       />
 
-      <Link href="/forgot">Esqueceu a senha?</Link>
+      <Link href="/forgot" >Esqueci a senha</Link>
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
