@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('authToken'); // O token que você salva
         localStorage.removeItem('usuario');  // O objeto de usuário que você salva
         setUser(null);
-        window.location.href = '/login'; // Redireciona para o login
+        window.location.href = '/'; // Redireciona para o login
     };
     
     // Expõe os valores corretos para os componentes

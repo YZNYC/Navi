@@ -41,7 +41,7 @@ export default function Header() {
           
           {/* ---- 5 Links à Esquerda ---- */}
           <li><SmoothScrollLink href="#showcase">História</SmoothScrollLink></li>
-          <li><SmoothScrollLink href="#perfis">Vantagens</SmoothScrollLink></li>
+          <li><SmoothScrollLink href="#perfis">Objetivos</SmoothScrollLink></li>
           <li><SmoothScrollLink href="#app">Showcase</SmoothScrollLink></li>
 
           {/* ---- Logo ao Centro ---- */}
