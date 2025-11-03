@@ -9,8 +9,8 @@ const defaultSocialLinks = [
 ];
 
 const defaultLegalLinks = [
-  { name: "Terms and Conditions", href: "#" },
-  { name: "Privacy Policy", href: "#" },
+  { name: "Termos e Condições", href: "#" },
+  { name: "Politica e Privacidade", href: "#" },
 ];
 
 export const Footer7 = ({
@@ -24,7 +24,7 @@ export const Footer7 = ({
 
 
   socialLinks = defaultSocialLinks,
-  copyright = "© 2024 Shadcnblocks.com. All rights reserved.",
+  copyright = "© 2025 Navi.com.brㅤㅤㅤTodos os Direitos Reservados.",
   legalLinks = defaultLegalLinks
 }) => {
   return (

@@ -10,9 +10,9 @@ const HalfCircle = (props) => (
 
 // --- DADOS (focados em 'Melhorias') ---
 const posts = [
-    { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Pagamentos via PIX', excerpt: 'Estamos finalizando a integração para você pagar suas reservas e planos de forma instantânea e segura usando o PIX.' },
-    { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Novo Dashboard para Proprietários', excerpt: 'Uma experiência completamente redesenhada com mais gráficos e insights para ajudar a otimizar seu negócio.' },
-    { imageUrl: '/celular.webp', author: 'Equipe Navi', date: 'Planejamento', title: 'Filtro para Vagas com Carregador Elétrico', excerpt: 'Sabemos da importância da eletrificação. Em breve, você poderá encontrar facilmente onde recarregar seu veículo.' }
+    { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Pagamentos via PIX', excerpt: 'Estamos planejando a realização de um update no app para que pagamentos via PIX sejam reconhecidos.' },
+    { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Lançamento na App Store', excerpt: 'Um lançamento importante para a empresa e seus usuários, com isso o app chegará em novos patamares.' },
+    { imageUrl: '/celular.webp', author: 'Equipe Navi', date: 'Planejamento', title: 'Melhorias de Vida', excerpt: 'Sabemos da importância de um App bem atualizado, nós planejamos diversas mudanças para facilitar o uso do App.' }
 ];
 
 // --- SUB-COMPONENTE DO CARD (com cores ajustadas) ---
@@ -47,7 +47,7 @@ const NewsSection = () => {
         {/* Fundos de Tema */}
         <div className="absolute inset-0 -z-30">
             <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }} />
-            <div className="absolute inset-0 -z-20 opacity-0 transition-opacity duration-500 dark:opacity-100" style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
+            <div style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
         </div>
 
         {/* Elementos Decorativos */}

@@ -55,7 +55,7 @@ const PricingCard = ({ tier, isColetivo, className }) => {
   const data = isColetivo ? tier.coletivo : tier.individual;
   return (
     // Fundo mantido como 'bg-white/50', mas ajustei a borda para ser mais visível no modo claro
-    <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-amber-400 dark:border-[#efb000]' : 'border-white/50 dark:border-slate-800'} ${className}`}>
+    <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-white dark:border-[#efb000]' : 'border-white/30 dark:border-slate-800'} ${className}`}>
       {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-[#efb000] dark:bg-[#efb000] text-white dark:text-gray-900 px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
       
       {/* TÍTULO: Agora 'orange-950' no modo claro, 'white' no modo escuro */}

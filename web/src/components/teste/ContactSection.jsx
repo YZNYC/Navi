@@ -8,12 +8,12 @@ import Image from 'next/image';
 
 // --- DADOS DAS LOGOS DE TECNOLOGIA (use imagens da sua pasta /public/logos) ---
 const logos = [
-    { name: 'Next.js', src: '/logos/nextjs.svg' },
-    { name: 'Node.js', src: '/logos/nodejs.svg' },
-    { name: 'Prisma', src: '/logos/prisma.svg' },
-    { name: 'Tailwind CSS', src: '/logos/tailwind.svg' },
-    { name: 'AWS', src: '/logos/aws.svg' },
-    { name: 'MySQL', src: '/logos/mysql.svg' },
+    { name: 'Next.js', src: '/nextlogo.png' },
+    { name: 'Node.js', src: '/nodelogo.png' },
+    { name: 'Prisma', src: '/prismalogo.png' },
+    { name: 'Tailwind CSS', src: '/tailwindlogo.png' },
+    { name: 'AWS', src: '/awslogo.png' },
+    { name: 'MySQL', src: '/mysqllogo.png' },
 ];
 
 // --- COMPONENTE DECORATIVO ---
