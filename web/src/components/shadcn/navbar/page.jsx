@@ -1,10 +1,16 @@
-// src/components/shadcn/navbar/page.jsx (ou Header.jsx)
 'use client'
+
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES
+// -----------------------------------------------------------------------------
+
 import { useEffect, useState } from "react";
-// Removi o 'HoveredLink' já que não será mais usado aqui
 import { ModeToggle } from "../darkmode/darkMode";
 
-// Componente helper para rolagem suave
+// -----------------------------------------------------------------------------
+// FUNÇÃO DESLIZAMENTO SUAVE
+// -----------------------------------------------------------------------------
+
 const SmoothScrollLink = ({ href, children }) => {
   const handleClick = (e) => {
     e.preventDefault();
@@ -22,6 +28,10 @@ const SmoothScrollLink = ({ href, children }) => {
   return <a href={href} onClick={handleClick} className="hover:text-amber-300 transition-colors">{children}</a>;
 };
 
+// -----------------------------------------------------------------------------
+// NAVBAR
+// -----------------------------------------------------------------------------
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
 
@@ -31,7 +41,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Texto branco com sombra para garantir legibilidade quando o fundo muda
   const linkTextColor = "text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.4)]";
 
   return (
@@ -39,20 +48,15 @@ export default function Header() {
       <nav className="flex items-center justify-center h-20 px-6 relative">
         <ul className={`flex items-center justify-center gap-x-8 lg:gap-x-12 font-semibold ${linkTextColor}`}>
           
-          {/* ---- 5 Links à Esquerda ---- */}
           <li><SmoothScrollLink href="#showcase">História</SmoothScrollLink></li>
           <li><SmoothScrollLink href="#perfis">Objetivos</SmoothScrollLink></li>
           <li><SmoothScrollLink href="#app">Showcase</SmoothScrollLink></li>
-
-          {/* ---- Logo ao Centro ---- */}
           <li className="px-4">
             <a href="#inicio" className="flex items-center">
               <img src="/light.png" alt="Logo Claro" className="max-h-16 w-auto object-contain block dark:hidden" />
               <img src="/fundo-amarelo.png" alt="Logo Escuro" className="max-h-16 w-auto object-contain hidden dark:block" />
             </a>
           </li>
-
-          {/* ---- 5 Links à Direita ---- */}
           <li><SmoothScrollLink href="#video">Vídeo</SmoothScrollLink></li>
           <li><SmoothScrollLink href="#noticias">Melhorias</SmoothScrollLink></li>
           <li><SmoothScrollLink href="#contato">Contato</SmoothScrollLink></li>

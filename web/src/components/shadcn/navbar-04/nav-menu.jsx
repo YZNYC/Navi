@@ -1,14 +1,16 @@
 'use client'
 
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import { ModeToggle } from "../darkmode/darkMode"; // <-- 1. Importe o ModeToggle
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES
+// -----------------------------------------------------------------------------
 
-// Componente para criar os itens do menu com a lógica de rolagem
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink,NavigationMenuList,} from "@/components/ui/navigation-menu";
+import { ModeToggle } from "../darkmode/darkMode";
+
+// -----------------------------------------------------------------------------
+// DESLIZAMENTO SUAVE
+// -----------------------------------------------------------------------------
+
 const SmoothScrollMenuItem = ({ href, children, onLinkClick }) => {
   
   const handleClick = (e) => {
@@ -37,11 +39,14 @@ const SmoothScrollMenuItem = ({ href, children, onLinkClick }) => {
   );
 };
 
-// --- SEU COMPONENTE 'NavMenu' MODIFICADO ---
+// -----------------------------------------------------------------------------
+// NAVBAR
+// -----------------------------------------------------------------------------
+
 export const NavMenu = ({ onLinkClick }) => (
   <NavigationMenu orientation="vertical">
     <NavigationMenuList
-      // Adicionei 'h-full flex-col' para garantir que o layout ocupe a altura
+  
       className="gap-4 space-x-0 w-full flex h-full flex-col items-start justify-start p-4"
     >
       <SmoothScrollMenuItem href="#inicio" onLinkClick={onLinkClick}>Início</SmoothScrollMenuItem>
@@ -54,10 +59,9 @@ export const NavMenu = ({ onLinkClick }) => (
       <SmoothScrollMenuItem href="#noticias" onLinkClick={onLinkClick}>Melhorias</SmoothScrollMenuItem>
       <SmoothScrollMenuItem href="#contato" onLinkClick={onLinkClick}>Contato</SmoothScrollMenuItem>
       
-      {/* Separador visual (opcional) */}
+      
       <div className="w-full border-t border-slate-200 dark:border-slate-800 my-4" />
 
-      {/* --- 2. ADICIONE O BOTÃO DE TEMA AQUI --- */}
       <div className="w-full flex justify-between items-center">
           <span className="text-sm font-medium text-slate-500">Mudar tema</span>
           <ModeToggle />

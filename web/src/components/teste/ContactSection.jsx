@@ -1,12 +1,15 @@
 'use client';
 
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES, ZOD, LOGOS E ELEMENTOS DE UI
+// -----------------------------------------------------------------------------
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import Image from 'next/image';
 
-// --- DADOS DAS LOGOS DE TECNOLOGIA (use imagens da sua pasta /public/logos) ---
 const logos = [
     { name: 'Next.js', src: '/nextlogo.png' },
     { name: 'Node.js', src: '/nodelogo.png' },
@@ -16,12 +19,12 @@ const logos = [
     { name: 'MySQL', src: '/mysqllogo.png' },
 ];
 
-// --- COMPONENTE DECORATIVO ---
+
 const HalfCircle = (props) => (
   <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full border-white/50 dark:border-[#ffffff]/50 ${props.className}`} />
 );
 
-// --- ESQUEMA DE VALIDAÇÃO ZOD ---
+
 const contactSchema = z.object({
   name: z.string().min(2, "Seu nome é obrigatório."),
   email: z.string().email("Por favor, insira um email válido."),
@@ -30,13 +33,16 @@ const contactSchema = z.object({
   message: z.string().min(10, "Sua mensagem precisa ter no mínimo 10 caracteres."),
 });
 
+// -----------------------------------------------------------------------------
+// FUNÇÃO DE ENVIO DE EMAIL COM FORMSPREE
+// -----------------------------------------------------------------------------
 
 const ContactSection = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm({ resolver: zodResolver(contactSchema) });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [apiState, setApiState] = useState({ success: false, error: false });
     
-    // INSTRUÇÃO: Substitua 'YOUR_CODE' pelo seu código do Formspree.
+    // código do Formspree.
     const FORMPSREE_ENDPOINT = "https://formspree.io/f/xgvpnbqyc";
 
     const onSubmit = async (data) => {
@@ -62,9 +68,12 @@ const ContactSection = () => {
         }
     };
   
+// -----------------------------------------------------------------------------
+// SESSÃO DE LOGOS E CONTATO
+// -----------------------------------------------------------------------------
+
   return (
     <>
-      {/* 1. Faixa das Logos de Tecnologia */}
       <div className="py-16 sm:py-20 bg-white/50 dark:bg-slate-900/50">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-10 gap-x-8 items-center">
@@ -83,13 +92,10 @@ const ContactSection = () => {
           </div>
       </div>
 
-      {/* 2. Seção do Formulário de Contato */}
       <section className="relative py-24 sm:py-32 overflow-hidden">
-        {/* Fundos de Tema (gradientes) */}
         <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }} />
         <div  style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
 
-        {/* Elementos Decorativos de Fundo */}
         <div aria-hidden="true" className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/3 w-2/4 h-2/4 rounded-full bg-[#ff8f00] dark:bg-[#d08700]/10 blur-[150px] -z-10" />
         <HalfCircle className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 -rotate-90 opacity-10 dark:opacity-5 border-slate-300 dark:border-slate-700 -z-10" />
 
@@ -104,9 +110,9 @@ const ContactSection = () => {
 
         <div className="mt-16 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <div className="relative">
-                {/* A Sombra Amarela Sólida */}
+            
                 <div aria-hidden="true" className="absolute top-2 left-2 w-full h-full bg-[#efb000] rounded-2xl" />
-                {/* O Formulário Branco (sem borda) */}
+              
                 <div className="relative bg-white p-8 sm:p-12 rounded-2xl">
                     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

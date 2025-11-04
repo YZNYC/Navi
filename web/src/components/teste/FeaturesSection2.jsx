@@ -1,7 +1,7 @@
 'use client';
 
 // -----------------------------------------------------------------------------
-// IMPORTAÇÕES E ELEMENTOS AUXILIARES
+// IMPORTAÇÕES E DADOS DE CARD DE PUBLICO
 // -----------------------------------------------------------------------------
 
 import { useState } from 'react';
@@ -10,9 +10,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Check, CheckCircle, Clock, BarChart } from 'lucide-react';
 
-// -----------------------------------------------------------------------------
-// DADOS PARA OS CARDS DE PÚBLICO
-// -----------------------------------------------------------------------------
 
 const tiers = {
   motorista: {
@@ -54,23 +51,20 @@ const secondaryFeatures = [
 const PricingCard = ({ tier, isColetivo, className }) => {
   const data = isColetivo ? tier.coletivo : tier.individual;
   return (
-    // Fundo mantido como 'bg-white/50', mas ajustei a borda para ser mais visível no modo claro
+  
     <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-white dark:border-[#efb000]' : 'border-white/30 dark:border-slate-800'} ${className}`}>
       {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-[#efb000] dark:bg-[#efb000] text-white dark:text-gray-900 px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
       
-      {/* TÍTULO: Agora 'orange-950' no modo claro, 'white' no modo escuro */}
       <h3 className="text-xl font-semibold text-orange-950 dark:text-white">{data.name}</h3>
-      
-      {/* DESCRIÇÃO: Agora 'orange-950/80' (com opacidade) no modo claro */}
+    
       <p className="mt-4 text-orange-950/80 dark:text-slate-400 flex-grow">{data.description}</p>
       
       <ul className="mt-8 space-y-4">
         {data.features.map((feature, i) => (
           <li key={i} className="flex items-center gap-3">
-            {/* Ícone de check mantido com cor de destaque */}
+          
             <Check className="h-5 w-5 text-amber-500 dark:text-[#f6bb00] flex-shrink-0" />
             
-            {/* TEXTO DO ITEM: Agora 'orange-950' no modo claro */}
             <span className="text-orange-950 dark:text-slate-300">{feature}</span>
           </li>
         ))}

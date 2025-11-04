@@ -1,17 +1,21 @@
 'use client';
 
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES, FAQ E UI
+// -----------------------------------------------------------------------------
+
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- DADOS DO FAQ ---
+
 const faqData = [
     { question: "Como funciona o Navi?", answer: "O Navi conecta você a uma rede de estacionamentos. Pelo mapa, você vê as vagas livres, reserva a sua, paga pelo app e estaciona sem complicações. Proprietários gerenciam tudo em um painel online." },
     { question: "Funciona em Qualquer celular?", answer: "Sim! Por ser feito em React Native, ele automaticamente tem portabilidade para todos os sistemas operacionais, porém não testamos em iPhones ainda." },
     { question: "Prentendemos Seguir com ele?", answer: "Essa resposta é difícil, pois após o curso cada um irá continuar sua vida, mas se for da vontade de todos, por que não?" },
 ];
 
-// --- SUB-COMPONENTE DO FAQ ITEM ---
+
 const FaqItem = ({ item }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
@@ -32,14 +36,12 @@ const DecorativeRing = ({ className }) => ( <div aria-hidden="true" className={`
 // -----------------------------------------------------------------------------
 // COMPONENTE PRINCIPAL
 // -----------------------------------------------------------------------------
+
 const FaqSection = () => {
   return (
-    // ADICIONE UM CONTAINER PAI COM overflow-x-hidden
+    
     <div className="overflow-x-hidden">
-      {/* 
-        O "CONTÊINER PAI" que você tinha continua aqui, 
-        mas agora ele está seguro dentro do container com overflow.
-      */}
+    
       <div className="relative py-24 sm:py-32">
           
           <DecorativeRing className="
@@ -55,7 +57,6 @@ const FaqSection = () => {
              border-white/50 dark:border-slate-700/60 opacity-20"
           />
 
-          {/* O resto do seu código (a faixa colorida do FAQ) permanece exatamente o mesmo */}
            <section className="relative bg-white/20 dark:bg-slate-900 overflow-hidden py-24 sm:py-32">
             <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center relative z-0">
                 <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white dark:text-white">

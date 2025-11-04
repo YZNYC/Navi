@@ -1,17 +1,23 @@
-// src/components/Layout/Sidebar/Sidebar.jsx
 "use client";
+
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES
+// -----------------------------------------------------------------------------
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '../../../contexts/AuthContext'; 
+import { useAuth } from '../../../contexts/AuthContext';
 
-// Importe TODOS os ícones que serão usados, incluindo os do footer
-import { 
-    LayoutDashboard, Users, ParkingCircle, BarChart3, Bot, 
-    FileText, MessageSquare, Cog, LifeBuoy, Wallet, KeyRound, 
-    CheckSquare, Wind, MapPin, Mail, Clock, ChevronUp
+import {
+    LayoutDashboard, Users, ParkingCircle, BarChart3, Bot,
+    FileText, MessageSquare, Book, LifeBuoy, Wallet, KeyRound,
+    CheckSquare, Wind, MapPin, Mail, Clock, ChevronUp, Phone
 } from 'lucide-react';
+
+// -----------------------------------------------------------------------------
+// ARRAY DE EXIBIÇÃO DE SIDEBAR DE ACORDO COM A ROLE
+// -----------------------------------------------------------------------------
 
 const adminNavItems = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -53,16 +59,16 @@ const gestorNavItems = [
     { name: "Chat", href: "/gestor/chat", icon: MessageSquare },
 ];
 
+// -----------------------------------------------------------------------------
+// CONTEÚDO PRINCIPAL DA PÁGINA
+// -----------------------------------------------------------------------------
 
 export default function Sidebar({ isOpen, onToggle }) {
     const { user } = useAuth();
-    const pathname = usePathname();
-
-    let navItems;
-    if (user?.papel === 'ADMINISTRADOR') { navItems = adminNavItems; } 
+    let navItems = gestorNavItems;
+    if (user?.papel === 'ADMINISTRADOR') { navItems = adminNavItems; }
     else if (user?.papel === 'PROPRIETARIO') { navItems = proprietarioNavItems; }
-    else { navItems = gestorNavItems; }
-    
+
     return (
         <>
             <div
@@ -73,54 +79,48 @@ export default function Sidebar({ isOpen, onToggle }) {
                 className={`fixed top-0 left-0 h-full flex flex-col z-40
                              bg-white dark:bg-slate-800 
                              text-slate-500 dark:text-slate-400
-                             
-                             // Animação mais fluida com 'cubic-bezier'
+                             border-r-2 border-amber-500
                              transition-[width,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                             
-                             // Comportamento Mobile
-                             ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-                             ${isOpen ? 'w-72 sm:w-64' : 'lg:w-20'}`}
+                             ${isOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0 lg:w-20'}`}
             >
-                
-                {/* Header da Sidebar */}
+
                 <div className="h-20 shrink-0 border-b border-slate-200 dark:border-slate-700"></div>
 
-                {/* Menu de Navegação */}
                 <nav className="flex-1 px-4 py-4 space-y-1">
                     {navItems.map((item) => (
                         <NavItem key={item.name} item={item} isOpen={isOpen} />
                     ))}
                 </nav>
-                
-                {/* --- FOOTER MELHORADO --- */}
+
                 <div className={`shrink-0 border-t border-slate-200 dark:border-slate-700 p-2
-                                ${!isOpen && 'lg:hidden'}`}> {/* Esconde o footer inteiro quando minimizado */}
-                    
-                    {/* Itens de Suporte */}
-                    <div className="px-2 py-2 space-y-1">
-                        <a href="#" className="flex items-center gap-3 p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white">
-                            <Cog className="w-5 h-5"/><span>Configurações</span>
-                        </a>
-                        <a href="#" className="flex items-center gap-3 p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white">
-                            <LifeBuoy className="w-5 h-5"/><span>Suporte</span>
-                        </a>
+                                transition-opacity duration-300 ${!isOpen && 'lg:px-0'}`}>
+
+                    <div className="py-2 space-y-1">
+                        <Link href="/docs" title={!isOpen ? 'Documentação' : ''} className={`flex items-center gap-3 p-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white ${!isOpen && 'lg:justify-center'}`}>
+                            <Book className="w-6 h-6 shrink-0" />
+                            <span className={`whitespace-nowrap ${!isOpen && 'lg:hidden'}`}>Documentação</span>
+                        </Link>
+                        <Link href="/suporte" title={!isOpen ? 'Suporte' : ''} className={`flex items-center gap-3 p-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white ${!isOpen && 'lg:justify-center'}`}>
+                            <LifeBuoy className="w-6 h-6 shrink-0" />
+                            <span className={`whitespace-nowrap ${!isOpen && 'lg:hidden'}`}>Suporte</span>
+                        </Link>
                     </div>
-                    
-                    {/* Informações da Sede */}
-                    <div className="px-4 py-4 mt-2 border-t border-slate-200 dark:border-slate-700 space-y-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
+
+                    <div className={`p-4 mt-2 border-t border-slate-200 dark:border-slate-700 space-y-4
+                                     transition-opacity duration-300 ${!isOpen && 'lg:hidden'}`}>
                         <h4 className="font-semibold text-sm text-slate-900 dark:text-white">Navi Systems HQ</h4>
-                        
+
                         <div className="flex items-start gap-3 text-xs text-slate-500 dark:text-slate-400">
-                            <MapPin className="w-4 h-4 mt-0.5 shrink-0"/>
-                            <span>Avenida Paulista, 1578, São Paulo - SP</span>
+                            <MapPin className="w-4 h-4 mt-0.5 shrink-0" /><span>Avenida Paulista, 1578, São Paulo - SP, 01310-200</span>
                         </div>
                         <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                            <Mail className="w-4 h-4 shrink-0"/>
-                            <span>contato@navi.com.br</span>
+                            <Mail className="w-4 h-4 shrink-0" /><span>contato@navi.com.br</span>
                         </div>
-                         <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                            <Clock className="w-4 h-4 shrink-0"/>
-                            <span>Seg. à Sex. | 08h - 18h</span>
+                        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                            <Phone className="w-4 h-4 shrink-0" /><span>+55 (11) 99999-9999</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                            <Clock className="w-4 h-4 shrink-0" /><span>Seg. à Sex. | 08h - 18h</span>
                         </div>
                     </div>
                 </div>
@@ -128,8 +128,6 @@ export default function Sidebar({ isOpen, onToggle }) {
         </>
     );
 }
-
-// --- Componente NavItem (com as cores atualizadas) ---
 
 const NavItem = ({ item, isOpen }) => {
     const pathname = usePathname();
@@ -149,9 +147,9 @@ const NavItem = ({ item, isOpen }) => {
                         <item.icon className="w-6 h-6 shrink-0" />
                         <span className={`transition-opacity duration-200 ${!isOpen && 'lg:hidden'}`}>{item.name}</span>
                     </div>
-                    <ChevronUp className={`w-4 h-4 shrink-0 transition-transform ${!isSubMenuOpen && 'rotate-180'} ${!isOpen && 'lg:hidden'}`} />
+                    <ChevronUp className={`w-4 h-4 shrink-0 transition-transform duration-300 ease-in-out ${!isSubMenuOpen && 'rotate-180'} ${!isOpen && 'lg:hidden'}`} />
                 </button>
-                {isSubMenuOpen && isOpen && (
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSubMenuOpen && isOpen ? 'max-h-96' : 'max-h-0'}`}>
                     <div className="pl-8 space-y-1 mt-1 border-l-2 border-slate-200 dark:border-slate-700 ml-5">
                         {item.subItems.map(subItem => {
                             const isSubActive = pathname.startsWith(subItem.href);
@@ -164,11 +162,11 @@ const NavItem = ({ item, isOpen }) => {
                             )
                         })}
                     </div>
-                )}
+                </div>
             </div>
         );
     }
-    
+
     const isActive = pathname.startsWith(item.href);
     return (
         <Link

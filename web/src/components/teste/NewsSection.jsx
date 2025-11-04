@@ -1,21 +1,27 @@
 'use client';
 
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES, UI E ARRAY DE FUTURO
+// -----------------------------------------------------------------------------
+
 import Image from 'next/image';
 import { User, Calendar } from 'lucide-react';
 
-// --- COMPONENTE DECORATIVO ---
+
 const HalfCircle = (props) => (
   <div className={`w-[150px] h-[300px] border-t-[35px] border-r-[35px] border-b-[35px] rounded-r-full ${props.className}`} />
 );
 
-// --- DADOS (focados em 'Melhorias') ---
 const posts = [
     { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Pagamentos via PIX', excerpt: 'Estamos planejando a realização de um update no app para que pagamentos via PIX sejam reconhecidos.' },
     { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Lançamento na App Store', excerpt: 'Um lançamento importante para a empresa e seus usuários, com isso o app chegará em novos patamares.' },
     { imageUrl: '/celular.webp', author: 'Equipe Navi', date: 'Planejamento', title: 'Melhorias de Vida', excerpt: 'Sabemos da importância de um App bem atualizado, nós planejamos diversas mudanças para facilitar o uso do App.' }
 ];
 
-// --- SUB-COMPONENTE DO CARD (com cores ajustadas) ---
+// -----------------------------------------------------------------------------
+// CARDS DE FUNCIONALIDADES FUTURAS
+// -----------------------------------------------------------------------------
+
 const PostCard = ({ post }) => {
     return (
         <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden flex flex-col group border border-white/50 dark:border-slate-700/50">
@@ -39,18 +45,18 @@ const PostCard = ({ post }) => {
 // -----------------------------------------------------------------------------
 // COMPONENTE PRINCIPAL
 // -----------------------------------------------------------------------------
+
 const NewsSection = () => {
   return (
-    // 'overflow-hidden' é a chave para consertar a barra de rolagem
+   
     <section className="relative py-24 sm:py-32 overflow-hidden">
         
-        {/* Fundos de Tema */}
+    
         <div className="absolute inset-0 -z-30">
             <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }} />
             <div style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
         </div>
 
-        {/* Elementos Decorativos */}
         <HalfCircle className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 border-white/50 opacity-20 -z-10" />
         <div aria-hidden="true" className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/3 w-1/2 h-full rounded-full bg-orange-400/10 dark:bg-[#f6bb00]/5 blur-[150px] -z-10" />
 

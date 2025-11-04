@@ -1,14 +1,10 @@
 "use client";
 
 // -----------------------------------------------------------------------------
-// IMPORTAÇÕES E ELEMENTOS AUXILIARES
+// IMPORTAÇÕES E ARRAY DE FUNCIONALIDADES
 // -----------------------------------------------------------------------------
 
 import { MapPin, Smartphone, Car, Wallet, UserCheck, Star } from 'lucide-react';
-
-// -----------------------------------------------------------------------------
-// DADOS PARA OS CARDS 
-// -----------------------------------------------------------------------------
 
 const features = [
   { 
@@ -42,6 +38,7 @@ const features = [
     description: 'Faça parte de uma comunidade de motoristas. Avalie sua experiência e ajude outros a escolherem sempre os melhores e mais confiáveis estacionamentos.' 
   },
 ];
+
 // -----------------------------------------------------------------------------
 // CARD DE FEATURE
 // -----------------------------------------------------------------------------

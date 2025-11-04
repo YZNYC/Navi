@@ -1,16 +1,12 @@
 'use client';
 
 // -----------------------------------------------------------------------------
-// IMPORTAÇÕES 
+// IMPORTAÇÕES E COMPONENTES AUXILIARES 
 // -----------------------------------------------------------------------------
 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { motion } from "framer-motion";
-
-// -----------------------------------------------------------------------------
-// COMPONENTES AUXILIARES 
-// -----------------------------------------------------------------------------
 
 const HalfCircle = (props) => (
   <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full border-white/20 dark:border-[#ffffff]/50 ${props.className}`} />
