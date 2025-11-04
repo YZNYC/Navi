@@ -1,53 +1,41 @@
-// src/controllers/AuthController.js
-
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 
-// Define um schema de validação para os dados de login.
+// Schema Zod
 const loginSchema = z.object({
   email: z.string().email("Formato de email inválido."),
   senha: z.string().min(1, "A senha é obrigatória."),
 });
 
+// Função de Login
 export const login = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO DE ENTRADA (usando o Zod que já temos)
+    
         const { email, senha } = loginSchema.parse(req.body);
-
-        // 2. BUSCA O USUÁRIO NO BANCO
+    
         const usuario = await prisma.usuario.findUnique({
             where: { email },
         });
 
-        // 3. VERIFICA SE O USUÁRIO EXISTE E SE ESTÁ ATIVO
         if (!usuario || !usuario.ativo) {
             return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
-        // 4. COMPARA A SENHA ENVIADA COM A SENHA CRIPTOGRAFADA
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
         if (!senhaCorreta) {
             return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
-        // 5. GERA O TOKEN JWT
         const token = jwt.sign(
             { id_usuario: usuario.id_usuario, papel: usuario.papel },
             process.env.JWT_SECRET,
             { expiresIn: '8h' }
         );
 
-        // 6. PREPARA A RESPOSTA, REMOVENDO A SENHA DO OBJETO DE USUÁRIO
-        // Esta é a maneira segura de remover um campo de um objeto.
         const { senha: _, ...usuarioSemSenha } = usuario;
         
-        // ----------------------------------------------------//
-        // --- A MUDANÇA ESTÁ AQUI ---
-        // ----------------------------------------------------//
-        // 7. ENVIA A RESPOSTA DE SUCESSO COMPLETA
-        // A resposta agora inclui o token E o objeto 'usuarioSemSenha'.
         res.status(200).json({
             message: 'Login realizado com sucesso!',
             token: token,
@@ -64,6 +52,7 @@ export const login = async (req, res) => {
     }
 };
 
+// Função Esqueci a Senha
 export const EsqueceuSenha = async (req, res) => {
     try {
         const { email } = req.body;
@@ -100,7 +89,7 @@ export const EsqueceuSenha = async (req, res) => {
 };
 
 
-// O usuário clica no link, envia o token e a nova senha.
+// Função para Resetar Senha
 export const ResetarSenha = async (req, res) => {
     try {
         const { token } = req.params;

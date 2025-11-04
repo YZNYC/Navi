@@ -1,7 +1,6 @@
-
 import jwt from 'jsonwebtoken';
 
-// 1. Middleware para verificar se o usuário está autenticado
+// Middleware para verificar se o usuário está autenticado
 export const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -21,8 +20,7 @@ export const authMiddleware = (req, res, next) => {
     });
 };
 
-// 2. Middleware para verificar se o usuário está AUTORIZADO (verificação de papel/role)
-
+// Middleware para verificar se o usuário está AUTORIZADO (verificação de papel/role)
 export const authorize = (papeisPermitidos = []) => {
     return (req, res, next) => {
         

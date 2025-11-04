@@ -14,7 +14,6 @@ const verificarPermissao = async (estacionamentoId, requisitante) => {
     return true;
 };
 
-
 export const criarPoliticaPrecoController = async (req, res) => {
     try {
       
@@ -62,12 +61,11 @@ export const listarPoliticasController = async (req, res) => {
 
 export const atualizarPoliticaController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO
+ 
         const { params } = politicaPrecoParamsSchema.parse(req);
         const { body } = politicaPrecoSchema.parse(req);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO
         const politicaAlvo = await obterPoliticaPorId(params.politicaId);
         if (!politicaAlvo) {
             return res.status(404).json({ message: "Política de preço não encontrada." });
@@ -91,11 +89,10 @@ export const atualizarPoliticaController = async (req, res) => {
 
 export const excluirPoliticaController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO
+    
         const { params } = politicaPrecoParamsSchema.parse(req);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO
         const politicaAlvo = await obterPoliticaPorId(params.politicaId);
         if (!politicaAlvo) {
             return res.status(404).json({ message: "Política de preço não encontrada." });

@@ -1,4 +1,3 @@
-
 import { criarAvaliacao, listarAvaliacoesPorEstacionamento, obterAvaliacaoPorId, atualizarAvaliacao, excluirAvaliacao } from "../models/Avaliacao.js";
 import { criarAvaliacaoSchema, atualizarAvaliacaoSchema } from "../schemas/avaliacao.schema.js";
 import prisma from "../config/prisma.js";
@@ -9,7 +8,6 @@ export const criarAvaliacaoController = async (req, res) => {
         const { body } = criarAvaliacaoSchema.parse(req);
         const requisitanteId = req.usuario.id_usuario;
 
-        // Regra de Negócio: Impedir que o mesmo usuário avalie o mesmo estacionamento múltiplas vezes.
         const avaliacaoExistente = await prisma.avaliacao.findFirst({
             where: {
                 id_estacionamento: parseInt(estacionamentoId),
@@ -34,7 +32,6 @@ export const criarAvaliacaoController = async (req, res) => {
 export const listarAvaliacoesController = async (req, res) => {
     try {
         const { estacionamentoId } = req.params;
-        // Futuramente, aqui pode ser adicionada validação de params com Zod
         const avaliacoes = await listarAvaliacoesPorEstacionamento(estacionamentoId);
         res.status(200).json(avaliacoes);
     } catch (error) {
@@ -53,8 +50,6 @@ export const atualizarAvaliacaoController = async (req, res) => {
         if (!avaliacaoAlvo) {
             return res.status(404).json({ message: "Avaliação não encontrada." });
         }
-
-        // Regra de Permissão: Apenas o autor ou um admin pode atualizar.
         if (avaliacaoAlvo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você não pode alterar esta avaliação." });
         }
@@ -79,8 +74,6 @@ export const excluirAvaliacaoController = async (req, res) => {
         if (!avaliacaoAlvo) {
             return res.status(404).json({ message: "Avaliação não encontrada." });
         }
-
-        // Regra de Permissão: Apenas o autor ou um admin pode excluir.
         if (avaliacaoAlvo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você не pode excluir esta avaliação." });
         }

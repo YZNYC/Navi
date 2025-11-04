@@ -2,7 +2,6 @@ import { criarUsuario, atualizarUsuario, desativarUsuario, listarUsuarios, obter
 import { criarUsuarioSchema, atualizarUsuarioSchema } from '../schemas/usuario.schema.js';
 import { paramsSchema } from '../schemas/params.schema.js';
 
-// Função auxiliar para remover a senha do objeto de usuário antes de enviar a resposta
 const removerSenha = (usuario) => {
     if (!usuario) return null;
     const { senha, ...usuarioSemSenha } = usuario;
@@ -12,19 +11,19 @@ const removerSenha = (usuario) => {
 
 export const criarUsuarioController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Garante que o corpo da requisição (nome, email, senha) está correto.
+       
         const { body } = criarUsuarioSchema.parse(req);
 
         if (!body.papel) {
-            body.papel = 'MOTORISTA'; // Define um papel padrão se não for fornecido
+            body.papel = 'MOTORISTA'; // Padrão Motorista
         }
 
-        // 2. EXECUÇÃO: Se a validação passar, prossegue com a criação do usuário.
+      
         const novoUsuario = await criarUsuario(body);
         res.status(201).json({ message: "Usuário criado com sucesso!", usuario: removerSenha(novoUsuario) });
 
     } catch (error) {
-        // 3. TRATAMENTO DE ERROS: Captura erros de validação, duplicidade, ou erros genéricos.
+     
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
         }
@@ -38,13 +37,12 @@ export const criarUsuarioController = async (req, res) => {
 
 export const atualizarUsuarioController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Garante que o ID na URL é um número e o body é válido.
+      
         const { params } = paramsSchema.parse(req);
         const { body } = atualizarUsuarioSchema.parse(req);
         const idAlvo = parseInt(params.id);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO: Lógica de negócio e permissão.
         if (requisitante.id_usuario !== idAlvo && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você só pode editar seu próprio perfil." });
         }
@@ -66,12 +64,11 @@ export const atualizarUsuarioController = async (req, res) => {
 
 export const excluirUsuarioController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Garante que o ID na URL é numérico.
+       
         const { params } = paramsSchema.parse(req);
         const idAlvo = parseInt(params.id);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO: Lógica de permissão.
         if (requisitante.id_usuario !== idAlvo && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você só pode excluir seu próprio perfil." });
         }

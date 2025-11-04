@@ -14,7 +14,7 @@ export const listarFuncionariosPorEstacionamento = async (id_estacionamento) => 
     return await prisma.estacionamento_funcionario.findMany({
         where: { id_estacionamento: parseInt(id_estacionamento) },
         include: {
-            usuario: { // Inclui os dados do usuário para exibição
+            usuario: { 
                 select: {
                     id_usuario: true,
                     nome: true,

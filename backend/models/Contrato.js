@@ -7,7 +7,7 @@ export const criarContrato = async (dadosContrato, usuarioId) => {
             id_plano: dadosContrato.id_plano,
             id_veiculo: dadosContrato.id_veiculo,
             id_usuario: parseInt(usuarioId),
-            data_inicio: new Date(dadosContrato.data_inicio), // Converte string para data
+            data_inicio: new Date(dadosContrato.data_inicio), 
             status: 'ATIVO', 
         },
     });
@@ -18,7 +18,7 @@ export const obterContratoPorId = async (contratoId) => {
         where: { id_contrato: parseInt(contratoId) },
         include: {
             plano_mensal: {
-                include: { estacionamento: true } // Para verificações de permissão
+                include: { estacionamento: true } 
             },
             veiculo: true,
             usuario: true

@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const criarVagaSchema = z.object({
@@ -10,7 +9,7 @@ export const criarVagaSchema = z.object({
   }),
 });
 
-// O schema de atualização teria os mesmos campos, mas todos opcionais
+
 export const atualizarVagaSchema = z.object({
   body: z.object({
     identificador: z.string().min(1, "O identificador não pode ser vazio.").optional(),

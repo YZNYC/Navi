@@ -8,13 +8,10 @@ export const criarContratoController = async (req, res) => {
         const { body } = criarContratoSchema.parse(req);
         const requisitanteId = req.usuario.id_usuario;
 
-        // Verificar se o veículo informado pertence ao usuário logado.
         const veiculo = await prisma.veiculo.findUnique({ where: { id_veiculo: body.id_veiculo } });
         if (!veiculo || veiculo.id_usuario !== requisitanteId) {
             return res.status(403).json({ message: "Acesso proibido. O veículo informado não pertence a você." });
         }
-
-        //Verificar se o usuário já tem um contrato ativo para este veículo.
         const contratoExistente = await prisma.contrato_mensalista.findFirst({
             where: { id_veiculo: body.id_veiculo, status: 'ATIVO' }
         });

@@ -1,4 +1,3 @@
-// src/schemas/cupom.schema.js
 import { z } from 'zod';
 
 const tipoDesconto = z.enum(['PERCENTUAL', 'FIXO']);
@@ -6,7 +5,7 @@ const tipoDesconto = z.enum(['PERCENTUAL', 'FIXO']);
 const cupomBody = {
     codigo: z.string({ required_error: "O código do cupom é obrigatório." })
         .min(3, "O código deve ter no mínimo 3 caracteres.")
-        .transform(val => val.toUpperCase()), // Transforma o código para maiúsculas
+        .transform(val => val.toUpperCase()), 
 
     descricao: z.string().optional(),
 

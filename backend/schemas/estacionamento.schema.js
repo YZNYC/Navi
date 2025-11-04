@@ -1,7 +1,5 @@
-
 import { z } from 'zod';
 
-// src/schemas/estacionamento.schema.js
 export const criarEstacionamentoSchema = z.object({
   body: z.object({
     nome: z.string({ required_error: "O nome é obrigatório." }),

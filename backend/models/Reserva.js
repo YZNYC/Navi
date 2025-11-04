@@ -3,10 +3,9 @@ import prisma from '../config/prisma.js';
 export const criarReserva = async (dadosReserva, usuarioId) => {
     const { id_vaga, id_veiculo } = dadosReserva;
 
-    // Usamos uma transação para garantir a consistência dos dados
     return prisma.$transaction(async (tx) => {
         
-        // 1. Verifica se a vaga existe e se está realmente livre.
+    
         const vaga = await tx.vaga.findFirst({
             where: {
                 id_vaga: parseInt(id_vaga),
@@ -18,13 +17,11 @@ export const criarReserva = async (dadosReserva, usuarioId) => {
             throw new Error("Vaga não está disponível para reserva.");
         }
 
-        // 2. Altera o status da vaga para 'RESERVADA'.
         await tx.vaga.update({
             where: { id_vaga: parseInt(id_vaga) },
             data: { status: 'RESERVADA' },
         });
 
-        // 3. Cria o registro da reserva.
         const novaReserva = await tx.reserva.create({
             data: {
                 id_vaga: parseInt(id_vaga),
@@ -38,7 +35,6 @@ export const criarReserva = async (dadosReserva, usuarioId) => {
     });
 };
 
-// Lista Reserva por usuários
 export const listarReservasPorUsuario = async (usuarioId) => {
     return await prisma.reserva.findMany({
         where: { id_usuario: parseInt(usuarioId) },
@@ -46,7 +42,6 @@ export const listarReservasPorUsuario = async (usuarioId) => {
     });
 };
 
-// Lista reserva por Estacionamento
 export const listarReservasPorEstacionamento = async (estacionamentoId) => {
     return await prisma.reserva.findMany({
         where: {
@@ -67,7 +62,7 @@ export const obterReservaPorId = async (reservaId) => {
 export const concluirOuCancelarReserva = async (reservaId, novoStatus) => {
    
     return prisma.$transaction(async (tx) => {
-        // 1. Encontra a reserva para obter o ID da vaga associada.
+    
         const reserva = await tx.reserva.findUnique({
             where: { id_reserva: parseInt(reservaId) },
         });
@@ -76,13 +71,11 @@ export const concluirOuCancelarReserva = async (reservaId, novoStatus) => {
             throw new Error("Reserva não encontrada.");
         }
 
-        // 2. Atualiza o status da vaga de volta para 'LIVRE'.
         await tx.vaga.update({
             where: { id_vaga: reserva.id_vaga },
             data: { status: 'LIVRE' },
         });
 
-        // 3. Atualiza o status da reserva.
         const reservaAtualizada = await tx.reserva.update({
             where: { id_reserva: parseInt(reservaId) },
             data: { status: novoStatus, data_hora_fim: new Date() },

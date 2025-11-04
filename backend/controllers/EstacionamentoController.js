@@ -14,7 +14,7 @@ export const listarEstacionamentoController = async (req, res) => {
 
 export const obterEstacionamentoPorIdController = async (req, res) => {
     try {
-        const { params } = paramsSchema.parse(req); // Valida se o ID na URL é um número
+        const { params } = paramsSchema.parse(req); 
         const estacionamento = await obterEstacionamentoPorId(params.id);
         
         if (estacionamento) {
@@ -65,13 +65,13 @@ export const criarEstacionamentoController = async (req, res) => {
 
 export const atualizarEstacionamentoController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Valida tanto o ID na URL quanto os campos no body
+       
         const { params } = paramsSchema.parse(req);
         const { body } = atualizarEstacionamentoSchema.parse(req);
         const estacionamentoId = parseInt(params.id);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO: Lógica de negócio e permissão
+     
         const estacionamentoAlvo = await obterEstacionamentoPorId(estacionamentoId);
         if (!estacionamentoAlvo) {
             return res.status(404).json({ message: 'Estacionamento não encontrado.' });
@@ -94,12 +94,11 @@ export const atualizarEstacionamentoController = async (req, res) => {
 
 export const excluirEstacionamentoController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Valida o ID na URL
+    
         const { params } = paramsSchema.parse(req);
         const estacionamentoId = parseInt(params.id);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO: Lógica de negócio e permissão
         const estacionamentoAlvo = await obterEstacionamentoPorId(estacionamentoId);
         if (!estacionamentoAlvo) {
             return res.status(404).json({ message: 'Estacionamento não encontrado.' });
