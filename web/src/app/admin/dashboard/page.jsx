@@ -3,25 +3,20 @@
 import React from 'react';
 import Link from 'next/link';
 
-// CORREÇÃO: Alinhando o nome do componente que foi digitado incorretamente
-// De 'EstabilishManagementTable' para 'EstablishmentManagementTable' (assumindo o nome correto)
-import InfoCard from '../../../components/dashboard/cards/InfoCard'; 
-import { mockDashboardData, mockUsers, mockEstablishments } from '../../../data/mockData'; 
-import { Users, Building, DollarSign, Calendar, FileText, Star, ParkingCircle } from 'lucide-react'; 
-
+import InfoCard from '../../../components/dashboard/cards/InfoCard';
+import { mockDashboardData, mockUsers, mockEstablishments } from '../../../data/mockData';
+import { Users, Building, DollarSign, Calendar, FileText, Star, ParkingCircle } from 'lucide-react';
 // Importações de Componentes
 import KpiSection from '../../../components/dashboard/KpiSection';
 import ChartCard from '../../../components/dashboard/cards/ChartCard';
 import UserManagementTable from '../../../components/dashboard/UserManagementTable';
-import EstablishmentManagementTable from '../../../components/dashboard/EstabilishManagementTable'; // Mantenho o nome atual para não quebrar outros arquivos
+import EstablishmentManagementTable from '../../../components/dashboard/EstabilishManagementTable';
 import MapCard from '../../../components/dashboard/cards/MapCard';
 import EngagementReportCard from '../../../components/dashboard/cards/EngagementReportCard';
-import CuponModal from '../../../components/dashboard/modal/cuponModal'
-
+import CupomButton from '../../../components/dashboard/buttons/cupomButton';
 // Componentes de Gráfico (Recharts)
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// ... (UserGrowthChart e PlatformActivityChart - Mantidos como antes) ...
 
 const UserGrowthChart = ({ data }) => (
     <ResponsiveContainer width="100%" height={300}>
@@ -55,16 +50,16 @@ const PlatformActivityChart = ({ data }) => (
 
 export default function DashboardPage() {
     const { charts } = mockDashboardData;
-    
+
     // Dados de Summary
     const summaryData = {
         totalUsers: { value: mockUsers.length, change: 20.5 },
         activeEstablishments: { value: mockEstablishments.filter(e => e.status === 'verified').length, change: 15.2 },
-        activeVacancies: { value: 4100, change: 5.1 }, 
-        totalRevenue: { value: 23445700.00, change: 12.3 }, 
-        activeReservations: { value: 1200, change: 8.9 }, 
-        activeSubscribers: { value: 450, change: 10.1 }, 
-        averageRating: { value: 4.8, change: 0.1 }, 
+        activeVacancies: { value: 4100, change: 5.1 },
+        totalRevenue: { value: 23445700.00, change: 12.3 },
+        activeReservations: { value: 1200, change: 8.9 },
+        activeSubscribers: { value: 450, change: 10.1 },
+        averageRating: { value: 4.8, change: 0.1 },
     };
 
     // 4 KPIs de Destaque para o Topo
@@ -97,33 +92,33 @@ export default function DashboardPage() {
             {/* 2. SEÇÃO GRÁFICOS: Layout de 2 Colunas (Grandes) */}
             <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
                 {/* GRÁFICO 1 */}
-                <ChartCard 
+                <ChartCard
                     title="Crescimento de Novos Usuários"
                     subtitle="Motoristas e Proprietários ao longo do tempo"
                     dropdownOptions={[{ value: 'monthly', label: 'Mensal' }, { value: 'weekly', label: 'Semanal' }]}
-                    selectedDropdown={'monthly'} 
+                    selectedDropdown={'monthly'}
                 >
                     <UserGrowthChart data={charts.userGrowth} />
                 </ChartCard>
-                
+
                 {/* GRÁFICO 2 */}
-                <ChartCard 
+                <ChartCard
                     title="Atividade da Plataforma"
                     subtitle="Reservas e Novos Contratos"
                     dropdownOptions={[{ value: 'monthly', label: 'Mensal' }, { value: 'weekly', label: 'Semanal' }]}
-                    selectedDropdown={'monthly'} 
+                    selectedDropdown={'monthly'}
                 >
                     <PlatformActivityChart data={charts.platformRevenue} />
                 </ChartCard>
             </section>
-            
+
             {/* 3. SEÇÃO GERENCIAMENTO: 2 Tabelas Lado a Lado (Alinhamento de Conteúdo Similar) */}
             <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
                 {/* TABELA DE USUÁRIOS */}
                 <div className="flex flex-col">
                     <UserManagementTable users={mockUsers} />
                 </div>
-                
+
                 {/* TABELA DE ESTABELECIMENTOS */}
                 <div className="flex flex-col">
                     <EstablishmentManagementTable establishments={mockEstablishments} />
@@ -133,19 +128,19 @@ export default function DashboardPage() {
             {/* 4. SEÇÃO MAPA E RELATÓRIOS: Mapa (Bloco Maior) + Relatório e KPIs Secundários (Blocos Menores) */}
             {/* Usamos o grid 3/4 + 1/4 no desktop, ou 1/3 + 2/3, para criar a sensação de blocagem */}
             <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                
+
                 {/* COLUNA 1: Mapa (2/3 ou 1/2) */}
                 {/* O Mapa precisa de espaço para ser visualmente impactante. Usaremos 2 colunas de 3. */}
                 <div className="lg:col-span-1 flex flex-col">
                     <MapCard title="Estacionamentos por Região" />
                 </div>
-                
+
                 {/* COLUNA 2: Engajamento e KPIs Secundários (1/3 ou 1/2) */}
                 <div className="lg:col-span-2 flex flex-col gap-6">
                     {/* ENGAJAMENTO (Ficaria menor que o mapa) */}
                     <EngagementReportCard
-                        topEstablishments={charts.topEstablishments.map(e => ({id: e.id, name: e.name, rating: e.rating}))}
-                        topReservations={charts.topEstablishments.map(e => ({id: e.id, name: e.name, reservations: e.rentedVacancies}))}
+                        topEstablishments={charts.topEstablishments.map(e => ({ id: e.id, name: e.name, rating: e.rating }))}
+                        topReservations={charts.topEstablishments.map(e => ({ id: e.id, name: e.name, reservations: e.rentedVacancies }))}
                     />
 
                     {/* KPIs SECUNDÁRIOS: Alinhados horizontalmente se couberem, ou empilhados */}
@@ -158,9 +153,11 @@ export default function DashboardPage() {
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Gerencie a criação, edição e desativação de cupons promocionais para toda a plataforma Navi.
                 </p>
-                <Link href="/admin/cupons" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                    Ir para Gestão de Cupons
-                </Link>
+                <div>
+                    <CupomButton />
+                </div>
+
+
             </div>
 
         </div>
