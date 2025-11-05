@@ -43,11 +43,12 @@ return (
       <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }} />
       <div className="" style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
       
-      <div aria-hidden="true" className="absolute top-3/5 left-0 -translate-y-1/2 w-1/2 h-3/5 rounded-full bg-orange-400/20 dark:bg-[#f6bb00]/10 blur-[120px] -z-10" />
+      <div aria-hidden="true" className="absolute top-3/5 left-0 -translate-y-1/2 w-1/3 h-2/5 rounded-full bg-orange-400/20 dark:bg-[#f6bb00]/10 blur-[120px] -z-10" />
 
       <HalfCircle className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 -rotate-90 opacity-10 dark:opacity-5 border-white/50 dark:border-white/50 -z-10" />
 
       <div className="text-center z-10">
+        <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-[#efb000]">Ná prática</p>
         <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">
           Veja o Navi em Ação
         </h2>

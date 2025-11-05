@@ -53,7 +53,7 @@ const PricingCard = ({ tier, isColetivo, className }) => {
   return (
   
     <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-white dark:border-[#efb000]' : 'border-white/30 dark:border-slate-800'} ${className}`}>
-      {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-[#efb000] dark:bg-[#efb000] text-white dark:text-gray-900 px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
+      {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-[#efb000] dark:bg-[#efb000] border-2 border-white dark:border-none text-white dark:text-gray-900 px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
       
       <h3 className="text-xl font-semibold text-orange-950 dark:text-white">{data.name}</h3>
     
@@ -69,7 +69,7 @@ const PricingCard = ({ tier, isColetivo, className }) => {
           </li>
         ))}
       </ul>
-      <Button className="mt-10 w-full bg-[#efb000] text-white font-bold hover:bg-[#f6bb00]" variant={tier.individual.mostPopular ? 'default' : 'outline'}>Saiba Mais</Button>
+      <Button className="mt-10 w-full bg-[#efb000] text-white font-bold hover:bg-[#f6bb00] border border-white" variant={tier.individual.mostPopular ? 'default' : 'outline'}>Saiba Mais</Button>
     </div>
   );
 };

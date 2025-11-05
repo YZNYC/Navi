@@ -13,9 +13,10 @@ const HalfCircle = (props) => (
 );
 
 const posts = [
-    { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Pagamentos via PIX', excerpt: 'Estamos planejando a realização de um update no app para que pagamentos via PIX sejam reconhecidos.' },
-    { imageUrl: '/celular.webp', author: 'Time Navi', date: 'Planejamento', title: 'Lançamento na App Store', excerpt: 'Um lançamento importante para a empresa e seus usuários, com isso o app chegará em novos patamares.' },
-    { imageUrl: '/celular.webp', author: 'Equipe Navi', date: 'Planejamento', title: 'Melhorias de Vida', excerpt: 'Sabemos da importância de um App bem atualizado, nós planejamos diversas mudanças para facilitar o uso do App.' }
+    { imageUrl: '/pix.png', author: 'Time Navi', date: 'Planejamento', title: 'Pagamentos via PIX', excerpt: 'Estamos planejando a realização de um update no app para que pagamentos via PIX sejam reconhecidos.' },
+    { imageUrl: '/qualidade.jpg', author: 'Equipe Navi', date: 'Planejamento', title: 'Melhorias de Vida', excerpt: 'Sabemos da importância de um App bem atualizado, nós planejamos diversas mudanças para facilitar o uso do App.' },
+    { imageUrl: '/googleplay.png', author: 'Time Navi', date: 'Planejamento', title: 'Lançamento na App Store', excerpt: 'Um lançamento importante para a empresa e seus usuários, com isso o app chegará em novos patamares.' }
+  
 ];
 
 // -----------------------------------------------------------------------------
@@ -58,7 +59,7 @@ const NewsSection = () => {
         </div>
 
         <HalfCircle className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 border-white/50 opacity-20 -z-10" />
-        <div aria-hidden="true" className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/3 w-1/2 h-full rounded-full bg-orange-400/10 dark:bg-[#f6bb00]/5 blur-[150px] -z-10" />
+        <div aria-hidden="true" className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/3 w-1/3 h-2/3 rounded-full bg-orange-400/10 dark:bg-[#f6bb00]/5 blur-[150px] -z-10" />
 
         <div className="relative z-0 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto">

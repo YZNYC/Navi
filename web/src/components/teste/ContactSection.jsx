@@ -74,23 +74,27 @@ const ContactSection = () => {
 
   return (
     <>
-      <div className="py-16 sm:py-20 bg-white/50 dark:bg-slate-900/50">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-10 gap-x-8 items-center">
-                  {logos.map((logo, index) => (
-                      <div key={index} className="flex justify-center">
-                          <Image
-                              src={logo.src}
-                              alt={logo.name}
-                              width={120}
-                              height={40}
-                              className="object-contain text-slate-400 dark:text-slate-500 filter grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition duration-300"
-                          />
-                      </div>
-                  ))}
-              </div>
-          </div>
-      </div>
+<div className="py-16 sm:py-20 bg-white/50 dark:bg-slate-900/50">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-10 gap-x-8 items-center">
+      {logos.map((logo, index) => (
+        <div key={index} className="flex justify-center">
+          <Image
+            src={logo.src}
+            alt={logo.name}
+            width={120}
+            height={40}
+            className="object-contain text-slate-400 dark:text-slate-500 
+                       filter grayscale opacity-60 
+                       hover:grayscale-0 hover:opacity-100 
+                       transition duration-300
+                       dark:invert dark:brightness-200"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</div>  
 
       <section className="relative py-24 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }} />
@@ -100,8 +104,9 @@ const ContactSection = () => {
         <HalfCircle className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 -rotate-90 opacity-10 dark:opacity-5 border-slate-300 dark:border-slate-700 -z-10" />
 
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+                    <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-[#efb000]">Adoraríamos sua opinião</p>
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">
-                Fale Conosco
+                Entre em Contato Conosco
             </h2>
             <p className="mt-4 text-lg text-white/90 [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-300 dark:[text-shadow:none]">
                 Tem uma pergunta, feedback ou uma proposta de parceria? Adoraríamos ouvir de você. Preencha o formulário abaixo e nossa equipe entrará em contato.
