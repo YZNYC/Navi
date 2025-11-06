@@ -32,7 +32,7 @@ async function criarTransportadores() {
             });
         }
     } else {
-        // Produção
+
         console.log("Configurando Gmail (produção)...");
         transportadores.producao = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
@@ -68,7 +68,6 @@ export const enviarEmailResetSenha = async (emailDestino, token) => {
             `,
         };
 
-        // Envio paralelo
         const promessasDeEnvio = [];
 
         if (transportadores.gmail) {
@@ -79,7 +78,6 @@ export const enviarEmailResetSenha = async (emailDestino, token) => {
         console.log("Enviando emails...");
         const resultados = await Promise.allSettled(promessasDeEnvio);
 
-        // Resultado de cada envio
         resultados.forEach((resultado, index) => {
             if (resultado.status === 'fulfilled') {
                 const info = resultado.value;

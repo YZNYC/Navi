@@ -13,7 +13,6 @@ export const criarContratoSchema = z.object({
 
 export const atualizarContratoSchema = z.object({
   body: z.object({
-    // Apenas o proprietário ou admin pode alterar diretamente o status.
     status: statusContrato.optional(),
     data_fim: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   }),

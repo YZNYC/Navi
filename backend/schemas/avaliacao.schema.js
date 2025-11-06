@@ -10,7 +10,6 @@ export const criarAvaliacaoSchema = z.object({
   body: z.object(avaliacaoBody),
 });
 
-// Ao atualizar, o usuário pode mudar apenas a nota, o comentário ou ambos.
 export const atualizarAvaliacaoSchema = z.object({
   body: z.object({
     nota: z.number().int().min(1).max(5).optional(),

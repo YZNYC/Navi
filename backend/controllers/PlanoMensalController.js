@@ -3,7 +3,6 @@ import { obterEstacionamentoPorId } from "../models/Estacionamento.js";
 import { criarPlanoMensalSchema, atualizarPlanoMensalSchema } from "../schemas/planoMensal.schema.js";
 import prisma from "../config/prisma.js";
 
-// Função auxiliar reutilizável para checar se o usuário tem permissão sobre o estacionamento
 const verificarPermissao = async (estacionamentoId, requisitante) => {
     if (requisitante.papel === 'ADMINISTRADOR') return true;
     
@@ -39,7 +38,7 @@ export const criarPlanoMensalController = async (req, res) => {
 export const listarPlanosController = async (req, res) => {
     try {
         const { estacionamentoId } = req.params;
-        // Validação adicional opcional para o ID do estacionamento pode ser adicionada aqui
+
         const planos = await listarPlanosPorEstacionamento(estacionamentoId);
         res.status(200).json(planos);
     } catch (error) {
@@ -90,7 +89,6 @@ export const excluirPlanoController = async (req, res) => {
             return res.status(403).json({ message: "Acesso proibido. Você não pode excluir este plano." });
         }
         
-        // Não permitir excluir um plano se houver contratos ativos.
         const contratosAtivos = await prisma.contrato_mensalista.count({
             where: { id_plano: parseInt(planoId), status: 'ATIVO' },
         });

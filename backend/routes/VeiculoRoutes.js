@@ -1,7 +1,7 @@
 // src/routes/veiculoRoutes.js
 import express from 'express';
 import {criarVeiculoController, listarVeiculosController, obterVeiculoPorIdController, atualizarVeiculoController, excluirVeiculoController } from '../controllers/VeiculoController.js';
-import { authMiddleware } from '../middlewares/authMiddlewares.js';
+import { authMiddleware } from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router();
 
@@ -16,7 +16,6 @@ router.get('/', listarVeiculosController);
 router.post('/', criarVeiculoController);
 
 // Rotas para uma ação em um veículo específico (obter, atualizar, excluir).
-
 router.get('/:id', obterVeiculoPorIdController);
 router.put('/:id', atualizarVeiculoController);
 router.delete('/:id', excluirVeiculoController);

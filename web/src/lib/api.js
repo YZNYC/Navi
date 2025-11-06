@@ -1,4 +1,4 @@
-// src/lib/api.js
+// frontend/lib/api.js
 import axios from 'axios';
 
 // URL de base deve ser configurada em um .env (ex: NEXT_PUBLIC_API_URL=http://localhost:3001/api)

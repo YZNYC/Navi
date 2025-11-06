@@ -1,7 +1,7 @@
 'use client';
 
 // -----------------------------------------------------------------------------
-// IMPORTAÇÕES E ELEMENTOS AUXILIARES
+// IMPORTAÇÕES E DADOS DE CARD DE PUBLICO
 // -----------------------------------------------------------------------------
 
 import { useState } from 'react';
@@ -10,9 +10,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Check, CheckCircle, Clock, BarChart } from 'lucide-react';
 
-// -----------------------------------------------------------------------------
-// DADOS PARA OS CARDS DE PÚBLICO
-// -----------------------------------------------------------------------------
 
 const tiers = {
   motorista: {
@@ -30,9 +27,21 @@ const tiers = {
 };
 
 const secondaryFeatures = [
-  { icon: CheckCircle, title: 'Check-in e Check-out Simples', description: 'Registre a entrada e saída de veículos com apenas alguns cliques.' },
-  { icon: Clock, title: 'Controle de Tempo Real', description: 'Acompanhe o tempo de permanência de cada veículo e evite erros na cobrança.' },
-  { icon: BarChart, title: 'Relatórios Claros', description: 'Acesse relatórios de faturamento para entender a performance do seu negócio.' },
+  { 
+    icon: CheckCircle, 
+    title: 'Digitalizar e Simplificar', 
+    description: 'Nosso objetivo é transformar a gestão manual em um fluxo digital simples, com check-in e check-out em poucos cliques.' 
+  },
+  { 
+    icon: Clock, 
+    title: 'Otimizar a Ocupação', 
+    description: 'O objetivo é fornecer dados em tempo real sobre a permanência dos veículos para que você maximize o uso de cada vaga.' 
+  },
+  { 
+    icon: BarChart, 
+    title: 'Potencializar Decisões', 
+    description: 'Nosso objetivo é entregar relatórios claros e precisos, transformando dados brutos em insights para a performance.' 
+  },
 ];
 
 // -----------------------------------------------------------------------------
@@ -42,19 +51,25 @@ const secondaryFeatures = [
 const PricingCard = ({ tier, isColetivo, className }) => {
   const data = isColetivo ? tier.coletivo : tier.individual;
   return (
-    <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-amber-400 dark:border-[#efb000]' : 'border-gray-200/50 dark:border-slate-800'} ${className}`}>
-      {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-[#efb000] dark:bg-[#efb000] text-gray-900 dark:text-gray-900 px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
-      <h3 className="text-xl font-semibold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">{data.name}</h3>
-      <p className="mt-4 text-white/90 [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-400 dark:[text-shadow:none] flex-grow">{data.description}</p>
+  
+    <div className={`relative flex flex-col p-8 rounded-2xl border-2 shadow-lg ${tier.individual.mostPopular ? 'border-white dark:border-[#efb000]' : 'border-white/30 dark:border-slate-800'} ${className}`}>
+      {tier.individual.mostPopular && <div className="absolute top-0 -translate-y-1/2 right-6 bg-[#efb000] dark:bg-[#efb000] border-2 border-white dark:border-none text-white dark:text-gray-900 px-3 py-1 text-sm font-semibold rounded-full">Destaque</div>}
+      
+      <h3 className="text-xl font-semibold text-orange-950 dark:text-white">{data.name}</h3>
+    
+      <p className="mt-4 text-orange-950/80 dark:text-slate-400 flex-grow">{data.description}</p>
+      
       <ul className="mt-8 space-y-4">
         {data.features.map((feature, i) => (
           <li key={i} className="flex items-center gap-3">
+          
             <Check className="h-5 w-5 text-amber-500 dark:text-[#f6bb00] flex-shrink-0" />
-            <span className="text-white/90 [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-300 dark:[text-shadow:none]">{feature}</span>
+            
+            <span className="text-orange-950 dark:text-slate-300">{feature}</span>
           </li>
         ))}
       </ul>
-      <Button className="mt-10 w-full bg-[#efb000] text-gray-900 font-bold hover:bg-[#f6bb00]" variant={tier.individual.mostPopular ? 'default' : 'outline'}>Saiba Mais</Button>
+      <Button className="mt-10 w-full bg-[#efb000] text-white font-bold hover:bg-[#f6bb00] border border-white" variant={tier.individual.mostPopular ? 'default' : 'outline'}>Saiba Mais</Button>
     </div>
   );
 };
@@ -69,7 +84,7 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
       <Icon className="h-10 w-10 text-orange-900 dark:text-[#f6bb00] transition-colors duration-300 group-hover:text-white" />
     </div>
     <h3 className="mt-6 text-xl font-bold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-100 dark:[text-shadow:none]">{title}</h3>
-    <p className="mt-4 text-base text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-400 dark:[text-shadow:none] leading-relaxed">{description}</p>
+    <p className="mt-4 text-base text-orange-950/70 dark:text-slate-400 dark:[text-shadow:none] leading-relaxed">{description}</p>
   </div>
 );
 
@@ -127,9 +142,9 @@ const SecondaryFeaturesSection = () => {
             </p>
           </div>
           <div className="mt-16 flex items-center justify-center gap-4">
-            <Label htmlFor="toggle-view" className={`font-medium transition-colors ${isColetivo ? 'text-gray-200/50 dark:text-gray-500' : 'text-white dark:text-white'}`}>Individual</Label>
+            <Label htmlFor="toggle-view" className={`font-medium transition-colors ${isColetivo ? 'text-white dark:text-gray-500 text-md' : 'text-orange-950 text-md  dark:text-white'}`}>Individual</Label>
             <Switch id="toggle-view" checked={isColetivo} onCheckedChange={setIsColetivo} />
-            <Label htmlFor="toggle-view" className={`font-medium transition-colors ${!isColetivo ? 'text-gray-200/50 dark:text-gray-500' : 'text-white dark:text-white'}`}>Corporativo/Público</Label>
+            <Label htmlFor="toggle-view" className={`font-medium transition-colors ${!isColetivo ? 'text-white dark:text-gray-500 text-md' : 'text-orange-950 text-md  dark:text-white'}`}>Corporativo/Público</Label>
           </div>
           <div className="mt-16 mx-auto w-full max-w-screen-xl grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
             <PricingCard tier={tiers.motorista} isColetivo={isColetivo} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md" />

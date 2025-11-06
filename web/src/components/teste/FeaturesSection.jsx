@@ -1,22 +1,42 @@
 "use client";
 
 // -----------------------------------------------------------------------------
-// IMPORTAÇÕES E ELEMENTOS AUXILIARES
+// IMPORTAÇÕES E ARRAY DE FUNCIONALIDADES
 // -----------------------------------------------------------------------------
 
 import { MapPin, Smartphone, Car, Wallet, UserCheck, Star } from 'lucide-react';
 
-// -----------------------------------------------------------------------------
-// DADOS PARA OS CARDS 
-// -----------------------------------------------------------------------------
-
 const features = [
-  { icon: MapPin, title: 'Mapa em Tempo Real', description: 'Encontre vagas livres perto de você instantaneamente, sem estresse и sem voltas.' },
-  { icon: Smartphone, title: 'Reserve com um Toque', description: 'Garanta sua vaga antes de sair de casa com um sistema de reserva simples e rápido.' },
-  { icon: Car, title: 'Gerencie Seus Veículos', description: 'Cadastre todos os seus veículos e selecione qual usar em cada reserva com facilidade.' },
-  { icon: Wallet, title: 'Pagamento Integrado', description: 'Pague pelo app com segurança via Pix ou cartão e receba seu recibo digital na hora.' },
-  { icon: UserCheck, title: 'Acesso para Proprietários', description: 'Gerencie seu estacionamento, monitore a ocupação e controle seu faturamento.' },
-  { icon: Star, title: 'Avalie sua Experiência', description: 'Dê sua nota e ajude outros motoristas a encontrarem os melhores estacionamentos.' },
+  { 
+    icon: MapPin, 
+    title: 'Localização em Tempo Real', 
+    description: 'Adeus às voltas desnecessárias. Nosso mapa inteligente mostra com precisão onde estão as vagas livres, economizando seu tempo e combustível.' 
+  },
+  { 
+    icon: Smartphone, 
+    title: 'Reserva Antecipada', 
+    description: 'Garanta sua vaga com um toque antes mesmo de sair de casa. Chegue com a tranquilidade de saber que seu lugar está esperando por você.' 
+  },
+  { 
+    icon: Car, 
+    title: 'Sua Garagem Digital', 
+    description: 'Cadastre seus veículos uma única vez. Na hora de reservar, basta escolher qual carro vai usar, tornando o processo rápido e personalizado.' 
+  },
+  { 
+    icon: Wallet, 
+    title: 'Pagamento 100% Digital', 
+    description: 'Esqueça tickets de papel e filas em caixas. Pague com segurança via Pix ou cartão de crédito e receba o comprovante direto no seu celular.' 
+  },
+  { 
+    icon: UserCheck, 
+    title: 'Gestão Inteligente', 
+    description: 'Para proprietários: monitore a ocupação, otimize preços e analise o faturamento em tempo real para maximizar a lucratividade do seu negócio.' 
+  },
+  { 
+    icon: Star, 
+    title: 'Comunidade Confiável', 
+    description: 'Faça parte de uma comunidade de motoristas. Avalie sua experiência e ajude outros a escolherem sempre os melhores e mais confiáveis estacionamentos.' 
+  },
 ];
 
 // -----------------------------------------------------------------------------
@@ -33,7 +53,7 @@ const FeatureCard = ({ icon: Icon, title, description }) => {
       </div>
 
       <h3 className="mt-6 text-xl font-bold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-100 dark:[text-shadow:none]">{title}</h3>
-      <p className="mt-4 text-base text-slate-100 [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-400 dark:[text-shadow:none] leading-relaxed">{description}</p>
+      <p className="mt-4 text-base text-yellow-950/70 text-bold dark:text-slate-400 dark:[text-shadow:none] leading-relaxed">{description}</p>
     </div>
   );
 };
@@ -71,8 +91,8 @@ const FeatureCard = ({ icon: Icon, title, description }) => {
         />
 
         <div className="relative z-10 mx-auto max-w-4xl text-center px-4 sm:px-6 lg:px-8">
-          <p className="font-semibold uppercase tracking-wider text-white dark:text-[#efb000]">
-            Como Funciona
+          <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-[#efb000]">
+            Nossas Vantagens
           </p>
 
           <h2 className="mt-2 text-5xl sm:text-6xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">

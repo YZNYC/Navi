@@ -1,15 +1,20 @@
 'use client';
 
+// -----------------------------------------------------------------------------
+// IMPORTAÇÕES E COMPONENTES DE UI
+// -----------------------------------------------------------------------------
+
 import { useState, useRef } from 'react';
 import { Play, Pause } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- COMPONENTE DECORATIVO QUE USAMOS ---
-// MODIFICADO
 const HalfCircle = (props) => (
   <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full border-white/20 dark:border-[#ffffff]/50 ${props.className}`} />
 );
 
+// -----------------------------------------------------------------------------
+// EXIBIÇÃO DO VIDEO
+// -----------------------------------------------------------------------------
 
 const VideoShowcaseSection = () => {
   const videoRef = useRef(null);
@@ -28,23 +33,22 @@ const VideoShowcaseSection = () => {
     }
   };
 
-  return (
+// -----------------------------------------------------------------------------
+// COMPONENTE PRINCIPAL 
+// -----------------------------------------------------------------------------
+
+return (
     <section className="relative min-h-screen flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       
-      {/* --- FUNDOS DE TEMA (corrigido para o modo escuro funcionar) --- */}
       <div className="absolute inset-0 -z-20 transition-opacity duration-500 dark:opacity-0" style={{ background: 'linear-gradient(90deg, #f2b441, #ffc107, #ff8f00)' }} />
-      <div style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
+      <div className="" style={{ background: 'linear-gradient(180deg, #2c3e50 0%, #1f2a38 50%, #0f172a 100%)' }} />
       
-      {/* --- ELEMENTOS DECORATIVOS --- */}
+      <div aria-hidden="true" className="absolute top-3/5 left-0 -translate-y-1/2 w-1/3 h-2/5 rounded-full bg-orange-400/20 dark:bg-[#f6bb00]/10 blur-[120px] -z-10" />
 
-      {/* 1. SEU CÍRCULO DE SOMBRA ORIGINAL NA ESQUERDA (INTOCADO) */}
-      <div aria-hidden="true" className="absolute top-3/5 left-0 -translate-y-1/2 w-1/2 h-3/5 rounded-full bg-orange-400/20 dark:bg-[#f6bb00]/10 blur-[120px] -z-10" />
-
-      {/* 2. MEIO CÍRCULO ADICIONADO NO CENTRO DA DIREITA */}
       <HalfCircle className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 -rotate-90 opacity-10 dark:opacity-5 border-white/50 dark:border-white/50 -z-10" />
 
-      {/* --- CABEÇALHO DA SEÇÃO --- */}
       <div className="text-center z-10">
+        <p className="font-semibold uppercase tracking-wider text-orange-950/80 dark:text-[#efb000]">Ná prática</p>
         <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">
           Veja o Navi em Ação
         </h2>
@@ -53,13 +57,12 @@ const VideoShowcaseSection = () => {
         </p>
       </div>
 
-      {/* --- CONTAINER DO VÍDEO --- */}
       <div 
         className="relative mt-16 w-full max-w-screen-2xl"
         onMouseEnter={() => setShowButton(true)}
         onMouseLeave={() => { if(isPlaying) setShowButton(false) }}
       >
-        <div className="relative p-2 rounded-3xl bg-gradient-to-br from-white/10 to-white/0 dark:from-[#efb000]/30 dark:to-transparent shadow-2xl">
+        <div className="relative p-2 rounded-3xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 shadow-2xl">
             
             <div aria-hidden="true" className="absolute top-0 left-0 w-12 h-12 bg-white/10 dark:bg-slate-900/50 rounded-full -translate-x-1/2 -translate-y-1/2 blur-md" />
             <div aria-hidden="true" className="absolute bottom-0 right-0 w-12 h-12 bg-white/10 dark:bg-slate-900/50 rounded-full translate-x-1/2 translate-y-1/2 blur-md" />

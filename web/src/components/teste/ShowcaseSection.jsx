@@ -1,16 +1,12 @@
 'use client';
 
 // -----------------------------------------------------------------------------
-// IMPORTAÇÕES 
+// IMPORTAÇÕES E COMPONENTES AUXILIARES 
 // -----------------------------------------------------------------------------
 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { motion } from "framer-motion";
-
-// -----------------------------------------------------------------------------
-// COMPONENTES AUXILIARES 
-// -----------------------------------------------------------------------------
 
 const HalfCircle = (props) => (
   <div className={`w-[250px] h-[250px] sm:w-[380px] sm:h-[380px] border-[48px] rounded-full border-white/20 dark:border-[#ffffff]/50 ${props.className}`} />
@@ -59,7 +55,7 @@ const ShowcaseSection = () => {
 
         <div className="z-10">
 
-          <p className="font-semibold text-white dark:text-[#efb000]">PARA O MOTORISTA</p>
+          <p className="font-semibold text-orange-950 dark:text-[#efb000]">PARA O MOTORISTA</p>
 
           <h2 className="mt-4 text-4xl sm:text-6xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">Seu Estacionamento, na Palma da Mão</h2>
           <p className="mt-6 text-xl text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-300 dark:[text-shadow:none]">
@@ -71,14 +67,14 @@ const ShowcaseSection = () => {
 
               <span className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 text-orange-800 dark:text-[#f6bb00] font-bold text-lg transition-transform group-hover:scale-110">01</span>
               <div>
-                <h4 className="font-semibold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">Encontre e Reserve em Tempo Real</h4>
+                <h4 className="font-semibold text-orange-950/70  dark:text-white dark:[text-shadow:none]">Encontre e Reserve em Tempo Real</h4>
                 <p className="text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-400 dark:[text-shadow:none]">Nosso mapa inteligente mostra as vagas livres agora. Reserve com um toque e dirija sem preocupações.</p>
               </div>
             </li>
             <li className="group flex items-start gap-4 p-4 rounded-xl transition-colors hover:bg-black/5 dark:hover:bg-white/5">
               <span className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 text-orange-800 dark:text-[#f6bb00] font-bold text-lg transition-transform group-hover:scale-110">02</span>
               <div>
-                <h4 className="font-semibold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">Pagamento Digital e Seguro</h4>
+                <h4 className="font-semibold text-orange-950/70 dark:text-white dark:[text-shadow:none]">Pagamento Digital e Seguro</h4>
                 <p className="text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.3)] dark:text-slate-400 dark:[text-shadow:none]">Pague com Pix ou cartão de crédito. Rápido, seguro e sem a necessidade de tickets de papel.</p>
               </div>
             </li>
@@ -90,7 +86,7 @@ const ShowcaseSection = () => {
       <div className="max-w-7xl mx-auto py-24 px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
         <div aria-hidden="true" className="absolute top-2/3 -translate-y-1/2 -left-1/4 w-3/5 h-2/5 rounded-full bg-[#ff8f00] dark:bg-[#d08700]/20 blur-[150px] filter -z-10"></div>
         <div className="z-10 md:order-1">
-          <p className="font-semibold text-white dark:text-[#efb000]">PARA O PROPRIETÁRIO</p>
+          <p className="font-semibold text-orange-950 dark:text-[#efb000]">PARA O PROPRIETÁRIO</p>
           <h2 className="mt-4 text-4xl sm:text-6xl font-bold tracking-tight text-white [text-shadow:1px_1px_3px_rgba(0,0,0,0.3)] dark:text-white dark:[text-shadow:none]">
             Otimize e Lucre Mais com Seu Negócio
           </h2>
@@ -99,9 +95,9 @@ const ShowcaseSection = () => {
           </p>
           <Button
             size="lg"
-            className="mt-10 bg-[#efb000] text-orange-950 font-bold hover:bg-[#f6bb00]
+            className="mt-10 bg-[#ffffff] text-[#ff8f00] font-bold hover:bg-[#ffffff]
                        dark:bg-[#efb000] dark:text-gray-900 dark:hover:bg-[#f6bb00]
-                       shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-lg px-8 py-7"
+                       shadow-lg hover:shadow-xl transform hover:-translate-y-1  transition-all duration-300 text-lg px-8 py-7"
           >
             Conheça o Painel
           </Button>

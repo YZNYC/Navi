@@ -14,9 +14,8 @@ export const criarAvaliacao = async (dadosAvaliacao, usuarioId, estacionamentoId
 export const listarAvaliacoesPorEstacionamento = async (estacionamentoId) => {
     return await prisma.avaliacao.findMany({
         where: { id_estacionamento: parseInt(estacionamentoId) },
-        orderBy: { data_postagem: 'desc' }, // Mostrar as mais recentes primeiro
+        orderBy: { data_postagem: 'desc' }, 
         include: {
-            // Inclui o nome e a foto do usuário que fez a avaliação, mas não outros dados sensíveis
             usuario: {
                 select: {
                     nome: true,

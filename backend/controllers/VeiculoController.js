@@ -5,11 +5,10 @@ import { paramsSchema } from '../schemas/params.schema.js';
 
 export const criarVeiculoController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Garante que os dados do veículo no body estão corretos.
+      
         const { body } = criarVeiculoSchema.parse(req);
         const usuarioId = req.usuario.id_usuario;
 
-        // 2. EXECUÇÃO: Prossegue com a criação do veículo.
         const novoVeiculo = await criarVeiculo(body, usuarioId);
         res.status(201).json({ message: "Veículo cadastrado com sucesso!", veiculo: novoVeiculo });
 
@@ -29,7 +28,7 @@ export const listarVeiculosController = async (req, res) => {
     try {
         let usuarioId = req.usuario.id_usuario;
 
-        // Regra: Se for admin e passar `usuarioId` na query, pode ver veículos de outros.
+     
         if (req.usuario.papel === 'ADMINISTRADOR' && req.query.usuarioId) {
             usuarioId = parseInt(req.query.usuarioId);
         }
@@ -44,12 +43,12 @@ export const listarVeiculosController = async (req, res) => {
 
 export const obterVeiculoPorIdController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO
+        
         const { params } = paramsSchema.parse(req);
         const veiculoId = parseInt(params.id);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO
+       
         const veiculo = await obterVeiculoPorId(veiculoId);
         if (!veiculo) {
             return res.status(404).json({ message: "Veículo não encontrado." });
@@ -70,13 +69,12 @@ export const obterVeiculoPorIdController = async (req, res) => {
 
 export const atualizarVeiculoController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO
+      
         const { params } = paramsSchema.parse(req);
         const { body } = atualizarVeiculoSchema.parse(req);
         const veiculoId = parseInt(params.id);
         const requisitante = req.usuario;
 
-        // 2. EXECUÇÃO
         const veiculoAlvo = await obterVeiculoPorId(veiculoId);
         if (!veiculoAlvo) {
             return res.status(404).json({ message: "Veículo não encontrado." });
@@ -111,7 +109,7 @@ export const excluirVeiculoController = async (req, res) => {
         if (veiculoAlvo.id_usuario !== requisitante.id_usuario && requisitante.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido. Você не pode excluir este veículo." });
         }
-        // Verifica se o veículo possui reservas ativas antes de permitir a exclusão
+
         const reservasAtivas = await prisma.reserva.findFirst({
             where: {
                 id_veiculo: veiculoId,

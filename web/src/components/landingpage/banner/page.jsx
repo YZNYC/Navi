@@ -113,7 +113,7 @@ const Hero3 = () => {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   size="lg"
-                  className="bg-white text-yellow-500 hover:bg-gray-100 dark:bg-yellow-700 dark:hover:bg-yellow-700 dark:text-white shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-8 py-7 font-semibold w-full sm:w-auto cursor-pointer"
+                  className="bg-white text-yellow-500 hover:bg-gray-100 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:text-white shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-8 py-7 font-semibold w-full sm:w-auto cursor-pointer"
                 >
                   <Download className="w-5 h-5 mr-2" />
                   Baixar Grátis

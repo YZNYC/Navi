@@ -16,8 +16,7 @@ export const adicionarFuncionarioController = async (req, res) => {
         const { estacionamentoId } = req.params;
         const { body } = adicionarFuncionarioSchema.parse(req);
         const requisitante = req.usuario;
-
-        // Regra de Permissão: Apenas admins ou o dono do estacionamento podem adicionar funcionários.
+  
         if (requisitante.papel !== 'ADMINISTRADOR') {
             const ehDono = await verificarDonoDoEstacionamento(estacionamentoId, requisitante.id_usuario);
             if (!ehDono) {
@@ -25,13 +24,11 @@ export const adicionarFuncionarioController = async (req, res) => {
             }
         }
         
-        // Regra de Negócio: Encontrar o usuário pelo email fornecido.
         const futuroFuncionario = await prisma.usuario.findUnique({ where: { email: body.email_funcionario } });
         if (!futuroFuncionario) {
             return res.status(404).json({ message: "Usuário não encontrado com o email fornecido." });
         }
         
-        // Regra de Negócio: Não deixar o proprietário se adicionar como funcionário.
         if (futuroFuncionario.id_usuario === requisitante.id_usuario) {
             return res.status(400).json({ message: "Você não pode se adicionar como funcionário do seu próprio estacionamento." });
         }
@@ -43,7 +40,7 @@ export const adicionarFuncionarioController = async (req, res) => {
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
         }
-        // Erro se o usuário já for funcionário deste estacionamento
+
         if (error.code === 'P2002') {
             return res.status(409).json({ message: "Conflito: Este usuário já é funcionário deste estacionamento." });
         }
@@ -88,7 +85,7 @@ export const removerFuncionarioController = async (req, res) => {
         res.status(204).send();
 
     } catch (error) {
-        // P2025: Erro do Prisma quando o registro a ser deletado não é encontrado
+     
         if (error.code === 'P2025') {
             return res.status(404).json({ message: "Funcionário não encontrado neste estacionamento." });
         }
@@ -103,7 +100,6 @@ export const atualizarPermissaoController = async (req, res) => {
         const { body } = atualizarFuncionarioSchema.parse(req); 
         const requisitante = req.usuario;
 
-        // Garante que apenas o proprietário ou um admin possa alterar permissões.
         if (requisitante.papel !== 'ADMINISTRADOR') {
             const ehDono = await verificarDonoDoEstacionamento(estacionamentoId, requisitante.id_usuario);
             if (!ehDono) {
@@ -118,7 +114,7 @@ export const atualizarPermissaoController = async (req, res) => {
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
         }
-        // P2025: Erro do Prisma quando o registro a ser atualizado não é encontrado
+
         if (error.code === 'P2025') {
             return res.status(404).json({ message: "Funcionário não encontrado neste estacionamento." });
         }

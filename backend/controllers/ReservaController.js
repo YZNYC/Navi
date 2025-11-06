@@ -3,7 +3,7 @@ import { criarReservaSchema } from "../schemas/reserva.schema.js";
 import { paramsSchema } from '../schemas/params.schema.js';
 import prisma from "../config/prisma.js";
 
-// Função auxiliar para verificar se o requisitante pode interagir com a reserva.
+
 const verificarPermissaoSobreReserva = async (reservaId, requisitante) => {
     const reserva = await prisma.reserva.findUnique({
         where: { id_reserva: parseInt(reservaId) },
@@ -59,7 +59,7 @@ export const listarMinhasReservasController = async (req, res) => {
 
 export const obterReservaPorIdController = async (req, res) => {
     try {
-        const { params } = paramsSchema.parse(req); // Valida que o :id é um número
+        const { params } = paramsSchema.parse(req); 
         const requisitante = req.usuario;
 
         const permissao = await verificarPermissaoSobreReserva(params.id, requisitante);
@@ -106,7 +106,6 @@ export const cancelarReservaController = async (req, res) => {
 };
 
 
-// Controlador usado nas rotas de estacionamento
 export const listarReservasDeEstacionamentoController = async (req, res) => {
     try {
         const { estacionamentoId } = req.params;
