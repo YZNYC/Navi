@@ -6,7 +6,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { LoginProvider, useLogin } from "./src/providers/loginProvider.js";
 
 //Importando as rotas
-import Account, { LoginForm } from "./src/app/account/account.js";
+import { LoginForm } from "./src/app/account/loginForm.js";
+import Account from "./src/app/account/account.js";
 import Main from "./src/app/main/main.js";
 import History from "./src/app/history/history.js";
 import Settings from "./src/app/settings/settings.js";
@@ -16,7 +17,7 @@ import Help from "./src/app/help/help.js";
 const Stack = createStackNavigator();
 
 function AppNavigator() {
-  const { user } = useLogin(); // AGORA FUNCIONA!
+  const { user } = useLogin();
 
   return (
     <Stack.Navigator>
