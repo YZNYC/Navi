@@ -39,16 +39,15 @@ const proprietarioNavItems = [
     {
         name: "Estabelecimento", icon: ParkingCircle,
         subItems: [
-            { name: "Criação de Vaga", href: "/proprietario/vagas" },
-            { name: "Funcionários", href: "/proprietario/funcionarios" },
+            { name: "Criação de Vaga", href: "/proprietario/estabelecimento/vagas" },
+            { name: "Funcionários", href: "/proprietario/estabelecimento/funcionarios" },
         ]
     },
     {
         name: "Financeiro", icon: Wallet,
         subItems: [
-            { name: "Política de Preço", href: "/proprietario/politicas" },
-            { name: "Planos Mensais", href: "/proprietario/planos" },
-            { name: "Cupons", href: "/proprietario/cupons" },
+            { name: "Política de Preço", href: "/proprietario/financeiro/politicas" },
+            { name: "Planos Mensais", href: "/proprietario/financeiro/planos" },
         ]
     },
     { name: "Chat", href: "/proprietario/chat", icon: MessageSquare },
