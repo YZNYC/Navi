@@ -13,6 +13,7 @@ import veiculoRoutes from './routes/veiculoRoutes.js';
 import reservaRoutes from './routes/ReservRoutes.js'; 
 import contratoRoutes from './routes/ContratoRoutes.js'; 
 import cupomRoutes from './routes/CupomRoutes.js'; 
+import naviRoutes from './routes/NaviRoutes.js'
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -30,6 +31,7 @@ app.use('/veiculos', veiculoRoutes);
 app.use('/reservas', reservaRoutes); 
 app.use('/contratos', contratoRoutes); 
 app.use('/cupons', cupomRoutes)
+app.use('/api/navi', naviRoutes); 
 
 // Rota raiz para verificação
 app.get('/', (req, res) => {
