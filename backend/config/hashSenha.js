@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 
 async function generateHashedPassword() {
-  const password = 'motor789'; // SENHA
+  const password = '12345678'; // SENHA
   try {
     const salt = await bcrypt.genSalt(10);
 

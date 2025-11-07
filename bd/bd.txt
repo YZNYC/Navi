@@ -14,8 +14,13 @@ CREATE TABLE usuario (
     senha VARCHAR(255) NOT NULL,
     telefone VARCHAR(20),
     url_foto_perfil VARCHAR(255),
-    papel ENUM('ADMINISTRADOR', 'PROPRIETARIO', 'MOTORISTA') NOT NULL,
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    papel ENUM('ADMINISTRADOR', 'PROPRIETARIO', 'FUNCIONARIO', 'MOTORISTA') NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE,
+
+    -- Colunas para recuperação de senha
+    resetToken VARCHAR(255) NULL UNIQUE,
+    resetTokenExpires DATETIME NULL
 );
 
 -- =================================================================================
@@ -26,9 +31,20 @@ CREATE TABLE estacionamento (
     id_proprietario INT NOT NULL,
     nome VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) NOT NULL UNIQUE,
+    
+    -- ENDEREÇO ESTRUTURADO
+    cep VARCHAR(9) NOT NULL,
+    rua VARCHAR(255) NOT NULL,
+    numero VARCHAR(20) NOT NULL,
+    bairro VARCHAR(100) NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    estado VARCHAR(2) NOT NULL,    
+    endereco_completo VARCHAR(500) NOT NULL, 
+    
+    latitude DECIMAL(10, 8) NOT NULL,
+    longitude DECIMAL(10, 8) NOT NULL,
+
     url_foto_principal VARCHAR(255),
-    endereco_completo TEXT NOT NULL,
-    localizacao POINT NOT NULL, -- CAMPO NOVO: Substitui latitude e longitude por um tipo geoespacial otimizado.
     horario_abertura TIME,
     horario_fechamento TIME,
     dias_funcionamento VARCHAR(100),
@@ -38,9 +54,9 @@ CREATE TABLE estacionamento (
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
 
-    SPATIAL INDEX(localizacao) -- ÍNDICE NOVO: Essencial para buscas rápidas por proximidade.
+    UNIQUE KEY endereco_unico (cep, numero),
+    UNIQUE KEY localizacao_unica (latitude, longitude)
 );
-
 -- =================================================================================
 -- Permite que proprietários concedam acesso a seus estacionamentos para outros usuários.
 -- =================================================================================
