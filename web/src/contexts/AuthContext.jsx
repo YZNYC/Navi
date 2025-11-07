@@ -1,48 +1,80 @@
-"use client";
+// frontend/contexts/AuthContext.js
+'use client';
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import api from '../lib/api'; // Importamos o api para o interceptor de logout
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true); 
+    const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
-    useEffect(() => {
+    const loadUserFromStorage = useCallback(() => {
+        // Unifica a lógica de carregamento
         try {
-           
-            const storedUser = localStorage.getItem('usuario');
+            const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+            const storedUser = localStorage.getItem('usuario') || sessionStorage.getItem('usuario');
             
-           
-            if (storedUser) {
-                const userObject = JSON.parse(storedUser);
-                setUser(userObject);
+            if (token && storedUser) {
+                setUser(JSON.parse(storedUser));
             }
         } catch (error) {
-            console.error("AuthContext: Falha ao carregar ou parsear dados do usuário.", error);
-            setUser(null);
+            console.error("Erro ao carregar dados de autenticação do storage", error);
+            // Limpa o storage se estiver corrompido
+            localStorage.clear();
+            sessionStorage.clear();
         } finally {
             setIsLoading(false);
         }
     }, []);
+    
+    useEffect(() => {
+        loadUserFromStorage();
+    }, [loadUserFromStorage]);
+
+    // --- A FUNÇÃO CHAVE ---
+    // Esta função será chamada pelo seu LoginForm
+    const login = (userData, token, rememberMe) => {
+        const storage = rememberMe ? localStorage : sessionStorage;
+
+        storage.setItem('authToken', token);
+        storage.setItem('usuario', JSON.stringify(userData));
+
+        setUser(userData); // ATUALIZA O ESTADO IMEDIATAMENTE!
+    };
 
     const logout = () => {
-       
+        localStorage.removeItem('usuario');
         localStorage.removeItem('authToken');
-        localStorage.removeItem('usuario');  
+        sessionStorage.removeItem('usuario');
+        sessionStorage.removeItem('authToken');
         setUser(null);
-        window.location.href = '/'; //ARRUMAR LINK PARA  APAGINA Q TIVER OS TRECO DE BOTÃO
+        router.push('/');
     };
     
-    const value = { user, logout, isLoading };
+    // Configura um interceptor para deslogar em caso de erro 401
+    useEffect(() => {
+        const responseInterceptor = api.interceptors.response.use(
+            response => response,
+            error => {
+                if (error.response?.status === 401) {
+                    logout();
+                }
+                return Promise.reject(error);
+            }
+        );
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+        // Função de limpeza para remover o interceptor
+        return () => api.interceptors.response.eject(responseInterceptor);
+    }, []);
+
+
+    const value = { user, isLoading, login, logout };
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

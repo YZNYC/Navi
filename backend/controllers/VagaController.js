@@ -117,3 +117,26 @@ export const excluirVagaController = async (req, res) => {
         res.status(500).json({ message: 'Erro interno ao excluir vaga.' });
     }
 };
+
+export const listarVagasPorEstacionamentoController = async (req, res) => {
+    try {
+        const { estacionamentoId } = req.params;
+        const requisitante = req.usuario;
+
+        const idNumerico = parseInt(estacionamentoId);
+        if (isNaN(idNumerico)) {
+            return res.status(400).json({ message: "ID do estacionamento inválido." });
+        }
+
+        const vagas = await prisma.vaga.findMany({
+            where: { id_estacionamento: idNumerico },
+            orderBy: { identificador: 'asc' }
+        });
+
+        res.status(200).json(vagas);
+
+    } catch (error) {
+        console.error('Erro ao listar vagas do estacionamento:', error);
+        res.status(500).json({ message: 'Erro interno ao buscar as vagas.' });
+    }
+};

@@ -7,7 +7,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import api from '../../../lib/api';
+import api from '../../../../lib/api';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,13 +17,16 @@ import { Car, Zap, ParkingSquare, User, Bike, PlusCircle, Building, Loader2, X, 
 // -----------------------------------------------------------------------------
 // CONFIGURAÇÕES E SCHEMAS
 // -----------------------------------------------------------------------------
+
 const vagaSchema = z.object({
-    identificador: z.string().min(1, "O identificador da vaga é obrigatório."),
+    identificador: z.string()
+                   .min(1, "O identificador é obrigatório.")
+                   .max(10, "O identificador não pode ter mais de 10 caracteres."),
     tipo_vaga: z.enum(['PADRAO', 'PCD', 'IDOSO', 'ELETRICO', 'MOTO']).default('PADRAO'),
 });
 
 const VAGAS_POR_PAGINA_DESKTOP = 32;
-const VAGAS_POR_PAGINA_MOBILE = 16;
+const VAGAS_POR_PAGINA_MOBILE = 8; 
 const MOBILE_BREAKPOINT = 768;
 
 // -----------------------------------------------------------------------------
@@ -33,9 +36,7 @@ function useIsMobile() {
     const [isMobile, setIsMobile] = useState(false);
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        const checkScreenSize = () => {
-            setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-        };
+        const checkScreenSize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
         checkScreenSize();
         window.addEventListener('resize', checkScreenSize);
         return () => window.removeEventListener('resize', checkScreenSize);
@@ -46,7 +47,6 @@ function useIsMobile() {
 // -----------------------------------------------------------------------------
 // COMPONENTES DE UI
 // -----------------------------------------------------------------------------
-
 const VagaIcon = ({ tipo, className = "w-6 h-6" }) => {
     switch (tipo) {
         case 'MOTO': return <Bike className={className} />;
@@ -91,9 +91,11 @@ const Pagination = ({ totalItens, itensPorPagina, paginaAtual, onPageChange }) =
 const Modal = ({ isOpen, onClose, title, children }) => (
     <AnimatePresence>
         {isOpen && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-                onClick={onClose}>
+                onClick={onClose}
+            >
                 <motion.div
                     initial={{ scale: 0.9, y: 30, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 30, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
@@ -153,7 +155,6 @@ const ModalDetalhesVaga = ({ vaga, isOpen, onClose, onAction }) => {
         </Modal>
     );
 };
-
 // -----------------------------------------------------------------------------
 // COMPONENTE PRINCIPAL DA PÁGINA
 // -----------------------------------------------------------------------------
@@ -173,42 +174,57 @@ export default function GerenciarVagasPage() {
 
     const vagasPorPagina = isMobile ? VAGAS_POR_PAGINA_MOBILE : VAGAS_POR_PAGINA_DESKTOP;
     
-    const fetchVagas = useCallback(async (estacionamentoId) => {
-        if (!estacionamentoId) return;
-        setIsLoading(true); setVagas([]);
-        try {
-            const response = await api.get(`/estacionamentos/${estacionamentoId}/vagas`);
-            setVagas(response.data); setPaginaAtual(1);
-        } catch (err) { toast.error('Erro ao carregar as vagas.', { className: 'toast-error' }) } finally { setIsLoading(false) }
-    }, []);
-    
-    const fetchEstacionamentos = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const response = await api.get('/estacionamentos/meus');
-            setMeusEstacionamentos(response.data);
-            if (response.data.length > 0) {
-                const primeiroId = response.data[0].id_estacionamento;
-                setFiltroEstacionamento(primeiroId.toString());
-                await fetchVagas(primeiroId);
-            } else { setIsLoading(false) }
-        } catch (err) { setError('Não foi possível carregar seus estacionamentos.'); setIsLoading(false) }
-    }, [fetchVagas]);
+    // Efeito para buscar os estacionamentos APENAS UMA VEZ no carregamento da página.
+    useEffect(() => {
+        const fetchEstacionamentosIniciais = async () => {
+            setIsLoading(true);
+            try {
+                const response = await api.get('/estacionamentos/meus');
+                setMeusEstacionamentos(response.data);
+                if (response.data.length > 0) {
+                    // Define o primeiro estacionamento da lista como o padrão
+                    setFiltroEstacionamento(response.data[0].id_estacionamento.toString());
+                } else {
+                    setIsLoading(false);
+                }
+            } catch (err) {
+                setError('Não foi possível carregar seus estacionamentos.');
+                setIsLoading(false);
+            }
+        };
+        fetchEstacionamentosIniciais();
+    }, []); // <-- Array de dependência vazio garante que rode apenas uma vez.
 
-    useEffect(() => { fetchEstacionamentos() }, [fetchEstacionamentos]);
-    
-    const handleEstacionamentoChange = (e) => {
-        const novoId = e.target.value;
-        setFiltroEstacionamento(novoId);
-        fetchVagas(novoId);
-    };
+    // Efeito separado para buscar vagas SEMPRE que o filtro de estacionamento mudar.
+    useEffect(() => {
+        const fetchVagas = async () => {
+            if (!filtroEstacionamento) return;
+            setIsLoading(true);
+            setVagas([]);
+            try {
+                const response = await api.get(`/estacionamentos/${filtroEstacionamento}/vagas`);
+                setVagas(response.data);
+                setPaginaAtual(1); // Reseta a paginação ao trocar
+            } catch (err) {
+                toast.error('Erro ao carregar as vagas do estacionamento.', { className: 'toast-error' });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchVagas();
+    }, [filtroEstacionamento]); // <-- Dispara este efeito a cada mudança no filtro.
 
     const vagasFiltradas = useMemo(() =>
         vagas.filter(vaga => (filtroStatus === 'TODOS' || vaga.status === filtroStatus) && (filtroTipo === 'TODOS' || vaga.tipo_vaga === filtroTipo)),
         [vagas, filtroStatus, filtroTipo]
     );
 
-    const vagasDaPagina = useMemo(() => vagasFiltradas.slice((paginaAtual - 1) * vagasPorPagina, ((paginaAtual - 1) * vagasPorPagina) + vagasPorPagina), [vagasFiltradas, paginaAtual, vagasPorPagina]);
+      const vagasDaPagina = useMemo(() => {
+        const inicio = (paginaAtual - 1) * vagasPorPagina;
+        const fim = inicio + vagasPorPagina;
+        return vagasFiltradas.slice(inicio, fim);
+    }, [vagasFiltradas, paginaAtual, vagasPorPagina]); // <-- 'vagasPorPagina' adicionada como dependência
+    
     
     const onSubmitCriarVaga = async (data) => {
         const loadingToast = toast.loading("Criando vaga...");
@@ -218,10 +234,11 @@ export default function GerenciarVagasPage() {
             toast.success(`Vaga '${data.identificador}' criada!`, { id: loadingToast, className: 'toast-success', duration: 4000 });
             setIsCriarModalOpen(false);
             reset();
-            fetchVagas(filtroEstacionamento);
+            const response = await api.get(`/estacionamentos/${filtroEstacionamento}/vagas`);
+            setVagas(response.data);
         } catch(error) {
             const errorData = error.response?.data;
-            const message = errorData?.errors ? Object.values(errorData.errors).flat().join('\n') : errorData?.message || "Erro desconhecido ao criar vaga.";
+            const message = errorData?.errors ? Object.values(errorData.errors).flat().join('\n') : errorData?.message || "Erro ao criar vaga.";
             toast.error(message, { id: loadingToast, className: 'toast-error', duration: 6000 });
         }
     };
@@ -237,17 +254,18 @@ export default function GerenciarVagasPage() {
                 toast.success("Status da vaga atualizado.", { id: loadingToast, className: 'toast-success' });
             }
             setVagaSelecionada(null);
-            fetchVagas(filtroEstacionamento);
+            const response = await api.get(`/estacionamentos/${filtroEstacionamento}/vagas`);
+            setVagas(response.data);
         } catch(error) {
             const message = error.response?.data?.message || "Erro ao processar a ação.";
             toast.error(message, { id: loadingToast, className: 'toast-error' });
         }
     };
     
-    if (isLoading && meusEstacionamentos.length === 0) {
-        return <div className="p-8 flex justify-center items-center h-screen"><Loader2 className="animate-spin text-amber-500" size={48}/></div>
+    if (isLoading && meusEstacionamentos.length === 0 && !error) {
+        return <div className="p-8 flex justify-center items-center h-screen"><Loader2 className="animate-spin text-amber-500" size={48}/></div>;
     }
-    if (error) { return <div className="p-8 text-center text-red-500">{error}</div> }
+    if (error) { return <div className="p-8 text-center text-red-500">{error}</div>; }
 
     return (
         <main className="min-h-screen bg-white dark:bg-slate-900 p-4 sm:p-8 font-sans">
@@ -257,8 +275,8 @@ export default function GerenciarVagasPage() {
                 <div className="bg-gray-50 dark:bg-slate-800 rounded-lg shadow-sm p-4 flex flex-col sm:flex-row items-center gap-4 border-l-4 border-amber-500">
                     <div className="flex-1 w-full sm:w-auto">
                         <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Estacionamento</label>
-                         {meusEstacionamentos.length > 1 ? (
-                            <select onChange={handleEstacionamentoChange} value={filtroEstacionamento} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
+                        {meusEstacionamentos.length > 1 ? (
+                            <select onChange={(e) => setFiltroEstacionamento(e.target.value)} value={filtroEstacionamento} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
                                 {meusEstacionamentos.map(e => <option key={e.id_estacionamento} value={e.id_estacionamento}>{e.nome}</option>)}
                             </select>
                         ) : (
@@ -268,16 +286,14 @@ export default function GerenciarVagasPage() {
                      <div className="flex-1 w-full sm:w-auto">
                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Tipo de Vaga</label>
                          <select onChange={(e) => { setFiltroTipo(e.target.value); setPaginaAtual(1); }} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                            <option value="TODOS">Todos os Tipos</option>
-                            <option value="PADRAO">Padrão</option><option value="PCD">PCD</option><option value="IDOSO">Idoso</option>
+                            <option value="TODOS">Todos os Tipos</option><option value="PADRAO">Padrão</option><option value="PCD">PCD</option><option value="IDOSO">Idoso</option>
                             <option value="ELETRICO">Elétrico</option><option value="MOTO">Moto</option>
                         </select>
                     </div>
                      <div className="flex-1 w-full sm:w-auto">
                         <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Status</label>
                          <select onChange={(e) => { setFiltroStatus(e.target.value); setPaginaAtual(1); }} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                            <option value="TODOS">Todos os Status</option>
-                            <option value="LIVRE">Livres</option><option value="OCUPADA">Ocupadas</option>
+                            <option value="TODOS">Todos os Status</option><option value="LIVRE">Livres</option><option value="OCUPADA">Ocupadas</option>
                             <option value="RESERVADA">Reservadas</option><option value="MANUTENCAO">Manutenção</option>
                         </select>
                     </div>
@@ -323,32 +339,6 @@ export default function GerenciarVagasPage() {
             </Modal>
             
             <ModalDetalhesVaga isOpen={!!vagaSelecionada} onClose={() => setVagaSelecionada(null)} vaga={vagaSelecionada} onAction={handleAtualizarStatusVaga} />
-
-            <GlobalStyles />
         </main>
     );
 }
-const GlobalStyles = () => (
-    <style jsx global>{`
-        .toast-success {
-            background-color: #f0fdf4; /* green-50 */
-            color: #166534; /* green-800 */
-            border: 1px solid #bbf7d0; /* green-200 */
-        }
-        .dark .toast-success {
-            background-color: #164e32;
-            color: #bbf7d0;
-            border-color: #22c55e;
-        }
-        .toast-error {
-            background-color: #fef2f2; /* red-50 */
-            color: #991b1b; /* red-800 */
-            border: 1px solid #fecaca; /* red-200 */
-        }
-        .dark .toast-error {
-            background-color: #7f1d1d;
-            color: #fecaca;
-            border-color: #ef4444;
-        }
-    `}</style>
-);

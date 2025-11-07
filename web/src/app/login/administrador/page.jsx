@@ -8,6 +8,7 @@ import { useState, useLayoutEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../../contexts/AuthContext'; 
 import { z } from 'zod';
 import api from '../../../lib/api';
 import Image from 'next/image';
@@ -114,10 +115,10 @@ const AuthViewManager = () => {
 const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
 
     const router = useRouter();
+      const { login } = useAuth();
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         resolver: zodResolver(loginSchema), mode: 'onBlur',
     });
-
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [facebookLoading, setFacebookLoading] = useState(false);
@@ -125,46 +126,44 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
     const [apiSuccess, setApiSuccess] = useState('');
 
 
-    const onSubmit = async (data) => {
-        setIsSubmitting(true);
-        clearErrors("apiError");
-        setApiSuccess('');
+const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    clearErrors("apiError");
+    setApiSuccess('');
 
-        try {
-            const response = await api.post('/auth/login', data);
+    try {
+        const response = await api.post('/auth/login', data);
 
-            if (response.data && response.data.token && response.data.usuario) {
-                const { token, usuario } = response.data;
-                const userDataToStore = {
-                    nome: usuario.nome,
-                    email: usuario.email,
-                    papel: usuario.papel
-                };
+        console.log("Resposta completa da API:", response);
+        console.log("Dados da resposta (response.data):", response.data);
 
-                if (lembrarDeMim) {
-                    localStorage.setItem('authToken', token);
-                    localStorage.setItem('usuario', JSON.stringify(userDataToStore));
-                } else {
-                    sessionStorage.setItem('authToken', token);
-                    sessionStorage.setItem('usuario', JSON.stringify(userDataToStore));
-                }
+        if (response.data && response.data.token && response.data.usuario) {
+        
+            const { token, usuario } = response.data;
+            login(usuario, token, lembrarDeMim); 
 
-                setApiSuccess("Login bem-sucedido! Redirecionando ...");
+            setApiSuccess("Login bem-sucedido! Redirecionando ...");
+            setTimeout(() => {
+                router.push('/admin/dashboard'); 
+            }, 1200);
 
-                setTimeout(() => {
-                    router.push('/admin/dashboard');
-                }, 1500);
+        } else {
 
-            } else {
-                throw new Error("Resposta inesperada do servidor.");
-            }
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Não foi possível conectar ou resposta inválida do servidor.';
-            setError("apiError", { type: 'custom', message: errorMessage });
-        } finally {
-            setIsSubmitting(false);
+            throw new Error("Resposta da API não contém os dados esperados (token/usuario).");
         }
-    };
+    } catch (error) {
+    
+        console.error("Erro completo no bloco catch:", error);
+
+        const errorMessage = error.message.includes("esperados") 
+            ? error.message 
+            : (error.response?.data?.message || 'Não foi possível conectar ao servidor.');
+            
+        setError("apiError", { type: 'custom', message: errorMessage });
+    } finally {
+        setIsSubmitting(false);
+    }
+};
 
     return (
         <div className="p-6 sm:p-10 w-full flex flex-col">
@@ -216,7 +215,6 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
         </div>
     );
 };
-
 // -----------------------------------------------------------------------------
 // FORMULÁRIOS REGISTRO
 // -----------------------------------------------------------------------------

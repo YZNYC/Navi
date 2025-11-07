@@ -1,7 +1,7 @@
 // frontend/lib/api.js
 import axios from 'axios';
 
-
+// A URL do seu backend. Se estiver rodando na porta 3000, ajuste aqui.
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 const api = axios.create({
@@ -11,15 +11,24 @@ const api = axios.create({
     },
 });
 
-// Interceptor para injetar o JWT em cada requisição
+// --- INTERCEPTOR CORRIGIDO ---
 api.interceptors.request.use(
     (config) => {
-        // CORREÇÃO: Usando a chave correta 'authToken' 
-        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken'); 
+        let token;
         
+        // 1. Procura o token primeiro no localStorage...
+        token = localStorage.getItem('authToken'); 
+        
+        // 2. ...se não o encontrar, procura no sessionStorage.
+        if (!token) {
+            token = sessionStorage.getItem('authToken');
+        }
+
+        // 3. Se um token foi encontrado em qualquer um dos locais, injeta no cabeçalho.
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
+        
         return config;
     },
     (error) => {
