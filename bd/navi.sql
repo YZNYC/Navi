@@ -1,4 +1,4 @@
--- Cria o banco de dados caso ele não exista, garantindo que o script possa ser executado múltiplas vezes.
+
 CREATE DATABASE IF NOT EXISTS navi;
 
 -- Seleciona o banco de dados para usar.
@@ -32,7 +32,6 @@ CREATE TABLE estacionamento (
     nome VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) NOT NULL UNIQUE,
     
-    -- ENDEREÇO ESTRUTURADO
     cep VARCHAR(9) NOT NULL,
     rua VARCHAR(255) NOT NULL,
     numero VARCHAR(20) NOT NULL,
@@ -255,3 +254,64 @@ CREATE TABLE log (
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );
+
+INSERT IGNORE INTO usuario (id_usuario, nome, email, senha, papel) VALUES
+(1, 'Marcos da Silva', 'marcos@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'PROPRIETARIO'),
+(2, 'Ana Costa', 'ana@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'ADMINISTRADOR'),
+(3, 'Carla Joana', 'carla@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA');
+
+select * from usuario;
+INSERT INTO estacionamento 
+    (id_proprietario, nome, cnpj, cep, rua, numero, bairro, cidade, estado, endereco_completo, latitude, longitude) 
+VALUES
+    (
+        1, -- id_proprietario (Marcos)
+        'Estacionamento Central', 
+        '11.111.111/0001-11', 
+        '01001-000', 
+        'Praça da Sé', 
+        '100', 
+        'Sé', 
+        'São Paulo', 
+        'SP',
+        'Praça da Sé, 100 - Sé, São Paulo - SP, 01001-000',
+        -23.5507, 
+        -46.6343
+    ),
+    (
+        1, -- id_proprietario (Marcos)
+        'Estacionamento Paulista', 
+        '22.222.222/0001-22', 
+        '01311-200', -- CEP da Av. Paulista
+        'Avenida Paulista', 
+        '1578', 
+        'Bela Vista', 
+        'São Paulo', 
+        'SP',
+        'Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, 01311-200',
+        -23.5614, 
+        -46.6565
+    ),
+    (
+        2, -- id_proprietario (Ana)
+        'Estacionamento Pinheiros', 
+        '33.333.333/0001-33', 
+        '05425-070',
+        'Rua dos Pinheiros', 
+        '500', 
+        'Pinheiros', 
+        'São Paulo',
+        'SP',
+        'Rua dos Pinheiros, 500 - Pinheiros, São Paulo - SP, 05425-070',
+        -23.5677, 
+        -46.6953
+    );
+
+-- INSERE ALGUMAS VAGAS PARA OS NOVOS ESTACIONAMENTOS
+INSERT INTO vaga (id_estacionamento, identificador, status) VALUES
+(1, 'A-01', 'OCUPADA'), 
+(1, 'A-02', 'LIVRE'),
+(2, 'G1-10', 'LIVRE');
+
+select * from estacionamento;
+select * from vaga;

@@ -1,6 +1,7 @@
 import {  criarEstacionamento,  atualizarEstacionamento,  excluirEstacionamento,  listarEstacionamentos,  obterEstacionamentoPorId} from "../models/Estacionamento.js";
 import { criarEstacionamentoSchema, atualizarEstacionamentoSchema } from '../schemas/estacionamento.schema.js';
 import { paramsSchema } from '../schemas/params.schema.js';
+import prisma from '../config/prisma.js'; 
 
 export const listarEstacionamentoController = async (req, res) => {
     try {
@@ -134,5 +135,28 @@ export const excluirEstacionamentoController = async (req, res) => {
         }
         console.error('Erro ao excluir estacionamento:', error);
         res.status(500).json({ message: 'Erro ao excluir estacionamento.' });
+    }
+};
+
+export const listarMeusEstacionamentosController = async (req, res) => {
+    try {
+    
+        if (!req.usuario || typeof req.usuario.id_usuario === 'undefined') {
+            console.error('ERRO FATAL: Chegou no controller sem dados de usuário no token.');
+            return res.status(401).json({ message: 'Token de autenticação inválido ou corrompido.' });
+        }
+        
+        const proprietarioId = req.usuario.id_usuario;
+
+        const estacionamentos = await prisma.estacionamento.findMany({
+            where: { id_proprietario: proprietarioId },
+            orderBy: { nome: 'asc' }, 
+        });
+    
+        res.status(200).json(estacionamentos);
+
+    } catch (error) {
+        console.error("Erro detalhado ao listar meus estacionamentos:", error);
+        res.status(500).json({ message: "Erro interno ao buscar seus estacionamentos." });
     }
 };
