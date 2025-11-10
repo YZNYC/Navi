@@ -4,21 +4,23 @@ CREATE TABLE estacionamento (
     id_proprietario INT NOT NULL,
     nome VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) NOT NULL UNIQUE,
-
-    -- Endereço Detalhado
-    cep VARCHAR(9) NOT NULL,       -- Formato 'XXXXX-XXX'
+    
+    -- ENDEREÇO ESTRUTURADO
+    cep VARCHAR(9) NOT NULL,
     rua VARCHAR(255) NOT NULL,
     numero VARCHAR(20) NOT NULL,
     bairro VARCHAR(100) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
+    estado VARCHAR(2) NOT NULL,     
+    endereco_completo VARCHAR(500) NOT NULL, 
     
-    -- Coordenadas Geográficas
+
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(10, 8) NOT NULL,
 
     url_foto_principal VARCHAR(255),
     horario_abertura TIME,
-    horario_fechamento TIME, 
+    horario_fechamento TIME,
     dias_funcionamento VARCHAR(100),
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
@@ -26,11 +28,10 @@ CREATE TABLE estacionamento (
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
         
-    -- Restrições de Unicidade
-    UNIQUE KEY endereco_unico (cep, numero),    
-    UNIQUE KEY localizacao_unica (latitude, longitude) 
+    -- RESTRIÇÕES DE UNICIDADE
+    UNIQUE KEY endereco_unico (cep, numero),
+    UNIQUE KEY localizacao_unica (latitude, longitude)
 );
-
 -- Estrutura
 DESCRIBE estacionamento;
 

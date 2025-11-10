@@ -14,3 +14,12 @@ export const atualizarFuncionarioSchema = z.object({
       permissao: permissaoEnum,
     }),
   });
+
+  export const criarEAdicionarFuncionarioSchema = z.object({
+  body: z.object({
+    nome: z.string().min(3, "O nome é obrigatório."),
+    email: z.string().email("Formato de email inválido."),
+    telefone: z.string().optional(),
+    permissao: z.enum(['GESTOR', 'OPERADOR']),
+  }),
+});

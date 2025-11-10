@@ -10,9 +10,26 @@ export const criarPlanoMensal = async (dadosPlano, estacionamentoId) => {
     });
 };
 
+
 export const listarPlanosPorEstacionamento = async (estacionamentoId) => {
     return await prisma.plano_mensal.findMany({
-        where: { id_estacionamento: parseInt(estacionamentoId) },
+        where: { 
+            id_estacionamento: parseInt(estacionamentoId),
+            ativo: true // Puxamos apenas os planos que estão ativos
+        },
+        include: {
+            // Esta é a mágica! O Prisma conta as relações para nós.
+            _count: {
+                select: { 
+                    contrato_mensalista: {
+                        where: { status: 'ATIVO' } // Conta apenas os contratos ATIVOS
+                    }
+                }
+            }
+        },
+        orderBy: {
+            nome_plano: 'asc'
+        }
     });
 };
 
