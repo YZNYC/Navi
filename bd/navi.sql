@@ -132,6 +132,7 @@ CREATE TABLE politica_preco (
     preco_primeira_hora DECIMAL(10, 2) DEFAULT 0.00,
     preco_horas_adicionais DECIMAL(10, 2) DEFAULT 0.00,
     preco_diaria DECIMAL(10, 2) DEFAULT 0.00,
+    ativo BOOLEAN DEFAULT TRUE,
     
     FOREIGN KEY (id_estacionamento) REFERENCES estacionamento(id_estacionamento)
         ON DELETE CASCADE
