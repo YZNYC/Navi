@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert } from 'react-native';
-import { StyleSheet } from 'react-native';
+import { View, TextInput, Button, Alert, StyleSheet } from 'react-native'; // Juntei o StyleSheet no import principal
 
-const ForgotPassword = () => {
+export const ForgotPassword = () => {
     const [email, setEmail] = useState('');
 
     const handleForgotPassword = () => {
-        // Aqui você pode adicionar a lógica para enviar um email de recuperação
+        // A sua lógica de recuperação de senha permanece a mesma
         if (email) {
             Alert.alert('Email enviado!', 'Verifique sua caixa de entrada para redefinir sua senha.');
         } else {
@@ -14,51 +13,43 @@ const ForgotPassword = () => {
         }
     };
 
+    // AQUI É O ÚNICO E CORRETO 'RETURN' DO COMPONENTE
+    // Note que agora ele usa os estilos de 'styles'
     return (
-        <View style={{ padding: 20 }}>
+        <View style={styles.container}>
             <TextInput
                 placeholder="Digite seu email"
                 value={email}
                 onChangeText={setEmail}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 10 }}
+                style={styles.input} // <-- Usando o estilo do StyleSheet
+                keyboardType="email-address" // <-- Boa prática para campos de email
+                autoCapitalize="none" // <-- Boa prática para campos de email
             />
-            <Button title="Recuperar Senha" onPress={handleForgotPassword} />
+            <Button title="Recuperar Senha" onPress={handleForgotPassword} /> 
+            {/* O componente Button do React Native não aceita a prop 'style'. A cor é passada diretamente. */}
         </View>
     );
 };
 
-export default ForgotPassword;
+// O StyleSheet fica fora do componente, como deve ser.
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f5f5f5',
+        padding: 20, // Adicionado para dar um respiro nas laterais
     },
     input: {
-        height: 40,
+        height: 50, // Um pouco mais alto para facilitar o toque
         borderColor: 'gray',
         borderWidth: 1,
+        borderRadius: 8, // Bordas arredondadas
         marginBottom: 20,
-        paddingLeft: 10,
-        width: '80%',
+        paddingLeft: 15,
+        width: '100%', // Ocupa toda a largura do container
     },
-    button: {
-        backgroundColor: '#007BFF',
-        color: '#fff',
-        padding: 10,
-        borderRadius: 5,
-    },
+    // Nota: A prop 'style' no Button padrão do React Native tem suporte limitado.
+    // Para estilizar botões, geralmente se usa <TouchableOpacity> ou <Pressable>.
 });
 
-return (
-    <View style={styles.container}>
-        <TextInput
-            placeholder="Digite seu email"
-            value={email}
-            onChangeText={setEmail}
-            style={styles.input}
-        />
-        <Button title="Recuperar Senha" onPress={handleForgotPassword} color="#007BFF" />
-    </View>
-);
