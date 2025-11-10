@@ -20,7 +20,7 @@ const InfoCard = ({ title, value, change, icon: Icon, unit = '' }) => {
 
   return (
     // CORREÇÃO: Aplicando classes Tailwind para o Card e Flexbox
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 flex flex-col gap-4">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 flex flex-col gap-4 border-l-3 border-amber-500">
       
       {/* Título e Ícone */}
       <div className="flex justify-between items-center">
@@ -29,7 +29,7 @@ const InfoCard = ({ title, value, change, icon: Icon, unit = '' }) => {
           {title}
         </h3>
         {/* CORREÇÃO: Aplica cor de destaque ao ícone */}
-        {Icon && <Icon className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />}
+        {Icon && <Icon className="w-5 h-5 text-amber-500 dark:text-amber-400" />}
       </div>
       
       {/* Valor Principal */}

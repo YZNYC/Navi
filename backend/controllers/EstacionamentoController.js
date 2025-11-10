@@ -82,15 +82,24 @@ export const criarEstacionamentoController = async (req, res) => {
     }
 };
 
+// src/controllers/EstacionamentoController.js - DENTRO DE atualizarEstacionamentoController
+
 export const atualizarEstacionamentoController = async (req, res) => {
     try {
-       
-        const { params } = paramsSchema.parse(req);
-        const { body } = atualizarEstacionamentoSchema.parse(req);
+        // 1. VALIDAÇÃO: Valida o ID na URL
+        const { params } = paramsSchema.parse(req); // Assume que paramsSchema está importado
         const estacionamentoId = parseInt(params.id);
         const requisitante = req.usuario;
 
-     
+        // 🚨 CORREÇÃO 1: Extrai o body e valida APENAS o body
+        const { body: dadosAtualizacao } = atualizarEstacionamentoSchema.parse(req); 
+        
+        // 🚨 CORREÇÃO 2: Verifica se o objeto de atualização tem chaves
+        if (Object.keys(dadosAtualizacao).length === 0) {
+            return res.status(400).json({ message: "Corpo da requisição vazio ou inválido." });
+        }
+
+        // 2. EXECUÇÃO: Lógica de negócio e permissão.
         const estacionamentoAlvo = await obterEstacionamentoPorId(estacionamentoId);
         if (!estacionamentoAlvo) {
             return res.status(404).json({ message: 'Estacionamento não encontrado.' });
@@ -100,7 +109,7 @@ export const atualizarEstacionamentoController = async (req, res) => {
             return res.status(403).json({ message: 'Acesso proibido. Você não é o proprietário deste estacionamento.' });
         }
 
-        const estacionamentoAtualizado = await atualizarEstacionamento(estacionamentoId, body);
+        const estacionamentoAtualizado = await atualizarEstacionamento(estacionamentoId, dadosAtualizacao);
         res.status(200).json({ message: 'Estacionamento atualizado com sucesso!', estacionamento: estacionamentoAtualizado });
     } catch (error) {
         if (error.name === 'ZodError') {

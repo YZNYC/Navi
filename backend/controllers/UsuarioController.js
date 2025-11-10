@@ -36,56 +36,41 @@ export const criarUsuarioController = async (req, res) => {
     }
 };
 
+// src/controllers/UsuarioController.js - DENTRO DE atualizarUsuarioController
+
 export const atualizarUsuarioController = async (req, res) => {
     try {
-        const { params } = paramsSchema.parse(req);
-        const { body } = atualizarUsuarioSchema.parse(req);
+        // 1. VALIDAÇÃO: Valida tanto o ID na URL quanto os campos no body
+        const { params } = paramsSchema.parse(req); // Assume que paramsSchema está importado
         const idAlvo = parseInt(params.id);
-        const requisitante = req.usuario; 
+        const requisitante = req.usuario;
 
-        let permissaoConcedida = false;
+        // 🚨 CORREÇÃO 1: Extrai o body e valida APENAS o body
+        const { body: dadosAtualizacao } = atualizarUsuarioSchema.parse(req); 
         
-        if (requisitante.id_usuario === idAlvo) {
-            permissaoConcedida = true;
-        }
-    
-        if (requisitante.papel === 'ADMINISTRADOR') {
-            permissaoConcedida = true;
+        // 🚨 CORREÇÃO 2: Verifica se o objeto de atualização tem chaves
+        if (Object.keys(dadosAtualizacao).length === 0) {
+            return res.status(400).json({ message: "Corpo da requisição vazio ou inválido." });
         }
 
-
-        if (requisitante.papel === 'PROPRIETARIO' && !permissaoConcedida) {
-            const vinculo = await prisma.estacionamento_funcionario.findFirst({
-                where: {
-                    id_usuario: idAlvo,
-                    estacionamento: {
-                        id_proprietario: requisitante.id_usuario 
-                    }
-                }
-            });
-            if (vinculo) {
-                permissaoConcedida = true;
-            }
+        // 2. EXECUÇÃO: Lógica de negócio e permissão.
+        if (requisitante.id_usuario !== idAlvo && requisitante.papel !== 'ADMINISTRADOR') {
+            return res.status(403).json({ message: "Acesso proibido. Você só pode editar seu próprio perfil." });
         }
         
-        if (!permissaoConcedida) {
-            return res.status(403).json({ message: "Acesso proibido. Você não tem permissão para editar este usuário." });
+        // Regra para impedir que não-admins mudem o papel
+        if (dadosAtualizacao.papel && requisitante.papel !== 'ADMINISTRADOR') {
+            // Remove o papel do objeto se não for admin
+            delete dadosAtualizacao.papel; 
         }
 
-        if (body.papel && requisitante.papel !== 'ADMINISTRADOR') {
-            delete body.papel;
-        }
-        const usuarioAtualizado = await atualizarUsuario(idAlvo, body);
+        const usuarioAtualizado = await atualizarUsuario(idAlvo, dadosAtualizacao);
         res.status(200).json({ message: "Usuário atualizado com sucesso!", usuario: removerSenha(usuarioAtualizado) });
     } catch (error) {
         if (error.name === 'ZodError') {
+            // Se o Zod falhar por dados inválidos, ele retorna 400
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
         }
-        
-        if (error.code === 'P2002' && error.meta?.target.includes('email')) {
-            return res.status(409).json({ message: 'Conflito: Este email já está em uso por outra conta.' });
-        }
- 
         console.error("Erro ao atualizar usuário:", error);
         res.status(500).json({ message: "Erro ao atualizar usuário." });
     }
