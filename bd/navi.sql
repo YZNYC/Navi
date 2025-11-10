@@ -256,63 +256,102 @@ CREATE TABLE log (
         ON UPDATE CASCADE
 );
 
-INSERT IGNORE INTO usuario (id_usuario, nome, email, senha, papel) VALUES
-(1, 'Marcos da Silva', 'marcos@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'PROPRIETARIO'),
-(2, 'Ana Costa', 'ana@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'ADMINISTRADOR'),
-(3, 'Carla Joana', 'carla@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA');
+-- =================================================================================
+-- Tabela de mensagens: Para conversas entre o sistema.
+-- =================================================================================
+CREATE TABLE mensagem (
+    id_mensagem INT AUTO_INCREMENT PRIMARY KEY,
+    id_remetente INT NOT NULL,
+    id_destinatario INT NOT NULL,
+    conteudo TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    lida BOOLEAN DEFAULT FALSE,
+    foi_editada BOOLEAN DEFAULT FALSE,
+    reply_to INT NULL,
+    
+    FOREIGN KEY (id_remetente) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_destinatario) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (reply_to) REFERENCES mensagem(id_mensagem) ON DELETE SET NULL
+);
 
-select * from usuario;
-INSERT INTO estacionamento 
-    (id_proprietario, nome, cnpj, cep, rua, numero, bairro, cidade, estado, endereco_completo, latitude, longitude) 
-VALUES
-    (
-        1, -- id_proprietario (Marcos)
-        'Estacionamento Central', 
-        '11.111.111/0001-11', 
-        '01001-000', 
-        'Praça da Sé', 
-        '100', 
-        'Sé', 
-        'São Paulo', 
-        'SP',
-        'Praça da Sé, 100 - Sé, São Paulo - SP, 01001-000',
-        -23.5507, 
-        -46.6343
-    ),
-    (
-        1, -- id_proprietario (Marcos)
-        'Estacionamento Paulista', 
-        '22.222.222/0001-22', 
-        '01311-200', -- CEP da Av. Paulista
-        'Avenida Paulista', 
-        '1578', 
-        'Bela Vista', 
-        'São Paulo', 
-        'SP',
-        'Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, 01311-200',
-        -23.5614, 
-        -46.6565
-    ),
-    (
-        2, -- id_proprietario (Ana)
-        'Estacionamento Pinheiros', 
-        '33.333.333/0001-33', 
-        '05425-070',
-        'Rua dos Pinheiros', 
-        '500', 
-        'Pinheiros', 
-        'São Paulo',
-        'SP',
-        'Rua dos Pinheiros, 500 - Pinheiros, São Paulo - SP, 05425-070',
-        -23.5677, 
-        -46.6953
-    );
+-- =================================================================================
+-- tabela de Conversas: Para exibir as conversas 
+-- =================================================================================
+CREATE TABLE conversa_oculta (
+    id_usuario INT NOT NULL,        
+    id_parceiro_chat INT NOT NULL, 
+    
+    PRIMARY KEY (id_usuario, id_parceiro_chat), -- Garante que a relação seja única.
 
--- INSERE ALGUMAS VAGAS PARA OS NOVOS ESTACIONAMENTOS
-INSERT INTO vaga (id_estacionamento, identificador, status) VALUES
-(1, 'A-01', 'OCUPADA'), 
-(1, 'A-02', 'LIVRE'),
-(2, 'G1-10', 'LIVRE');
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_parceiro_chat) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+-- =================================================================================
+-- Inserts
+-- =================================================================================
 
-select * from estacionamento;
-select * from vaga;
+INSERT INTO usuario (nome, email, senha, papel) VALUES
+('Marcos da Silva', 'marcos@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'PROPRIETARIO'),
+('Ana Costa', 'ana@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'ADMINISTRADOR'),
+('Carla Joana', 'carla@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Pedro Almeida', 'pedro@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Bruno Mendes', 'bruno.func@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'), -- Será funcionário
+('Sofia Lima', 'sofia@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Lucas Gabriel', 'lucas@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Juliana Andrade', 'juliana@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Fernando Pereira', 'fernando@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Beatriz Martins', 'beatriz@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA');
+
+-- =================================================================================
+-- INSERIR VEÍCULOS PARA OS MOTORISTAS
+-- =================================================================================
+INSERT INTO veiculo (id_usuario, placa, marca, modelo, cor) VALUES
+(3, 'CAR-2025', 'Honda', 'Civic', 'Preto'),        -- Veículo 1 (Carla)
+(4, 'PED-2024', 'Fiat', 'Mobi', 'Branco'),        -- Veículo 2 (Pedro)
+(6, 'SOF-2023', 'Toyota', 'Yaris', 'Vermelho'),     -- Veículo 3 (Sofia)
+(7, 'LUC-2022', 'Chevrolet', 'Onix', 'Prata'),      -- Veículo 4 (Lucas)
+(8, 'JUL-2021', 'Hyundai', 'HB20', 'Cinza'),        -- Veículo 5 (Juliana)
+(9, 'FER-2020', 'Ford', 'Ka', 'Azul'),           -- Veículo 6 (Fernando)
+(10, 'BIA-2019', 'Renault', 'Kwid', 'Laranja');      -- Veículo 7 (Beatriz)
+
+-- =================================================================================
+-- INSERIR ESTACIONAMENTOS
+-- =================================================================================
+INSERT INTO estacionamento (id_proprietario, nome, cnpj, cep, rua, numero, bairro, cidade, estado, endereco_completo, latitude, longitude) VALUES
+(1, 'Estacionamento Central', '11.111.111/0001-11', '01001-000', 'Praça da Sé', '100', 'Sé', 'São Paulo', 'SP', 'Praça da Sé, 100 - Sé, São Paulo - SP, 01001-000', -23.5507, -46.6343),
+(1, 'Estacionamento Paulista', '22.222.222/0001-22', '01311-200', 'Avenida Paulista', '1578', 'Bela Vista', 'São Paulo', 'SP', 'Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, 01311-200', -23.5614, -46.6565);
+
+-- =================================================================================
+-- VINCULAR FUNCIONÁRIOS
+-- =================================================================================
+INSERT INTO estacionamento_funcionario (id_estacionamento, id_usuario, permissao) VALUES 
+(1, 5, 'GESTOR'); -- Vincula Bruno Mendes ao Estacionamento Central do Marcos
+
+-- =================================================================================
+-- INSERIR PLANOS MENSAIS (MAIS DE 6 PARA TESTAR PAGINAÇÃO)
+-- =================================================================================
+INSERT INTO plano_mensal (id_estacionamento, nome_plano, descricao, preco_mensal, ativo) VALUES
+    (1, 'Plano Diurno - Carro', 'Acesso das 8h às 18h, Seg a Sex.', 250.00, TRUE),      -- ID 1
+    (1, 'Plano Noturno - Carro', 'Acesso das 18h às 8h, todos os dias.', 180.00, TRUE),   -- ID 2
+    (1, 'Plano Premium 24h', 'Acesso total, 24h por dia, 7 dias por semana.', 400.00, TRUE), -- ID 3
+    (1, 'Plano Mensal - Moto', 'Acesso 24h exclusivo para motos.', 120.00, TRUE),           -- ID 4
+    (1, 'Plano Flex - 10 Diárias', 'Use 10 diárias no período de um mês.', 300.00, TRUE),      -- ID 5
+    (1, 'Plano Fim de Semana', 'Acesso de Sexta (18h) a Domingo (22h).', 150.00, TRUE), -- ID 6
+    (1, 'Plano Comercial', 'Acesso de Seg a Sex, das 8h às 20h.', 280.00, TRUE);           -- ID 7
+
+-- =================================================================================
+-- INSERIR CONTRATOS (MAIS DE 6 PARA TESTAR PAGINAÇÃO)
+-- Faz com que "Plano Premium 24h" seja o mais popular
+-- =================================================================================
+INSERT INTO contrato_mensalista (id_usuario, id_plano, id_veiculo, data_inicio, status) VALUES
+    -- 2 contratos para Plano Diurno
+    (3, 1, 1, '2025-10-01', 'ATIVO'), 
+    (4, 1, 2, '2025-10-15', 'ATIVO'),
+    -- 1 contrato cancelado
+    (3, 2, 1, '2025-08-01', 'CANCELADO'),
+    -- 5 contratos para Plano Premium (o mais popular)
+    (6, 3, 3, '2025-11-01', 'ATIVO'),
+    (7, 3, 4, '2025-11-02', 'ATIVO'),
+    (8, 3, 5, '2025-11-03', 'ATIVO'),
+    (9, 3, 6, '2025-11-04', 'ATIVO'),
+    (10, 3, 7, '2025-11-05', 'ATIVO');
