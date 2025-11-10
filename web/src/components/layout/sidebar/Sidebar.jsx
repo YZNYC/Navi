@@ -57,7 +57,7 @@ const proprietarioNavItems = [
 const gestorNavItems = [
     { name: "Dashboard", href: "/funcionario/dashboard", icon: LayoutDashboard },
     { name: "Ocupação", href: "/funcionario/ocupacao", icon: Wind },
-    { name: "Reservas", href: "/funcionario/perfil", icon: CheckSquare },
+    { name: "Reservas", href: "/funcionario/reservas", icon: CheckSquare },
     { name: "Ativação de Plano", href: "/funcionario/ativacao-planos", icon: KeyRound },
     { name: "Chat", href: "/gestor/chat", icon: MessageSquare },
 ];

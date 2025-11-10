@@ -177,7 +177,6 @@ export default function OperadorDashboardPage() {
                 <div className="lg:col-span-2 flex flex-col gap-6">
                     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ações Rápidas de Operação</h3>
-                        {/* Grade de Ações: Adicionei o botão de caixa aqui também para manter a coerência visual */}
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                             <Link href="/operador/entrada" className="text-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm hover:bg-yellow-500 hover:text-white transition">
                                 <Scan className="w-6 h-6 mx-auto mb-2" />
