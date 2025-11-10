@@ -55,10 +55,10 @@ const proprietarioNavItems = [
 ];
 
 const gestorNavItems = [
-    { name: "Dashboard", href: "/gestor/dashboard", icon: LayoutDashboard },
-    { name: "Ocupação", href: "/gestor/ocupacao", icon: Wind },
-    { name: "Reservas", href: "/gestor/reservas", icon: CheckSquare },
-    { name: "Ativação de Plano", href: "/gestor/ativacao-plano", icon: KeyRound },
+    { name: "Dashboard", href: "/funcionario/dashboard", icon: LayoutDashboard },
+    { name: "Ocupação", href: "/funcionario/ocupacao", icon: Wind },
+    { name: "Reservas", href: "/funcionario/reservas", icon: CheckSquare },
+    { name: "Ativação de Plano", href: "/funcionario/ativacao-planos", icon: KeyRound },
     { name: "Chat", href: "/gestor/chat", icon: MessageSquare },
 ];
 
