@@ -19,6 +19,7 @@ export const listarFuncionariosPorEstacionamento = async (id_estacionamento) => 
                     id_usuario: true,
                     nome: true,
                     email: true,
+                    telefone: true,
                 },
             },
         },

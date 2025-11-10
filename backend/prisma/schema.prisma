@@ -154,6 +154,7 @@ model politica_preco {
   preco_primeira_hora    Decimal?       @default(0.00) @db.Decimal(10, 2)
   preco_horas_adicionais Decimal?       @default(0.00) @db.Decimal(10, 2)
   preco_diaria           Decimal?       @default(0.00) @db.Decimal(10, 2)
+  ativo                  Boolean        @default(true)
   estacionamento         estacionamento @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, map: "politica_preco_ibfk_1")
 
   @@index([id_estacionamento], map: "id_estacionamento")

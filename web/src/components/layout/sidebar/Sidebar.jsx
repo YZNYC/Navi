@@ -47,7 +47,7 @@ const proprietarioNavItems = [
         name: "Financeiro", icon: Wallet,
         subItems: [
             { name: "Política de Preço", href: "/proprietario/financeiro/politicas" },
-            { name: "Planos Mensais", href: "/proprietario/financeiro/planos" },
+            { name: "Planos Mensais", href: "/proprietario/financeiro/mensalistas" },
         ]
     },
     { name: "Chat", href: "/proprietario/chat", icon: MessageSquare },

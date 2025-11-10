@@ -1,7 +1,8 @@
 import { adicionarFuncionario, listarFuncionariosPorEstacionamento, atualizarPermissaoFuncionario, removerFuncionario } from "../models/Funcioario.js";
 import { obterEstacionamentoPorId } from "../models/Estacionamento.js";
-import { adicionarFuncionarioSchema, atualizarFuncionarioSchema } from "../schemas/funcionario.schema.js";
+import { adicionarFuncionarioSchema, atualizarFuncionarioSchema, criarEAdicionarFuncionarioSchema } from "../schemas/funcionario.schema.js";
 import prisma from "../config/prisma.js";
+import bcrypt from 'bcryptjs';
 
 const verificarDonoDoEstacionamento = async (estacionamentoId, requisitanteId) => {
     const estacionamento = await obterEstacionamentoPorId(estacionamentoId);
@@ -120,5 +121,59 @@ export const atualizarPermissaoController = async (req, res) => {
         }
         console.error("Erro ao atualizar permissão do funcionário:", error);
         res.status(500).json({ message: "Erro interno ao atualizar permissão." });
+    }
+};
+export const criarEAdicionarFuncionarioController = async (req, res) => {
+    try {
+        const { estacionamentoId } = req.params;
+        const { body } = criarEAdicionarFuncionarioSchema.parse(req);
+        const requisitante = req.usuario;
+
+        if (requisitante.papel !== 'ADMINISTRADOR') {
+            const ehDono = await verificarDonoDoEstacionamento(estacionamentoId, requisitante.id_usuario);
+            if (!ehDono) {
+                return res.status(403).json({ message: "Acesso proibido. Você não gerencia este estacionamento." });
+            }
+        }
+    
+        const emailExistente = await prisma.usuario.findUnique({ where: { email: body.email } });
+        if (emailExistente) {
+            return res.status(409).json({ message: "Este email já pertence a um usuário existente." });
+        }
+
+ 
+        const novoFuncionarioVinculado = await prisma.$transaction(async (tx) => {
+            // Cria um usuário com uma senha temporária aleatória. O funcionário deverá usar o "Esqueci a senha".
+            const senhaTemporaria = Math.random().toString(36).slice(-8);
+            const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
+
+            const novoUsuario = await tx.usuario.create({
+                data: {
+                    nome: body.nome,
+                    email: body.email,
+                    telefone: body.telefone,
+                    senha: senhaHash,
+                    papel: 'FUNCIONARIO', // Papel base
+                }
+            });
+
+            const novoVinculo = await tx.estacionamento_funcionario.create({
+                data: {
+                    id_estacionamento: parseInt(estacionamentoId),
+                    id_usuario: novoUsuario.id_usuario,
+                    permissao: body.permissao,
+                }
+            });
+            return novoVinculo;
+        });
+
+        res.status(201).json({ message: "Funcionário criado e vinculado com sucesso!", funcionario: novoFuncionarioVinculado });
+
+    } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ message: "Dados inválidos.", errors: error.flatten().fieldErrors });
+        }
+        console.error("Erro ao criar e adicionar funcionário:", error);
+        res.status(500).json({ message: "Erro interno no servidor." });
     }
 };

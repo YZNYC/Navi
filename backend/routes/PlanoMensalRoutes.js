@@ -1,8 +1,13 @@
+// src/routes/planoMensalRoutes.js
 import express from 'express';
-import { criarPlanoMensalController,  listarPlanosController,  atualizarPlanoController, excluirPlanoController} from '../controllers/PlanoMensalController.js';
+import {
+    criarPlanoMensalController,
+    listarPlanosController,
+    atualizarPlanoController,
+    excluirPlanoController
+} from '../controllers/PlanoMensalController.js';
 import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
 
-// Usamos mergeParams para acessar o :estacionamentoId da rota pai
 const router = express.Router({ mergeParams: true });
 
 // Apenas proprietários e admins podem gerenciar planos

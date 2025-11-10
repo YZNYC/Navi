@@ -1,11 +1,13 @@
+// src/controllers/PlanoMensalController.js
+
 import { criarPlanoMensal, listarPlanosPorEstacionamento, obterPlanoPorId, atualizarPlanoMensal, excluirPlanoMensal } from "../models/PlanoMensal.js";
 import { obterEstacionamentoPorId } from "../models/Estacionamento.js";
 import { criarPlanoMensalSchema, atualizarPlanoMensalSchema } from "../schemas/planoMensal.schema.js";
 import prisma from "../config/prisma.js";
 
+// --- Função auxiliar de permissão ---
 const verificarPermissao = async (estacionamentoId, requisitante) => {
     if (requisitante.papel === 'ADMINISTRADOR') return true;
-    
     const estacionamento = await obterEstacionamentoPorId(estacionamentoId);
     if (!estacionamento || estacionamento.id_proprietario !== requisitante.id_usuario) {
         return false;
@@ -13,6 +15,8 @@ const verificarPermissao = async (estacionamentoId, requisitante) => {
     return true;
 };
 
+
+// --- CRUD Controllers ---
 export const criarPlanoMensalController = async (req, res) => {
     try {
         const { estacionamentoId } = req.params;
@@ -30,6 +34,9 @@ export const criarPlanoMensalController = async (req, res) => {
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
         }
+        if (error.code === 'P2002') {
+            return res.status(409).json({ message: "Conflito: Já existe um plano com este nome para o estacionamento." });
+        }
         console.error("Erro ao criar plano mensal:", error);
         res.status(500).json({ message: "Erro interno ao criar plano mensal." });
     }
@@ -38,7 +45,6 @@ export const criarPlanoMensalController = async (req, res) => {
 export const listarPlanosController = async (req, res) => {
     try {
         const { estacionamentoId } = req.params;
-
         const planos = await listarPlanosPorEstacionamento(estacionamentoId);
         res.status(200).json(planos);
     } catch (error) {
@@ -60,7 +66,7 @@ export const atualizarPlanoController = async (req, res) => {
 
         const temPermissao = await verificarPermissao(planoAlvo.id_estacionamento, requisitante);
         if (!temPermissao) {
-            return res.status(403).json({ message: "Acesso proibido. Você não pode alterar este plano." });
+            return res.status(403).json({ message: "Acesso proibido. Você не pode alterar este plano." });
         }
 
         const planoAtualizado = await atualizarPlanoMensal(planoId, body);
@@ -81,7 +87,7 @@ export const excluirPlanoController = async (req, res) => {
 
         const planoAlvo = await obterPlanoPorId(planoId);
         if (!planoAlvo) {
-            return res.status(404).json({ message: "Plano mensal não encontrado." });
+            return res.status(404).json({ message: "Plano mensal не encontrado." });
         }
 
         const temPermissao = await verificarPermissao(planoAlvo.id_estacionamento, requisitante);
@@ -94,7 +100,7 @@ export const excluirPlanoController = async (req, res) => {
         });
 
         if (contratosAtivos > 0) {
-            return res.status(409).json({ message: "Conflito: Este plano não pode ser excluído pois possui contratos de mensalistas ativos." });
+            return res.status(409).json({ message: `Conflito: Este plano não pode ser excluído pois possui ${contratosAtivos} mensalista(s) ativo(s).` });
         }
         
         await excluirPlanoMensal(planoId);
