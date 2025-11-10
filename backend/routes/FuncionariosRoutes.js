@@ -1,6 +1,6 @@
 
 import express from 'express';
-import {  adicionarFuncionarioController,  listarFuncionariosController, removerFuncionarioController, atualizarPermissaoController} from '../controllers/FuncionariosController.js';
+import {  adicionarFuncionarioController,  listarFuncionariosController, removerFuncionarioController, atualizarPermissaoController, criarEAdicionarFuncionarioController} from '../controllers/FuncionariosController.js';
 import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router({ mergeParams: true });
@@ -21,5 +21,7 @@ router.patch('/:funcionarioId', atualizarPermissaoController);
 // Rota para remover um funcionário. O ID do funcionário é passado na URL
 router.delete('/:funcionarioId', removerFuncionarioController);
 
+// Rota para criar e adicionar a um estacionamento 
+router.post('/novo', criarEAdicionarFuncionarioController);
 
 export default router;

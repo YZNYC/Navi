@@ -1,115 +1,134 @@
-import { criarPoliticaPreco, listarPoliticasPorEstacionamento, obterPoliticaPorId, atualizarPoliticaPreco,  excluirPoliticaPreco} from "../models/PoliticaPreco.js";
+// src/controllers/PoliticaPrecoController.js
+
+import {
+    criarOuReativarPoliticaPreco,
+    listarPoliticasAtivas,
+    listarPoliticasHistorico,
+    obterPoliticaPorId,
+    atualizarPoliticaPreco,
+    desativarPoliticaPreco,
+    reativarPoliticaPreco
+} from "../models/PoliticaPreco.js";
 import { obterEstacionamentoPorId } from "../models/Estacionamento.js";
-import { politicaPrecoSchema } from '../schemas/politicaPreco.schema.js';
-import { politicaPrecoParamsSchema } from '../schemas/params.schema.js';
+import { politicaPrecoSchema, atualizarPoliticaPrecoSchema, politicaPrecoParamsSchema } from '../schemas/politicaPreco.schema.js';
 
-
+// Função auxiliar para garantir que o usuário é admin ou o dono do estacionamento em questão.
 const verificarPermissao = async (estacionamentoId, requisitante) => {
+    if (!estacionamentoId || isNaN(parseInt(estacionamentoId))) return false;
     if (requisitante.papel === 'ADMINISTRADOR') return true;
-    
     const estacionamento = await obterEstacionamentoPorId(estacionamentoId);
-    if (!estacionamento || estacionamento.id_proprietario !== requisitante.id_usuario) {
-        return false;
-    }
+    if (!estacionamento || estacionamento.id_proprietario !== requisitante.id_usuario) return false;
     return true;
 };
 
+// MODIFICADO: Agora cria uma nova ou reativa e atualiza uma do histórico
 export const criarPoliticaPrecoController = async (req, res) => {
     try {
-      
         const { params } = politicaPrecoParamsSchema.parse(req);
         const { body } = politicaPrecoSchema.parse(req);
         const requisitante = req.usuario;
 
         const temPermissao = await verificarPermissao(params.estacionamentoId, requisitante);
-        if (!temPermissao) {
-            return res.status(403).json({ message: "Acesso proibido. Você não gerencia este estacionamento." });
-        }
-        const novaPolitica = await criarPoliticaPreco(body, params.estacionamentoId);
-        res.status(201).json({ message: "Política de preço criada com sucesso!", politica: novaPolitica });
-
-    } catch (error) {
-
-        if (error.name === 'ZodError') {
-            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
-        }
-
-        if (error.code === 'P2002') {
-            return res.status(409).json({
-                message: "Conflito: Já existe uma política de preço com esta descrição para este estacionamento."
-            });
-        }
+        if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
         
-        console.error("Erro ao criar política de preço:", error);
-        res.status(500).json({ message: "Erro interno ao criar política de preço." });
+        const novaPolitica = await criarOuReativarPoliticaPreco(body, params.estacionamentoId);
+        res.status(201).json({ message: "Política de preço salva com sucesso!", politica: novaPolitica });
+    } catch (error) {
+        if (error.name === 'ZodError') return res.status(400).json({ message: "Dados inválidos.", errors: error.flatten().fieldErrors });
+        console.error("Erro ao salvar política de preço:", error);
+        res.status(500).json({ message: "Erro interno ao salvar política de preço." });
     }
 };
 
+// MODIFICADO: Agora busca apenas as políticas ATIVAS. A rota é pública.
 export const listarPoliticasController = async (req, res) => {
     try {
         const { params } = politicaPrecoParamsSchema.parse(req);
-        const politicas = await listarPoliticasPorEstacionamento(params.estacionamentoId);
+        const politicas = await listarPoliticasAtivas(params.estacionamentoId);
         res.status(200).json(politicas);
     } catch (error) {
-        if (error.name === 'ZodError') {
-            return res.status(400).json({ message: "ID de estacionamento inválido.", errors: error.flatten().fieldErrors });
-        }
-        console.error("Erro ao listar políticas de preço:", error);
-        res.status(500).json({ message: "Erro interno ao listar políticas de preço." });
+        if (error.name === 'ZodError') return res.status(400).json({ message: "ID inválido." });
+        console.error("Erro ao listar políticas ativas:", error);
+        res.status(500).json({ message: "Erro interno." });
+    }
+};
+
+// NOVA FUNÇÃO: Rota protegida que busca apenas as políticas INATIVAS (histórico).
+export const listarHistoricoController = async (req, res) => {
+     try {
+        const { params } = politicaPrecoParamsSchema.parse(req);
+        const requisitante = req.usuario;
+        const temPermissao = await verificarPermissao(params.estacionamentoId, requisitante);
+        if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
+        
+        const historico = await listarPoliticasHistorico(params.estacionamentoId);
+        res.status(200).json(historico);
+    } catch (error) {
+        if (error.name === 'ZodError') return res.status(400).json({ message: "ID inválido." });
+        console.error("Erro ao listar histórico:", error);
+        res.status(500).json({ message: "Erro interno." });
     }
 };
 
 export const atualizarPoliticaController = async (req, res) => {
     try {
- 
         const { params } = politicaPrecoParamsSchema.parse(req);
-        const { body } = politicaPrecoSchema.parse(req);
+        const { body } = atualizarPoliticaPrecoSchema.parse(req);
         const requisitante = req.usuario;
 
         const politicaAlvo = await obterPoliticaPorId(params.politicaId);
-        if (!politicaAlvo) {
-            return res.status(404).json({ message: "Política de preço não encontrada." });
-        }
+        if (!politicaAlvo) return res.status(404).json({ message: "Política não encontrada." });
 
         const temPermissao = await verificarPermissao(politicaAlvo.id_estacionamento, requisitante);
-        if (!temPermissao) {
-            return res.status(403).json({ message: "Acesso proibido. Você não pode alterar esta política de preço." });
-        }
+        if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
 
         const politicaAtualizada = await atualizarPoliticaPreco(params.politicaId, body);
-        res.status(200).json({ message: "Política de preço atualizada com sucesso!", politica: politicaAtualizada });
+        res.status(200).json({ message: "Política atualizada!", politica: politicaAtualizada });
     } catch (error) {
-        if (error.name === 'ZodError') {
-            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
-        }
-        console.error("Erro ao atualizar política de preço:", error);
-        res.status(500).json({ message: "Erro interno ao atualizar política de preço." });
+        if (error.name === 'ZodError') return res.status(400).json({ message: "Dados inválidos.", errors: error.flatten().fieldErrors });
+        console.error("Erro ao atualizar política:", error);
+        res.status(500).json({ message: "Erro interno." });
     }
 };
 
-export const excluirPoliticaController = async (req, res) => {
+// MODIFICADO: Em vez de excluir permanentemente, apenas desativa (soft delete).
+export const desativarPoliticaController = async (req, res) => {
     try {
-    
         const { params } = politicaPrecoParamsSchema.parse(req);
         const requisitante = req.usuario;
 
         const politicaAlvo = await obterPoliticaPorId(params.politicaId);
-        if (!politicaAlvo) {
-            return res.status(404).json({ message: "Política de preço não encontrada." });
-        }
+        if (!politicaAlvo) return res.status(404).json({ message: "Política não encontrada." });
 
         const temPermissao = await verificarPermissao(politicaAlvo.id_estacionamento, requisitante);
-        if (!temPermissao) {
-            return res.status(403).json({ message: "Acesso proibido. Você não pode excluir esta política de preço." });
-        }
-
-        await excluirPoliticaPreco(params.politicaId);
+        if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
+        
+        await desativarPoliticaPreco(params.politicaId);
         res.status(204).send();
     } catch (error) {
-        if (error.name === 'ZodError') {
-            return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
-        }
-        console.error("Erro ao excluir política de preço:", error);
-        res.status(500).json({ message: "Erro interno ao excluir política de preço." });
+        if (error.name === 'ZodError') return res.status(400).json({ message: "ID inválido." });
+        console.error("Erro ao desativar política:", error);
+        res.status(500).json({ message: "Erro interno." });
+    }
+};
+
+// NOVA FUNÇÃO: Restaura uma política do histórico, tornando-a ativa.
+export const restaurarPoliticaController = async (req, res) => {
+    try {
+        const { params } = politicaPrecoParamsSchema.parse(req);
+        const requisitante = req.usuario;
+
+        const politicaAlvo = await obterPoliticaPorId(params.politicaId);
+        if (!politicaAlvo) return res.status(404).json({ message: "Política não encontrada." });
+
+        const temPermissao = await verificarPermissao(politicaAlvo.id_estacionamento, requisitante);
+        if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
+        
+        const politicaRestaurada = await reativarPoliticaPreco(params.politicaId);
+        res.status(200).json({ message: "Política restaurada!", politica: politicaRestaurada });
+    } catch (error) {
+        if (error.name === 'ZodError') return res.status(400).json({ message: "ID inválido." });
+        console.error("Erro ao restaurar política:", error);
+        res.status(500).json({ message: "Erro interno." });
     }
 };

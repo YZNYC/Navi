@@ -1,5 +1,6 @@
 import { criarUsuario, atualizarUsuario, desativarUsuario, listarUsuarios, obterUsuarioPorId} from "../models/Usuario.js";
 import { criarUsuarioSchema, atualizarUsuarioSchema } from '../schemas/usuario.schema.js';
+import prisma from "../config/prisma.js";
 import { paramsSchema } from '../schemas/params.schema.js';
 
 const removerSenha = (usuario) => {
@@ -37,26 +38,54 @@ export const criarUsuarioController = async (req, res) => {
 
 export const atualizarUsuarioController = async (req, res) => {
     try {
-      
         const { params } = paramsSchema.parse(req);
         const { body } = atualizarUsuarioSchema.parse(req);
         const idAlvo = parseInt(params.id);
-        const requisitante = req.usuario;
+        const requisitante = req.usuario; 
 
-        if (requisitante.id_usuario !== idAlvo && requisitante.papel !== 'ADMINISTRADOR') {
-            return res.status(403).json({ message: "Acesso proibido. Você só pode editar seu próprio perfil." });
+        let permissaoConcedida = false;
+        
+        if (requisitante.id_usuario === idAlvo) {
+            permissaoConcedida = true;
+        }
+    
+        if (requisitante.papel === 'ADMINISTRADOR') {
+            permissaoConcedida = true;
+        }
+
+
+        if (requisitante.papel === 'PROPRIETARIO' && !permissaoConcedida) {
+            const vinculo = await prisma.estacionamento_funcionario.findFirst({
+                where: {
+                    id_usuario: idAlvo,
+                    estacionamento: {
+                        id_proprietario: requisitante.id_usuario 
+                    }
+                }
+            });
+            if (vinculo) {
+                permissaoConcedida = true;
+            }
         }
         
+        if (!permissaoConcedida) {
+            return res.status(403).json({ message: "Acesso proibido. Você não tem permissão para editar este usuário." });
+        }
+
         if (body.papel && requisitante.papel !== 'ADMINISTRADOR') {
             delete body.papel;
         }
-
         const usuarioAtualizado = await atualizarUsuario(idAlvo, body);
         res.status(200).json({ message: "Usuário atualizado com sucesso!", usuario: removerSenha(usuarioAtualizado) });
     } catch (error) {
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
         }
+        
+        if (error.code === 'P2002' && error.meta?.target.includes('email')) {
+            return res.status(409).json({ message: 'Conflito: Este email já está em uso por outra conta.' });
+        }
+ 
         console.error("Erro ao atualizar usuário:", error);
         res.status(500).json({ message: "Erro ao atualizar usuário." });
     }

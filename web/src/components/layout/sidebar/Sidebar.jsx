@@ -39,16 +39,15 @@ const proprietarioNavItems = [
     {
         name: "Estabelecimento", icon: ParkingCircle,
         subItems: [
-            { name: "Criação de Vaga", href: "/proprietario/vagas" },
-            { name: "Funcionários", href: "/proprietario/funcionarios" },
+            { name: "Criação de Vaga", href: "/proprietario/estabelecimento/vagas" },
+            { name: "Funcionários", href: "/proprietario/estabelecimento/funcionarios" },
         ]
     },
     {
         name: "Financeiro", icon: Wallet,
         subItems: [
-            { name: "Política de Preço", href: "/proprietario/politicas" },
-            { name: "Planos Mensais", href: "/proprietario/planos" },
-            { name: "Cupons", href: "/proprietario/cupons" },
+            { name: "Política de Preço", href: "/proprietario/financeiro/politicas" },
+            { name: "Planos Mensais", href: "/proprietario/financeiro/mensalistas" },
         ]
     },
     { name: "Chat", href: "/proprietario/chat", icon: MessageSquare },
@@ -56,10 +55,10 @@ const proprietarioNavItems = [
 ];
 
 const gestorNavItems = [
-    { name: "Dashboard", href: "/gestor/dashboard", icon: LayoutDashboard },
-    { name: "Ocupação", href: "/gestor/ocupacao", icon: Wind },
-    { name: "Reservas", href: "/gestor/reservas", icon: CheckSquare },
-    { name: "Ativação de Plano", href: "/gestor/ativacao-plano", icon: KeyRound },
+    { name: "Dashboard", href: "/funcionario/dashboard", icon: LayoutDashboard },
+    { name: "Ocupação", href: "/funcionario/ocupacao", icon: Wind },
+    { name: "Reservas", href: "/funcionario/reservas", icon: CheckSquare },
+    { name: "Ativação de Plano", href: "/funcionario/ativacao-planos", icon: KeyRound },
     { name: "Chat", href: "/gestor/chat", icon: MessageSquare },
 ];
 
