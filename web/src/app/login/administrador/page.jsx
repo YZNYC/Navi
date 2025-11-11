@@ -71,7 +71,7 @@ const AuthViewManager = () => {
         if (isAnimating) return;
         setIsAnimating(true);
         setTimeout(() => setView(newView), 700);
-        setTimeout(() => setIsAnimating(false), 1600);
+        setTimeout(() => setIsAnimating(false), 1300);
     };
     const maxHeightClasses = {
         login: 'max-h-[90vh] sm:max-h-[720px]',
@@ -204,8 +204,8 @@ const onSubmit = async (data) => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-                <button type="button" onClick={() => { setGoogleLoading(true); setTimeout(() => setGoogleLoading(false), 2000); }} className="social-button">{googleLoading ? <span className="loader"></span> : <GoogleIcon className="w-5 h-5" />} Google</button>
-                <button type="button" onClick={() => { setFacebookLoading(true); setTimeout(() => setFacebookLoading(false), 2000); }} className="social-button">{facebookLoading ? <span className="loader"></span> : <FacebookIcon className="w-5 h-5" />} Facebook</button>
+                <button type="button" onClick={() => { setGoogleLoading(true); setTimeout(() => setGoogleLoading(false), 1500); }} className="social-button">{googleLoading ? <span className="loader"></span> : <GoogleIcon className="w-5 h-5" />} Google</button>
+                <button type="button" onClick={() => { setFacebookLoading(true); setTimeout(() => setFacebookLoading(false), 1500); }} className="social-button">{facebookLoading ? <span className="loader"></span> : <FacebookIcon className="w-5 h-5" />} Facebook</button>
             </div>
 
             <div className="mt-8 text-center text-sm text-gray-500">

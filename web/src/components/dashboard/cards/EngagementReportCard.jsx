@@ -11,7 +11,7 @@ export default function EngagementReportCard({ topEstablishments = [], topReserv
   const formatCount = (count) => count.toLocaleString('pt-BR');
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 flex flex-col h-5xl">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 flex flex-col h-5xl border-b-3 border-amber-500">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Relatório de Engajamento</h3>
       
       <div className="space-y-6 flex-1">

@@ -43,15 +43,17 @@ const Modal = ({ isOpen, onClose, title, children }) => (
 );
 
 const PoliticaCard = ({ politica, onEdit, onDeactivate }) => (
-    <div className="bg-gray-50 dark:bg-slate-700/70 p-6 rounded-xl border  space-y-4 shadow-sm hover:shadow-md  transition-shadow duration-300 border-l-4 border-l-amber-500">
+    // ADICIONADO: classe 'group' no div principal
+    <div className="group bg-gray-50 dark:bg-slate-700/70 p-6 rounded-xl border dark:border-slate-700 space-y-4 shadow-sm hover:shadow-md hover:shadow-amber-500/20 dark:hover:shadow-amber-500/30 transition-shadow duration-300 border-l-4 border-l-amber-500 relative">
         <div className="flex justify-between items-start">
             <h3 className="font-bold text-lg text-gray-800 dark:text-white">{politica.descricao}</h3>
-            <div className="flex gap-2">
-                <button onClick={onEdit} className="  text-gray-400 hover:text-amber-500 transition-colors" title="Editar"><Edit size={18} /></button>
-                <button onClick={onDeactivate} className="text-gray-400 hover:text-red-500 transition-colors" title="Desativar"><Trash2 size={18} /></button>
+            {/* ADICIONADO: div para os ícones, que fica invisível e aparece no hover do 'group' */}
+            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button onClick={onEdit} className="text-gray-400 hover:text-amber-500 transition-colors" title="Editar"><Edit size={18}/></button>
+                <button onClick={onDeactivate} className="text-gray-400 hover:text-red-500 transition-colors" title="Desativar"><Trash2 size={18}/></button>
             </div>
         </div>
-        <div className="grid grid-cols-3 gap-4 text-center divide-x divide-amber-500/30 dark:divide-amber-500/30">
+        <div className="grid grid-cols-3 gap-4 text-center divide-x divide-amber-500/30 dark:divide-amber-500/40">
             <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">1ª Hora</p>
                 <p className="font-semibold text-gray-900 dark:text-white">R$ {parseFloat(politica.preco_primeira_hora).toFixed(2)}</p>
