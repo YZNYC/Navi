@@ -138,7 +138,11 @@ export const LoginForm = ({ navigation }) => {
 
 
       {/* Esqueci a senha */}
-      <TouchableOpacity href="/forgot-password" title="Esqueci a senha" />
+      <View>
+        <TouchableOpacity href="/forgot-password" onPress={() => navigation.navigate('Esqueci a senha')}>
+          <Text>Esqueci a senha</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Botao de login */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
