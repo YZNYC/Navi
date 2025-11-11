@@ -1,18 +1,20 @@
-// src/routes/naviRoutes.js
+// src/routes/ConversaNaviRoutes.js (Adicionar rota de salvar)
 
 import express from 'express';
-import { naviProprietarioController } from '../controllers/NaviProprietarioController.js'; 
-import { naviAdminController } from '../controllers/NaviAdminController.js';
-import { authMiddleware, authorize } from '../middlewares/authMiddlewares.js';
+import { authMiddleware } from '../middlewares/AuthMiddlewares.js';
+import { listarConversasController, obterHistoricoController, salvarConversaController } from '../controllers/ConversaNaviController.js';
 
 const router = express.Router();
 
 router.use(authMiddleware);
 
-// ROTA DA IA GLOBAL (ADMINISTRADOR)
-router.post('/admin/ask', authorize(['ADMINISTRADOR']), naviAdminController);
+// Lista todas as conversas do usuário logado
+router.get('/', listarConversasController);
 
-// ROTA DA IA POR ESTACIONAMENTO (PROPRIETARIO)
-router.post('/proprietario/ask', authorize(['PROPRIETARIO']), naviProprietarioController);
+// Obtém o histórico de uma conversa específica
+router.get('/:conversaId/historico', obterHistoricoController);
+
+// Salva ou atualiza uma conversa
+router.post('/salvar', salvarConversaController); // <--- ROTA CRUCIAL
 
 export default router;

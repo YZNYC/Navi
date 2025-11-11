@@ -20,9 +20,11 @@ import UserManagementTable from '../../../components/dashboard/UserManagementTab
 import EstablishmentManagementTable from '../../../components/dashboard/EstablishmentManagementTable'; 
 import MapCard from '../../../components/dashboard/cards/MapCard';
 import EngagementReportCard from '../../../components/dashboard/cards/EngagementReportCard';
+import CumpomButton from "../../../components/dashboard/buttons/cupomButton"
 
 // Componentes de Gráfico (Recharts)
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import CupomButton from '../../../components/dashboard/buttons/cupomButton';
 
 // --- FUNÇÃO FETCH HELPER LOCAL ---
 const axiosFetcher = async (endpoint, options = {}) => {
@@ -42,10 +44,8 @@ const axiosFetcher = async (endpoint, options = {}) => {
 
 // --- DADOS DE KPI SIMULADOS (BASE HISTÓRICA) ---
 const mockKpiSummary = {
-    // Valores de BASE (Mês Passado) para cálculo de variação
-    totalUsers: { base: 5 }, // 5 usuários no mês passado (totalUsers é o valor atual)
-    activeEstablishments: { base: 4 }, // 4 estabelecimentos ativos no mês passado (5 ativos no BD)
-    // Para Receita:
+    totalUsers: { base: 5 }, 
+    activeEstablishments: { base: 4 }, 
     totalRevenue: { value: 23445700.00, base: 20000000.00, change: 17.22 }, 
 };
 
@@ -196,17 +196,17 @@ export default function DashboardPage() {
 
             // Cálculo de KPIs
             
-            // 🚨 CORREÇÃO: Conta APENAS usuários ATIVOS (isActive: true)
+            // 🚨 CONTAGEM CORRETA: Conta APENAS usuários ATIVOS
             const totalUsersCount = mappedUsers.filter(user => user.isActive).length;
             
-            // 🚨 CORREÇÃO: Conta APENAS estabelecimentos ATIVOS (status: 'verified')
+            // 🚨 CONTAGEM CORRETA: Conta APENAS estabelecimentos ATIVOS
             const activeEstablishmentsCount = mappedEstablishments.filter(e => e.status === 'verified').length; 
             
             // 🚨 LÓGICA DE CÁLCULO DA VARIAÇÃO PERCENTUAL
             const usersBase = mockKpiSummary.totalUsers.base;
             const totalUsersChange = usersBase > 0 
                 ? ((totalUsersCount - usersBase) / usersBase) * 100
-                : 0; 
+                : 0;
 
             const estabsBase = mockKpiSummary.activeEstablishments.base;
             const activeEstabsChange = estabsBase > 0 
@@ -254,9 +254,35 @@ export default function DashboardPage() {
     }, []);
 
 
-    // FUNÇÃO DE RE-RENDER CENTRALIZADA: Chamada pelos filhos após um PUT/PATCH
+    // 🚨 FUNÇÃO DE CALLBACK PARA ATUALIZAÇÃO LOCAL DE USUÁRIO
+    const handleLocalUserUpdate = useCallback((updatedData) => {
+        setUsers(prevUsers => 
+            prevUsers.map(user => 
+                user.id === updatedData.id 
+                    ? { ...user, ...updatedData } 
+                    : user
+            )
+        );
+        // Chamar o fetch de KPIs
+        fetchData(); 
+    }, [fetchData]); 
+
+    // 🚨 FUNÇÃO DE CALLBACK PARA ATUALIZAÇÃO LOCAL DE ESTACIONAMENTO
+    const handleLocalEstablishmentUpdate = useCallback((updatedData) => {
+        setEstablishments(prevEstabs => 
+            prevEstabs.map(estab => 
+                estab.id === updatedData.id 
+                    ? { ...estab, ...updatedData } 
+                    : estab
+            )
+        );
+        // Chamar o fetch de KPIs
+        fetchData();
+    }, [fetchData]);
+
+
+    // FUNÇÃO DE RE-RENDER CENTRALIZADA: Chamada pelos filhos para sincronizar KPIs
     const handleUpdateAndRefresh = useCallback(() => {
-        setRenderKey(prevKey => prevKey + 1); // 🚨 FORÇA RE-RENDER
         fetchData(); 
     }, [fetchData]);
     
@@ -306,14 +332,13 @@ export default function DashboardPage() {
             <div className="p-6 md:p-8 dark:text-red-400">
                 <h1 className="text-3xl font-bold mb-6">Erro na Conexão</h1>
                 <p>Não foi possível carregar os dados. Detalhes: {error}</p>
-                <button onClick={fetchData} className="mt-4 px-4 py-2 bg-amber-500 text-white rounded-md">Tentar Novamente</button>
+                <button onClick={fetchData} className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-md">Tentar Novamente</button>
             </div>
         );
     }
 
 
     return (
-        // APLICANDO A CHAVE para forçar a re-renderização completa!
         <div 
             className="flex-1 p-6 md:p-8 bg-gray-50 dark:bg-slate-900 min-h-screen" 
             key={renderKey}
@@ -366,6 +391,7 @@ export default function DashboardPage() {
                     <UserManagementTable 
                         users={users} 
                         onUpdate={handleUpdateAndRefresh} 
+                        onLocalStatusChange={handleLocalUserUpdate} // 🚨 PASSANDO A FUNÇÃO
                         axiosFetcher={axiosFetcher} 
                     />
                 </div>
@@ -375,6 +401,7 @@ export default function DashboardPage() {
                     <EstablishmentManagementTable 
                         establishments={establishments} 
                         onUpdate={handleUpdateAndRefresh} 
+                        onLocalStatusChange={handleLocalEstablishmentUpdate} // 🚨 PASSANDO A FUNÇÃO
                         axiosFetcher={axiosFetcher} 
                     />
                 </div>
@@ -396,14 +423,8 @@ export default function DashboardPage() {
             </section>
 
             {/* 5. SEÇÃO GESTÃO DE CUPONS */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Gestão de Cupons Globais</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Gerencie a criação, edição e desativação de cupons promocionais para toda a plataforma Navi.
-                </p>
-                <Link href="/admin/cupons" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
-                    Ir para Gestão de Cupons
-                </Link>
+            <div>
+            <CupomButton />
             </div>
 
         </div>
