@@ -8,6 +8,7 @@ import Main from "./src/app/main/main.js";
 import History from "./src/app/history/history.js";
 import Settings from "./src/app/settings/settings.js";
 import Help from "./src/app/help/help.js";
+import { Register } from "./src/app/account/register/register.js";
 
 
 import { useLogin } from "./src/providers/loginProvider.js";
@@ -33,6 +34,7 @@ function AppNavigator() {
                 <>
                     <Stack.Screen name="Login" component={LoginForm} />
                     <Stack.Screen name="Esqueci a senha" component={ForgotPassword} />
+                    <Stack.Screen name="Cadastre-se" component={Register} />
                 </>
             )}
         </Stack.Navigator>
