@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Ícones
-import { Car, Zap, ParkingSquare, User, Bike, PlusCircle, Building, Loader2, X, Wrench, Trash2, PlayCircle } from 'lucide-react';
+import { Car, Zap, ParkingSquare, User, Bike, PlusCircle, Building, Loader2, X, Wrench, Trash2, PlayCircle, CarFront, CarFrontIcon  } from 'lucide-react';
 
 // -----------------------------------------------------------------------------
 // CONFIGURAÇÕES E SCHEMAS
@@ -272,36 +272,55 @@ export default function GerenciarVagasPage() {
              <div className="w-full max-w-7xl mx-auto space-y-8">
                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gerenciamento de Vagas</h1>
                 
-                <div className="bg-gray-50 dark:bg-slate-800 rounded-lg shadow-sm p-4 flex flex-col sm:flex-row items-center gap-4 border-l-4 border-amber-500">
-                    <div className="flex-1 w-full sm:w-auto">
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Estacionamento</label>
-                        {meusEstacionamentos.length > 1 ? (
-                            <select onChange={(e) => setFiltroEstacionamento(e.target.value)} value={filtroEstacionamento} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                                {meusEstacionamentos.map(e => <option key={e.id_estacionamento} value={e.id_estacionamento}>{e.nome}</option>)}
-                            </select>
-                        ) : (
-                             <span className="font-semibold text-gray-700 dark:text-gray-200 p-2 flex items-center gap-2 w-full mt-1"><Building size={16}/> {meusEstacionamentos[0]?.nome || 'Nenhum'}</span>
-                        )}
-                    </div>
-                     <div className="flex-1 w-full sm:w-auto">
-                         <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Tipo de Vaga</label>
-                         <select onChange={(e) => { setFiltroTipo(e.target.value); setPaginaAtual(1); }} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                            <option value="TODOS">Todos os Tipos</option><option value="PADRAO">Padrão</option><option value="PCD">PCD</option><option value="IDOSO">Idoso</option>
-                            <option value="ELETRICO">Elétrico</option><option value="MOTO">Moto</option>
-                        </select>
-                    </div>
-                     <div className="flex-1 w-full sm:w-auto">
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Status</label>
-                         <select onChange={(e) => { setFiltroStatus(e.target.value); setPaginaAtual(1); }} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                            <option value="TODOS">Todos os Status</option><option value="LIVRE">Livres</option><option value="OCUPADA">Ocupadas</option>
-                            <option value="RESERVADA">Reservadas</option><option value="MANUTENCAO">Manutenção</option>
-                        </select>
-                    </div>
-                    <button onClick={() => setIsCriarModalOpen(true)} disabled={meusEstacionamentos.length === 0} className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center gap-2 transition whitespace-nowrap self-end h-10 mt-5 sm:mt-0 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        <PlusCircle size={18}/> Criar Vaga
-                    </button>
-                </div>
+  {/* Local: JSX do seu componente GerenciarVagasPage */}
 
+<div className="bg-gray-50 dark:bg-slate-800 rounded-lg shadow-sm p-4 flex flex-col sm:flex-row items-end gap-4 border-l-4 border-amber-500">
+    
+    {/* --- Filtro de Estacionamento --- */}
+    <div className="w-full sm:w-1/4">
+        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Estacionamento</label>
+        {meusEstacionamentos.length > 1 ? (
+            <select onChange={(e) => setFiltroEstacionamento(e.target.value)} value={filtroEstacionamento} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500 h-10"> {/* Altura h-10 */}
+                {meusEstacionamentos.map(e => <option key={e.id_estacionamento} value={e.id_estacionamento}>{e.nome}</option>)}
+            </select>
+        ) : (
+             <div className="font-semibold text-gray-700 dark:text-gray-200 p-2 flex items-center gap-2 w-full mt-1 h-10 border-b border-gray-300 dark:border-slate-600"> {/* Altura h-10 */}
+                 <Building size={16}/> {meusEstacionamentos[0]?.nome || 'Nenhum'}
+             </div>
+        )}
+    </div>
+
+    {/* --- Filtro de Tipo de Vaga --- */}
+    <div className="w-full sm:w-1/4">
+        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Tipo de Vaga</label>
+        <select onChange={(e) => { setFiltroTipo(e.target.value); setPaginaAtual(1); }} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500 h-10"> {/* Altura h-10 */}
+           <option value="TODOS">Todos os Tipos</option><option value="PADRAO">Padrão</option><option value="PCD">PCD</option><option value="IDOSO">Idoso</option>
+           <option value="ELETRICO">Elétrico</option><option value="MOTO">Moto</option>
+        </select>
+    </div>
+    
+    {/* --- Filtro de Status --- */}
+    <div className="w-full sm:w-1/4">
+       <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Status</label>
+        <select onChange={(e) => { setFiltroStatus(e.target.value); setPaginaAtual(1); }} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500 h-10"> {/* Altura h-10 */}
+           <option value="TODOS">Todos os Status</option><option value="LIVRE">Livres</option><option value="OCUPADA">Ocupadas</option>
+           <option value="RESERVADA">Reservadas</option><option value="MANUTENCAO">Manutenção</option>
+       </select>
+   </div>
+
+    {/* --- Botão de Criação --- */}
+    <div className="w-full sm:w-1/4">
+        {/* Adicionado label invisível para alinhar o botão corretamente com os inputs */}
+        <label className="text-xs font-medium text-transparent select-none hidden sm:block">Ação</label>
+        <button 
+            onClick={() => setIsCriarModalOpen(true)} 
+            disabled={meusEstacionamentos.length === 0} 
+            className="w-full sm:w-full mt-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center gap-2 transition whitespace-nowrap h-10 text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+            <PlusCircle size={20} /> Criar Vaga
+        </button>
+    </div>
+</div>
                  {isLoading ? (
                     <div className="flex justify-center p-12"><Loader2 className="animate-spin text-amber-500" size={48} /></div>
                 ) : vagas.length > 0 ? (
@@ -314,6 +333,7 @@ export default function GerenciarVagasPage() {
                     </div>
                 ) : (
                     <div className="text-center bg-white dark:bg-slate-800 rounded-lg p-12 shadow-sm">
+                        <CarFront className="mx-auto h-12 w-12 text-gray-400" />
                          <h2 className="text-xl font-bold text-gray-700 dark:text-white">Este estacionamento ainda não possui vagas.</h2>
                          <p className="text-gray-500 dark:text-gray-400 mt-2">Clique no botão "Criar Vaga" para começar.</p>
                     </div>
