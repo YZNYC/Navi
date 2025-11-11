@@ -47,7 +47,7 @@ const setupDatabase = async (db) => {
 export default function Account() {
 
 
-  
+
   return (
     <View style={styles.page}>
       <Text style={styles.title}>Tela da Conta</Text>
@@ -131,7 +131,9 @@ export const LoginForm = () => {
         secureTextEntry={true}
       />
 
-      <Link href="/forgot" >Esqueci a senha</Link>
+      <Link href="mobile/navi/src/app/account/forgot-password/forgot-password.js">
+        <Text>Esqueci a senha</Text>
+      </Link>
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>

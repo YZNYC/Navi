@@ -7,6 +7,7 @@ import { LoginProvider, useLogin } from "./src/providers/loginProvider.js";
 
 //Importando as rotas
 import { LoginForm } from "./src/app/account/loginForm.js";
+import { ForgotPassword } from "./src/app/account/forgot-password/forgot-password.js";
 import Account from "./src/app/account/account.js";
 import Main from "./src/app/main/main.js";
 import History from "./src/app/history/history.js";
@@ -31,7 +32,10 @@ function AppNavigator() {
 
         </>
       ) : (
+        <>
         <Stack.Screen name="Login" component={LoginForm} />
+        <Stack.Screen name="Esqueci a senha" component={ForgotPassword} />
+        </>
       )}
     </Stack.Navigator>
   );
