@@ -1,7 +1,6 @@
-
 import express from 'express';
 import { listarUsuariosController,  obterUsuarioPorIdController,  criarUsuarioController,  atualizarUsuarioController, excluirUsuarioController} from '../controllers/UsuarioController.js';
-import { authMiddleware, authorize } from '../middlewares/authMiddlewares.js';
+import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router();
 
@@ -15,7 +14,11 @@ router.get('/', authMiddleware, authorize(['ADMINISTRADOR']), listarUsuariosCont
 router.get('/:id', authMiddleware, authorize(['ADMINISTRADOR']), obterUsuarioPorIdController);
 
 // Para atualizar, o usuário só precisa estar LOGADO. O controller decide se ele tem permissão.
+// ROTA PUT (Atualização completa)
 router.put('/:id', authMiddleware, atualizarUsuarioController);
+
+// 🚨 ROTA PATCH ADICIONADA (Para Atualização Parcial, como status 'ativo' ou 'papel')
+router.patch('/:id', authMiddleware, atualizarUsuarioController);
 
 // Para excluir, o usuário só precisa estar LOGADO. O controller decide a permissão.
 router.delete('/:id', authMiddleware, excluirUsuarioController);

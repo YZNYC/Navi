@@ -7,13 +7,13 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../../../lib/api';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building, PlusCircle, Loader2, X, Crown, Users } from 'lucide-react';
+import { Building, PlusCircle, Loader2, X, Crown, Users, Edit, Trash2, CalendarX } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 // -----------------------------------------------------------------------------
-// SCHEMAS E COMPONENTES
+// SCHEMAS E CONFIGURAÇÕES
 // -----------------------------------------------------------------------------
 const planoSchema = z.object({
   nome_plano: z.string().min(3, "O nome do plano é obrigatório (mín. 3 caracteres)."),
@@ -21,6 +21,12 @@ const planoSchema = z.object({
   descricao: z.string().optional(),
 });
 
+const PLANOS_POR_PAGINA = 6;
+const CONTRATOS_POR_PAGINA = 6;
+
+// -----------------------------------------------------------------------------
+// COMPONENTES DE UI
+// -----------------------------------------------------------------------------
 const Modal = ({ isOpen, onClose, title, children }) => (
     <AnimatePresence>
         {isOpen && (
@@ -38,13 +44,17 @@ const Modal = ({ isOpen, onClose, title, children }) => (
     </AnimatePresence>
 );
 
-const PlanoCard = ({ plano, isDestaque }) => (
-    <div className={`relative bg-gray-50 dark:bg-slate-800/50 p-6 rounded-xl border-l-4 ${isDestaque ? 'border-amber-500 shadow-amber-500/20' : 'border-gray-300 dark:border-slate-700'} shadow-sm hover:shadow-lg transition-all duration-300`}>
+const PlanoCard = ({ plano, isDestaque, onEdit, onDelete }) => (
+    <div className={`relative bg-gray-50 dark:bg-slate-800/50 p-6 rounded-xl border-l-4 ${isDestaque ? 'border-amber-500 shadow-amber-500/20' : 'border-gray-300 dark:border-slate-700'} shadow-sm hover:shadow-lg transition-all duration-300 group`}>
         {isDestaque && (
             <div className="absolute top-0 right-4 -mt-3 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
                 <Crown size={12}/> Mais Popular
             </div>
         )}
+        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+             <button onClick={onEdit} className="text-gray-400 hover:text-amber-500" title="Editar Plano"><Edit size={16}/></button>
+             <button onClick={onDelete} className="text-gray-400 hover:text-red-500" title="Excluir Plano"><Trash2 size={16}/></button>
+        </div>
         <h3 className="font-bold text-lg text-gray-800 dark:text-white pr-4">{plano.nome_plano}</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 min-h-[40px]">{plano.descricao}</p>
         <div className="flex justify-between items-end mt-4 pt-4 border-t dark:border-slate-700">
@@ -56,7 +66,7 @@ const PlanoCard = ({ plano, isDestaque }) => (
                 <p className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
                     <Users size={16}/> {plano._count.contrato_mensalista}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Assinantes</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Assinantes Ativos</p>
             </div>
         </div>
     </div>
@@ -88,6 +98,30 @@ const PlanoForm = ({ onSubmit, defaultValues = {}, isSubmitting, title = "Salvar
         </form>
     );
 };
+
+const Pagination = ({ totalItens, itensPorPagina, paginaAtual, onPageChange }) => {
+    const totalPaginas = Math.ceil(totalItens / itensPorPagina);
+    if (totalPaginas <= 1) return null;
+
+    return (
+        <div className="flex justify-center items-center gap-2 mt-8">
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(page => (
+                <button key={page} onClick={() => onPageChange(page)}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${paginaAtual === page ? 'bg-amber-500 text-white shadow' : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'}`}>
+                    {page}
+                </button>
+            ))}
+        </div>
+    );
+};
+
+const EmptyState = ({ icon: Icon, title, message }) => (
+    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <Icon className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{title}</h3>
+        <p className="mt-1 text-sm">{message}</p>
+    </div>
+);
 // -----------------------------------------------------------------------------
 // COMPONENTE PRINCIPAL DA PÁGINA
 // -----------------------------------------------------------------------------
@@ -99,8 +133,14 @@ export default function GerenciarPlanosPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const [modalState, setModalState] = useState({ isOpen: false, type: '', plano: null });
+    
+    // Estados para paginação e os novos filtros da tabela
+    const [paginaPlanos, setPaginaPlanos] = useState(1);
+    const [paginaContratos, setPaginaContratos] = useState(1);
+    const [filtroStatusContrato, setFiltroStatusContrato] = useState('TODOS');
+    const [termoBusca, setTermoBusca] = useState('');
+    
     const fetchData = useCallback(async (estacionamentoId) => {
         if (!estacionamentoId) return;
         setIsLoading(true);
@@ -127,7 +167,6 @@ export default function GerenciarPlanosPage() {
                 if (response.data.length > 0) {
                     const primeiroId = response.data[0].id_estacionamento.toString();
                     setFiltroEstacionamento(primeiroId);
-                    await fetchData(primeiroId);
                 } else {
                     setIsLoading(false);
                 }
@@ -137,36 +176,70 @@ export default function GerenciarPlanosPage() {
             }
         };
         fetchInitialData();
-    }, [fetchData]);
+    }, []);
+
+    useEffect(() => {
+        if (filtroEstacionamento) fetchData(filtroEstacionamento);
+    }, [filtroEstacionamento, fetchData]);
 
     const handleEstacionamentoChange = (e) => {
         const novoId = e.target.value;
         setFiltroEstacionamento(novoId);
-        fetchData(novoId);
     };
+
+    const handleOpenModal = (type, plano = null) => setModalState({ isOpen: true, type, plano });
+    const handleCloseModal = () => setModalState({ isOpen: false, type: '', plano: null });
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
-        const loadingToast = toast.loading("Criando novo plano...");
+        const { plano, type } = modalState;
+        const loadingToast = toast.loading(type === 'edit' ? "Atualizando plano..." : "Criando plano...");
+        const isEditing = type === 'edit';
+        
+        const apiCall = isEditing 
+            ? api.put(`/estacionamentos/${filtroEstacionamento}/planos/${plano.id_plano}`, data)
+            : api.post(`/estacionamentos/${filtroEstacionamento}/planos`, data);
         try {
-            await api.post(`/estacionamentos/${filtroEstacionamento}/planos`, data);
-            toast.success("Plano criado com sucesso!", { id: loadingToast });
-            setIsModalOpen(false);
-            fetchData(filtroEstacionamento); // Recarrega os dados
-        } catch(error) {
+            await apiCall;
+            toast.success(isEditing ? "Plano atualizado!" : "Plano criado!", { id: loadingToast });
+            handleCloseModal();
+            fetchData(filtroEstacionamento);
+        } catch (error) {
             toast.error(error.response?.data?.message || 'Ocorreu um erro.', { id: loadingToast });
         } finally {
             setIsSubmitting(false);
         }
     };
+    
+    const onDelete = async () => {
+        const loadingToast = toast.loading("Excluindo plano...");
+        try {
+            await api.delete(`/estacionamentos/${filtroEstacionamento}/planos/${modalState.plano.id_plano}`);
+            toast.success("Plano excluído com sucesso.", { id: loadingToast });
+            handleCloseModal();
+            fetchData(filtroEstacionamento);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Erro ao excluir.', { id: loadingToast, duration: 6000 });
+        }
+    };
 
-    // Encontra o plano com o maior número de assinantes
-    const planoDestaque = useMemo(() => {
-        if (!planos || planos.length === 0) return null;
-        return planos.reduce((max, plano) => 
-            plano._count.contrato_mensalista > max._count.contrato_mensalista ? plano : max
-        , planos[0]);
+    const planosOrdenados = useMemo(() => {
+        if (!planos || planos.length === 0) return [];
+        return [...planos].sort((a, b) => b._count.contrato_mensalista - a._count.contrato_mensalista);
     }, [planos]);
+    
+    const contratosFiltrados = useMemo(() => {
+        return contratos
+            .filter(c => (filtroStatusContrato === 'TODOS' || c.status === filtroStatusContrato))
+            .filter(c => 
+                !termoBusca || 
+                c.usuario.nome.toLowerCase().includes(termoBusca.toLowerCase()) || 
+                c.plano_mensal.nome_plano.toLowerCase().includes(termoBusca.toLowerCase())
+            );
+    }, [contratos, filtroStatusContrato, termoBusca]);
+    
+    const planosDaPagina = useMemo(() => planosOrdenados.slice((paginaPlanos - 1) * PLANOS_POR_PAGINA, ((paginaPlanos - 1) * PLANOS_POR_PAGINA) + PLANOS_POR_PAGINA), [planosOrdenados, paginaPlanos]);
+    const contratosDaPagina = useMemo(() => contratosFiltrados.slice((paginaContratos - 1) * CONTRATOS_POR_PAGINA, ((paginaContratos - 1) * CONTRATOS_POR_PAGINA) + CONTRATOS_POR_PAGINA), [contratosFiltrados, paginaContratos]);
     
     if (isLoading && meusEstacionamentos.length === 0 && !error) {
         return <div className="p-8 flex justify-center items-center h-screen"><Loader2 className="animate-spin text-amber-500" size={48}/></div>;
@@ -177,7 +250,7 @@ export default function GerenciarPlanosPage() {
         <main className="min-h-screen bg-white dark:bg-slate-900 p-4 sm:p-8 font-sans">
              <div className="w-full max-w-7xl mx-auto space-y-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Planos Mensais</h1>
+                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Planos e Mensalistas</h1>
                      <div className="flex-1 w-full sm:w-auto sm:max-w-xs">
                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Gerenciar Estacionamento</label>
                          <select onChange={handleEstacionamentoChange} value={filtroEstacionamento} disabled={meusEstacionamentos.length <= 1} className="w-full mt-1 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
@@ -192,22 +265,37 @@ export default function GerenciarPlanosPage() {
                     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 border dark:border-slate-700">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Planos Ofertados</h2>
-                            <button onClick={() => setIsModalOpen(true)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center gap-2 transition">
+                            <button onClick={() => handleOpenModal('create')} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center gap-2 transition">
                                <PlusCircle size={18}/> Novo Plano
                             </button>
                         </div>
                         {planos.length > 0 ? (
+                           <>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {planos.map(p => <PlanoCard key={p.id_plano} plano={p} isDestaque={p.id_plano === planoDestaque?.id_plano} />)}
+                                {planosDaPagina.map(p => <PlanoCard key={p.id_plano} plano={p} isDestaque={p.id_plano === planosOrdenados[0].id_plano && paginaPlanos === 1} onEdit={() => handleOpenModal('edit', p)} onDelete={() => handleOpenModal('confirmDelete', p)} />)}
                             </div>
+                            <Pagination totalItens={planos.length} itensPorPagina={PLANOS_POR_PAGINA} paginaAtual={paginaPlanos} onPageChange={setPaginaPlanos} />
+                           </>
                         ) : (
-                            <p className="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum plano mensal cadastrado para este estacionamento.</p>
+                           <EmptyState icon={CalendarX} title="Nenhum plano mensal cadastrado." message="Clique em 'Novo Plano' para criar o primeiro."/>
                         )}
                     </div>
 
                     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 border dark:border-slate-700">
-                         <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Gerenciar Mensalistas</h2>
+                         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Gerenciar Mensalistas</h2>
+                            <div className="flex items-center gap-2 w-full md:w-auto">
+                                <input type="text" placeholder="Buscar por cliente ou plano..." value={termoBusca} onChange={(e) => {setTermoBusca(e.target.value); setPaginaContratos(1);}} className="w-full md:w-48 p-2 text-sm border rounded-md dark:bg-slate-700 dark:border-slate-600"/>
+                                <select onChange={(e) => {setFiltroStatusContrato(e.target.value); setPaginaContratos(1);}} className="w-full md:w-auto p-2 text-sm border rounded-md bg-white dark:bg-slate-700 dark:border-slate-600">
+                                    <option value="TODOS">Todos os Status</option>
+                                    <option value="ATIVO">Ativos</option>
+                                    <option value="CANCELADO">Cancelados</option>
+                                </select>
+                            </div>
+                         </div>
+                        
                         {contratos.length > 0 ? (
+                           <>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                                     <thead className="bg-gray-50 dark:bg-slate-700/50">
@@ -218,28 +306,40 @@ export default function GerenciarPlanosPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y dark:divide-slate-700">
-                                        {contratos.map(c => (
+                                        {contratosDaPagina.map(c => (
                                             <tr key={c.id_contrato} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                                                 <td className="px-6 py-4 dark:text-white">{c.usuario.nome}</td>
                                                 <td className="px-6 py-4 dark:text-gray-300">{c.plano_mensal.nome_plano}</td>
                                                 <td className="px-6 py-4">
-                                                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${c.status === 'ATIVO' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{c.status}</span>
+                                                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${c.status === 'ATIVO' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}`}>{c.status}</span>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
+                             <Pagination totalItens={contratosFiltrados.length} itensPorPagina={CONTRATOS_POR_PAGINA} paginaAtual={paginaContratos} onPageChange={setPaginaContratos} />
+                           </>
                         ) : (
-                            <p className="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum mensalista encontrado para este estacionamento.</p>
+                           <EmptyState icon={Users} title="Nenhum mensalista encontrado." message="Seus clientes com planos ativos ou cancelados aparecerão aqui."/>
                         )}
                     </div>
                 </>
                 )}
              </div>
              
-             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Criar Novo Plano Mensal">
-                 <PlanoForm isSubmitting={isSubmitting} onSubmit={onSubmit}/>
+             <Modal isOpen={modalState.type === 'create' || modalState.type === 'edit'} onClose={handleCloseModal} title={modalState.type === 'edit' ? "Editar Plano" : "Criar Novo Plano"}>
+                 <PlanoForm isSubmitting={isSubmitting} onSubmit={onSubmit} defaultValues={modalState.plano || {}} title={modalState.type === 'edit' ? "Salvar Alterações" : "Criar Plano"}/>
+             </Modal>
+
+              <Modal isOpen={modalState.type === 'confirmDelete'} onClose={handleCloseModal} title={`Excluir "${modalState.plano?.nome_plano}"?`}>
+                <div className="text-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Tem certeza? Esta ação é permanente e não pode ser desfeita. Contratos existentes podem ser afetados.</p>
+                    <div className="flex gap-4 mt-6">
+                        <button onClick={onDelete} className="flex-1 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition">Sim, Excluir</button>
+                        <button onClick={handleCloseModal} className="flex-1 bg-gray-200 dark:bg-slate-600 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition">Cancelar</button>
+                    </div>
+                </div>
              </Modal>
         </main>
     );

@@ -20,5 +20,7 @@ export const atualizarEstacionamentoSchema = z.object({
     horario_abertura: z.string().optional(),
     horario_fechamento: z.string().optional(),
     dias_funcionamento: z.string().optional(),
+    // 🚨 CORREÇÃO: Adicionando o campo 'ativo' para ativação/inativação
+   ativo: z.boolean().optional(),
   }),
 });

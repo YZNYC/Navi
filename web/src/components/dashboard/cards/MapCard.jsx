@@ -8,7 +8,7 @@ export default function MapCard({ title }) {
   // Por simplicidade, usaremos uma imagem estática para o mockup.
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 flex flex-col h-full">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 flex flex-col h-full border-b-3 border-amber-500">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       <div className="relative flex-1 bg-gray-100 dark:bg-slate-700 rounded-lg overflow-hidden">
         {/* Placeholder para o mapa real */}

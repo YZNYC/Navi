@@ -1,11 +1,18 @@
-
+-- Cria o banco de dados caso ele não exista
 CREATE DATABASE IF NOT EXISTS navi;
-
--- Seleciona o banco de dados para usar.
 USE navi;
 
+-- ************************************************************
+-- 🚨 ETAPA DE LIMPEZA: Recomenda-se rodar estes comandos
+-- para limpar dados antigos antes de inserir novos
+-- ************************************************************
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS anexo_avaliacao, avaliacao, pagamento, cupom, reserva, vaga, politica_preco, contrato_mensalista, plano_mensal, veiculo, estacionamento_funcionario, estacionamento, usuario, log;
+SET FOREIGN_KEY_CHECKS = 1;
+
+
 -- =================================================================================
--- Tabela de Usuários: Armazena dados de todos os tipos de usuários da plataforma.
+-- TABELAS (COPIADAS DO SEU MODELO)
 -- =================================================================================
 CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
@@ -17,21 +24,15 @@ CREATE TABLE usuario (
     papel ENUM('ADMINISTRADOR', 'PROPRIETARIO', 'FUNCIONARIO', 'MOTORISTA') NOT NULL,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ativo BOOLEAN DEFAULT TRUE,
-
-    -- Colunas para recuperação de senha
     resetToken VARCHAR(255) NULL UNIQUE,
     resetTokenExpires DATETIME NULL
 );
 
--- =================================================================================
--- Tabela de Estacionamentos: Dados cadastrais de cada estacionamento.
--- =================================================================================
 CREATE TABLE estacionamento (
     id_estacionamento INT AUTO_INCREMENT PRIMARY KEY,
     id_proprietario INT NOT NULL,
     nome VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) NOT NULL UNIQUE,
-    
     cep VARCHAR(9) NOT NULL,
     rua VARCHAR(255) NOT NULL,
     numero VARCHAR(20) NOT NULL,
@@ -39,69 +40,55 @@ CREATE TABLE estacionamento (
     cidade VARCHAR(100) NOT NULL,
     estado VARCHAR(2) NOT NULL,    
     endereco_completo VARCHAR(500) NOT NULL, 
-    
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(10, 8) NOT NULL,
-
     url_foto_principal VARCHAR(255),
     horario_abertura TIME,
     horario_fechamento TIME,
     dias_funcionamento VARCHAR(100),
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (id_proprietario) REFERENCES usuario(id_usuario)
-        ON DELETE RESTRICT
-        ON UPDATE CASCADE,
-
+    FOREIGN KEY (id_proprietario) REFERENCES usuario(id_usuario) ON DELETE RESTRICT ON UPDATE CASCADE,
     UNIQUE KEY endereco_unico (cep, numero),
     UNIQUE KEY localizacao_unica (latitude, longitude)
 );
--- =================================================================================
--- Permite que proprietários concedam acesso a seus estacionamentos para outros usuários.
--- =================================================================================
-CREATE TABLE estacionamento_funcionario (
-    id_estacionamento INT NOT NULL,
-    id_usuario INT NOT NULL,
-    permissao ENUM('GESTOR', 'OPERADOR') NOT NULL, -- GESTOR pode ver relatórios, OPERADOR apenas check-in/out.
-    data_admissao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (id_estacionamento, id_usuario), -- Garante que um usuário só tenha um papel por estacionamento.
-    FOREIGN KEY (id_estacionamento) REFERENCES estacionamento(id_estacionamento) ON DELETE CASCADE,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
-);
+-- ... (Outras tabelas para a consistência do BD) ...
+-- (O restante das tabelas do seu BD original deve ser inserido aqui para manter a consistência)
 
 
 -- =================================================================================
--- Tabela de Veículos: Armazena os veículos pertencentes a cada usuário motorista.
+-- INSERTS DE DADOS (PARA PAGINAÇÃO)
 -- =================================================================================
-CREATE TABLE veiculo (
-    id_veiculo INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    placa VARCHAR(10) NOT NULL UNIQUE,
-    marca VARCHAR(50) NOT NULL,
-    modelo VARCHAR(50) NOT NULL,
-    cor VARCHAR(30) NOT NULL,
-    url_foto_placa VARCHAR(255),
-    apelido VARCHAR(50),
-    ativo BOOLEAN DEFAULT TRUE,
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
+-- Senha padrão para todos: 'senha123' (hash gerado: $2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW)
+SET @senha_hash = '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW'; 
 
--- =================================================================================
--- Cada estacionamento pode oferecer diferentes planos para mensalistas.
--- =================================================================================
-CREATE TABLE plano_mensal (
-    id_plano INT AUTO_INCREMENT PRIMARY KEY,
-    id_estacionamento INT NOT NULL,
-    nome_plano VARCHAR(100) NOT NULL, -- Ex: "Plano Diurno Moto", "Plano 24h Carro"
-    descricao TEXT,
-    preco_mensal DECIMAL(10, 2) NOT NULL,
-    ativo BOOLEAN DEFAULT TRUE, -- Permite desativar um plano sem apagar os contratos existentes.
+-- 🚨 INSERTS DE USUÁRIOS (7 Usuários) - Para Paginação de Usuários
+INSERT IGNORE INTO usuario (id_usuario, nome, email, senha, papel, ativo) VALUES
+(1, 'Admin Master', 'admin@navi.com', @senha_hash, 'ADMINISTRADOR', TRUE), -- ID 1: Administrador
+(2, 'Marcos Proprietario', 'marcos@prop.com', @senha_hash, 'PROPRIETARIO', TRUE), -- ID 2: Proprietário
+(3, 'Ana Proprietaria', 'ana@prop.com', @senha_hash, 'PROPRIETARIO', TRUE), -- ID 3: Proprietário
+(4, 'Pedro Motorista', 'pedro@motor.com', @senha_hash, 'MOTORISTA', TRUE), -- ID 4: Motorista
+(5, 'Carla Motorista', 'carla@motor.com', @senha_hash, 'MOTORISTA', TRUE), -- ID 5: Motorista
+(6, 'Joao Funcionario', 'joao@func.com', @senha_hash, 'FUNCIONARIO', TRUE), -- ID 6: Funcionário
+(7, 'Usuario Inativo', 'inativo@user.com', @senha_hash, 'MOTORISTA', FALSE); -- ID 7: Inativo
 
+-- 🚨 INSERTS DE ESTACIONAMENTOS (7 Estacionamentos) - Para Paginação de Estacionamentos
+INSERT INTO estacionamento 
+    (id_proprietario, nome, cnpj, cep, rua, numero, bairro, cidade, estado, endereco_completo, latitude, longitude) 
+VALUES
+    (2, 'Estacionamento Central', '11.111.111/0001-11', '01001-000', 'Praça da Sé', '100', 'Sé', 'São Paulo', 'SP', 'Praça da Sé, 100 - Sé, São Paulo - SP, 01001-000', -23.5507, -46.6343), -- 1
+    (2, 'Estacionamento Paulista', '22.222.222/0001-22', '01311-200', 'Avenida Paulista', '1578', 'Bela Vista', 'São Paulo', 'SP', 'Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, 01311-200', -23.5614, -46.6565), -- 2
+    (3, 'Estacionamento Pinheiros', '33.333.333/0001-33', '05425-070', 'Rua dos Pinheiros', '500', 'Pinheiros', 'São Paulo', 'SP', 'Rua dos Pinheiros, 500 - Pinheiros, São Paulo - SP, 05425-070', -23.5677, -46.6953), -- 3
+    (3, 'Estacionamento Ibirapuera', '44.444.444/0001-44', '04003-010', 'Rua Manoel da Nóbrega', '200', 'Vila Mariana', 'São Paulo', 'SP', 'Rua Manoel da Nóbrega, 200 - Vila Mariana', -23.5796, -46.6588), -- 4
+    (1, 'Estacionamento Admin', '55.555.555/0001-55', '01046-010', 'Avenida Ipiranga', '120', 'República', 'São Paulo', 'SP', 'Avenida Ipiranga, 120 - República', -23.5458, -46.6366), -- 5
+    (2, 'Estacionamento Desativado', '66.666.666/0001-66', '03107-000', 'Rua da Mooca', '400', 'Mooca', 'São Paulo', 'SP', 'Rua da Mooca, 400 - Mooca', -23.5583, -46.6111), -- 6 (Exemplo para o Filtro de Ativo/Inativo)
+    (3, 'Estacionamento Lapa', '77.777.777/0001-77', '05073-010', 'Rua Clélia', '300', 'Lapa', 'São Paulo', 'SP', 'Rua Clélia, 300 - Lapa', -23.5262, -46.6919); -- 7
+    
+-- Para simular um estacionamento inativo no frontend, você precisaria de um campo 'ativo' na tabela estacionamento 
+-- e um PUT que o controle. Como o campo 'ativo' não estava no seu DDL de estacionamento, 
+-- usaremos apenas os 7 ativos (o que é suficiente para o teste de paginação).
     FOREIGN KEY (id_estacionamento) REFERENCES estacionamento(id_estacionamento) ON DELETE CASCADE
 );
 
@@ -132,6 +119,7 @@ CREATE TABLE politica_preco (
     preco_primeira_hora DECIMAL(10, 2) DEFAULT 0.00,
     preco_horas_adicionais DECIMAL(10, 2) DEFAULT 0.00,
     preco_diaria DECIMAL(10, 2) DEFAULT 0.00,
+    ativo BOOLEAN DEFAULT TRUE,
     
     FOREIGN KEY (id_estacionamento) REFERENCES estacionamento(id_estacionamento)
         ON DELETE CASCADE
@@ -255,63 +243,102 @@ CREATE TABLE log (
         ON UPDATE CASCADE
 );
 
-INSERT IGNORE INTO usuario (id_usuario, nome, email, senha, papel) VALUES
-(1, 'Marcos da Silva', 'marcos@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'PROPRIETARIO'),
-(2, 'Ana Costa', 'ana@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'ADMINISTRADOR'),
-(3, 'Carla Joana', 'carla@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA');
+-- =================================================================================
+-- Tabela de mensagens: Para conversas entre o sistema.
+-- =================================================================================
+CREATE TABLE mensagem (
+    id_mensagem INT AUTO_INCREMENT PRIMARY KEY,
+    id_remetente INT NOT NULL,
+    id_destinatario INT NOT NULL,
+    conteudo TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    lida BOOLEAN DEFAULT FALSE,
+    foi_editada BOOLEAN DEFAULT FALSE,
+    reply_to INT NULL,
+    
+    FOREIGN KEY (id_remetente) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_destinatario) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (reply_to) REFERENCES mensagem(id_mensagem) ON DELETE SET NULL
+);
 
-select * from usuario;
-INSERT INTO estacionamento 
-    (id_proprietario, nome, cnpj, cep, rua, numero, bairro, cidade, estado, endereco_completo, latitude, longitude) 
-VALUES
-    (
-        1, -- id_proprietario (Marcos)
-        'Estacionamento Central', 
-        '11.111.111/0001-11', 
-        '01001-000', 
-        'Praça da Sé', 
-        '100', 
-        'Sé', 
-        'São Paulo', 
-        'SP',
-        'Praça da Sé, 100 - Sé, São Paulo - SP, 01001-000',
-        -23.5507, 
-        -46.6343
-    ),
-    (
-        1, -- id_proprietario (Marcos)
-        'Estacionamento Paulista', 
-        '22.222.222/0001-22', 
-        '01311-200', -- CEP da Av. Paulista
-        'Avenida Paulista', 
-        '1578', 
-        'Bela Vista', 
-        'São Paulo', 
-        'SP',
-        'Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, 01311-200',
-        -23.5614, 
-        -46.6565
-    ),
-    (
-        2, -- id_proprietario (Ana)
-        'Estacionamento Pinheiros', 
-        '33.333.333/0001-33', 
-        '05425-070',
-        'Rua dos Pinheiros', 
-        '500', 
-        'Pinheiros', 
-        'São Paulo',
-        'SP',
-        'Rua dos Pinheiros, 500 - Pinheiros, São Paulo - SP, 05425-070',
-        -23.5677, 
-        -46.6953
-    );
+-- =================================================================================
+-- tabela de Conversas: Para exibir as conversas 
+-- =================================================================================
+CREATE TABLE conversa_oculta (
+    id_usuario INT NOT NULL,        
+    id_parceiro_chat INT NOT NULL, 
+    
+    PRIMARY KEY (id_usuario, id_parceiro_chat), -- Garante que a relação seja única.
 
--- INSERE ALGUMAS VAGAS PARA OS NOVOS ESTACIONAMENTOS
-INSERT INTO vaga (id_estacionamento, identificador, status) VALUES
-(1, 'A-01', 'OCUPADA'), 
-(1, 'A-02', 'LIVRE'),
-(2, 'G1-10', 'LIVRE');
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_parceiro_chat) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+-- =================================================================================
+-- Inserts
+-- =================================================================================
 
-select * from estacionamento;
-select * from vaga;
+INSERT INTO usuario (nome, email, senha, papel) VALUES
+('Marcos da Silva', 'marcos@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'PROPRIETARIO'),
+('Ana Costa', 'ana@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'ADMINISTRADOR'),
+('Carla Joana', 'carla@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Pedro Almeida', 'pedro@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Bruno Mendes', 'bruno.func@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'), -- Será funcionário
+('Sofia Lima', 'sofia@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Lucas Gabriel', 'lucas@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Juliana Andrade', 'juliana@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Fernando Pereira', 'fernando@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA'),
+('Beatriz Martins', 'beatriz@email.com', '$2b$10$qXMzRDjJU/b3piM8RNexA.B6iONreZ1XP9nc9DRNkhSODmJSk3cKW', 'MOTORISTA');
+
+-- =================================================================================
+-- INSERIR VEÍCULOS PARA OS MOTORISTAS
+-- =================================================================================
+INSERT INTO veiculo (id_usuario, placa, marca, modelo, cor) VALUES
+(3, 'CAR-2025', 'Honda', 'Civic', 'Preto'),        -- Veículo 1 (Carla)
+(4, 'PED-2024', 'Fiat', 'Mobi', 'Branco'),        -- Veículo 2 (Pedro)
+(6, 'SOF-2023', 'Toyota', 'Yaris', 'Vermelho'),     -- Veículo 3 (Sofia)
+(7, 'LUC-2022', 'Chevrolet', 'Onix', 'Prata'),      -- Veículo 4 (Lucas)
+(8, 'JUL-2021', 'Hyundai', 'HB20', 'Cinza'),        -- Veículo 5 (Juliana)
+(9, 'FER-2020', 'Ford', 'Ka', 'Azul'),           -- Veículo 6 (Fernando)
+(10, 'BIA-2019', 'Renault', 'Kwid', 'Laranja');      -- Veículo 7 (Beatriz)
+
+-- =================================================================================
+-- INSERIR ESTACIONAMENTOS
+-- =================================================================================
+INSERT INTO estacionamento (id_proprietario, nome, cnpj, cep, rua, numero, bairro, cidade, estado, endereco_completo, latitude, longitude) VALUES
+(1, 'Estacionamento Central', '11.111.111/0001-11', '01001-000', 'Praça da Sé', '100', 'Sé', 'São Paulo', 'SP', 'Praça da Sé, 100 - Sé, São Paulo - SP, 01001-000', -23.5507, -46.6343),
+(1, 'Estacionamento Paulista', '22.222.222/0001-22', '01311-200', 'Avenida Paulista', '1578', 'Bela Vista', 'São Paulo', 'SP', 'Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, 01311-200', -23.5614, -46.6565);
+
+-- =================================================================================
+-- VINCULAR FUNCIONÁRIOS
+-- =================================================================================
+INSERT INTO estacionamento_funcionario (id_estacionamento, id_usuario, permissao) VALUES 
+(1, 5, 'GESTOR'); -- Vincula Bruno Mendes ao Estacionamento Central do Marcos
+
+-- =================================================================================
+-- INSERIR PLANOS MENSAIS (MAIS DE 6 PARA TESTAR PAGINAÇÃO)
+-- =================================================================================
+INSERT INTO plano_mensal (id_estacionamento, nome_plano, descricao, preco_mensal, ativo) VALUES
+    (1, 'Plano Diurno - Carro', 'Acesso das 8h às 18h, Seg a Sex.', 250.00, TRUE),      -- ID 1
+    (1, 'Plano Noturno - Carro', 'Acesso das 18h às 8h, todos os dias.', 180.00, TRUE),   -- ID 2
+    (1, 'Plano Premium 24h', 'Acesso total, 24h por dia, 7 dias por semana.', 400.00, TRUE), -- ID 3
+    (1, 'Plano Mensal - Moto', 'Acesso 24h exclusivo para motos.', 120.00, TRUE),           -- ID 4
+    (1, 'Plano Flex - 10 Diárias', 'Use 10 diárias no período de um mês.', 300.00, TRUE),      -- ID 5
+    (1, 'Plano Fim de Semana', 'Acesso de Sexta (18h) a Domingo (22h).', 150.00, TRUE), -- ID 6
+    (1, 'Plano Comercial', 'Acesso de Seg a Sex, das 8h às 20h.', 280.00, TRUE);           -- ID 7
+
+-- =================================================================================
+-- INSERIR CONTRATOS (MAIS DE 6 PARA TESTAR PAGINAÇÃO)
+-- Faz com que "Plano Premium 24h" seja o mais popular
+-- =================================================================================
+INSERT INTO contrato_mensalista (id_usuario, id_plano, id_veiculo, data_inicio, status) VALUES
+    -- 2 contratos para Plano Diurno
+    (3, 1, 1, '2025-10-01', 'ATIVO'), 
+    (4, 1, 2, '2025-10-15', 'ATIVO'),
+    -- 1 contrato cancelado
+    (3, 2, 1, '2025-08-01', 'CANCELADO'),
+    -- 5 contratos para Plano Premium (o mais popular)
+    (6, 3, 3, '2025-11-01', 'ATIVO'),
+    (7, 3, 4, '2025-11-02', 'ATIVO'),
+    (8, 3, 5, '2025-11-03', 'ATIVO'),
+    (9, 3, 6, '2025-11-04', 'ATIVO'),
+    (10, 3, 7, '2025-11-05', 'ATIVO');

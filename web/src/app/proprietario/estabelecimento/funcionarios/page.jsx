@@ -286,27 +286,36 @@ export default function GerenciarFuncionariosPage() {
                 ) : (
                 <>
                 <div className="bg-gray-50 dark:bg-slate-800 rounded-lg shadow-sm p-4 flex flex-col sm:flex-row items-center gap-4 border-l-4 border-amber-500">
-                    <div className="flex-1 w-full sm:w-auto">
+                    <div className="w-full sm:w-1/4">
                         <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Estacionamento</label>
                         <select onChange={(e) => setFiltroEstacionamento(e.target.value)} value={filtroEstacionamento} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
                            {meusEstacionamentos.map(e => <option key={e.id_estacionamento} value={e.id_estacionamento}>{e.nome}</option>)}
                         </select>
                     </div>
-                    <div className="flex-1 w-full sm:w-auto">
+                    <div className="w-full sm:w-1/4">
                         <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Cargo</label>
                         <select onChange={(e) => setFiltroPermissao(e.target.value)} value={filtroPermissao} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
                            <option value="TODOS">Todos os Cargos</option><option value="GESTOR">Gestor</option><option value="OPERADOR">Operador</option>
                         </select>
                     </div>
-                    <div className="flex-1 w-full sm:w-auto">
+                    <div className="w-full sm:w-1/4">
                         <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Ordenar por</label>
                         <select onChange={(e) => setOrdem(e.target.value)} value={ordem} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
                            <option value="ALFABETICA">Ordem Alfabética</option><option value="DATA_CRIACAO">Mais Recentes</option>
                         </select>
                     </div>
-                    <button onClick={() => setIsAddModalOpen(true)} className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center gap-2 transition whitespace-nowrap self-end h-10 mt-5 sm:mt-0">
-                        <PlusCircle size={18}/> Adicionar Funcionário
-                    </button>
+                  {/* --- Botão de Criação --- */}
+                     <div className="w-full sm:w-1/4">
+                      
+                         <label className="text-xs font-medium text-transparent select-none hidden sm:block">Ação</label>
+                         <button 
+                             onClick={() => setIsCriarModalOpen(true)} 
+                             disabled={meusEstacionamentos.length === 0} 
+                             className="w-full sm:w-full mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center gap-2 transition whitespace-nowrap h-10 text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
+                         >
+                             <PlusCircle size={20} /> Criar Vaga
+                         </button>
+                     </div>
                 </div>
 
                 <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm">
