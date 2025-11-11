@@ -48,7 +48,7 @@ const FeatureItem = ({ children }) => (
         <svg className="flex-shrink-0 w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
         </svg>
-        <span className="text-gray-700 font-medium">{children}</span>
+        <span className="text-gray-700 dark:text-gray-300 font-medium">{children}</span>
     </li>
 );
 
@@ -57,7 +57,7 @@ const ConfirmationModal = ({ message, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4 transition-opacity duration-300">
-            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 transform scale-100 transition-transform duration-300 border-t-4 border-amber-500">
+            <div className="bg-white dark:rounded-xl shadow-2xl max-w-sm w-full p-6 transform scale-100 transition-transform duration-300 border-t-4 border-amber-500">
                 <div className="text-center">
                     <svg className="mx-auto h-12 w-12 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -94,25 +94,25 @@ const PricingCard = ({ plan, onActivate, placa }) => {
 
     return (
         <div className={`
-            flex flex-col p-6 mx-auto max-w-lg text-center bg-white rounded-xl border shadow-lg transition-all duration-300 h-full
+            flex flex-col p-6 mx-auto max-w-lg text-center bg-white dark:bg-slate-800 rounded-xl shadow-lg transition-all duration-300 h-full
             ${isFeatured
-                ? 'border-amber-500 ring-4 ring-amber-100 lg:transform lg:scale-115'
-                : 'border-gray-200 hover:shadow-xl'
+                ? 'border-4 border-amber-500 lg:transform lg:scale-115'
+                : 'border border-gray-200 dark:border-gray-700 hover:shadow-xl'
             }
         `}>
-            <h3 className={`mb-4 text-2xl font-bold ${isFeatured ? 'text-amber-600' : 'text-gray-900'}`}>
+            <h3 className={`mb-4 text-2xl font-bold ${isFeatured ? 'text-amber-600' : 'text-gray-900 dark:text-amber-300'}`}>
                 {plan.name}
             </h3>
-            <p className="font-light text-gray-600 sm:text-lg min-h-[40px]">{plan.description}</p>
+            <p className="font-light dark:text-gray-300 sm:text-lg min-h-[40px]">{plan.description}</p>
 
             <div className="flex justify-center items-baseline my-8">
-                <span className="mr-2 text-5xl font-extrabold text-gray-900">
+                <span className="mr-2 text-5xl font-extrabold text-gray-900 dark:text-gray-300">
                     R$ {plan.price.toFixed(2).replace('.', ',')}
                 </span>
                 <span className="text-gray-500">/{plan.unit}</span>
             </div>
 
-            <ul role="list" className="space-y-4 text-left mb-8 px-2 flex-grow">
+            <ul role="list" className="space-y-4 text-left mb-8 px-2">
                 {plan.features.map((feature, index) => (
                     <FeatureItem key={index}>{feature}</FeatureItem>
                 ))}
@@ -123,8 +123,8 @@ const PricingCard = ({ plan, onActivate, placa }) => {
                 className={`
                     mt-auto py-3 px-5 text-center font-medium rounded-lg text-base transition-colors duration-200 shadow-md
                     ${isFeatured
-                        ? 'text-white bg-amber-500 hover:bg-amber-600 disabled:bg-amber-400'
-                        : 'text-amber-600 border border-amber-500 hover:bg-amber-50 disabled:border-gray-300 disabled:text-gray-400'
+                        ? 'text-white bg-amber-500 hover:bg-amber-600 disabled:bg-amber-400 cursor-pointer'
+                        : 'text-white border border-amber-300 bg-amber-300 hover:bg-amber-400 disabled:border-amber-300 disabled:text-white cursor-pointer'
                     }
                     ${!placa || placa.length < 7 ? 'opacity-60 cursor-not-allowed' : ''}
                 `}
@@ -165,15 +165,15 @@ export default function AtivarPlanos() {
 
     return (
         <div className="pt-0 pb-8 lg:pb-12 mx-auto min-h-screen">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 border-b-2 border-amber-500 pb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 border-b-2 border-amber-500 pb-2">
                 Ativação de Planos de Estacionamento
             </h1>
-            <p className="text-lg text-gray-600 mb-10">
+            <p className="text-lg text-gray-300 mb-10">
                 Selecione o plano do cliente, insira a placa para validação e finalize a ativação.
             </p>
 
-            <div className="max-w-3xl mx-auto mb-20 bg-white p-6 rounded-xl shadow-xl border-2 border-amber-300">
-                <label htmlFor="placa-veiculo" className="block text-sm font-bold text-gray-700 mb-2">
+            <div className="max-w-3xl mx-auto mb-20 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-xl border-l-4 border-amber-500">
+                <label htmlFor="placa-veiculo" className="block text-sm font-bold text-gray-700 dark:text-white mb-2">
                     PLACA DO VEÍCULO (Mercosul - Ex: ABC1D23)
                 </label>
                 <input
@@ -185,7 +185,7 @@ export default function AtivarPlanos() {
                     placeholder="INSIRA A PLACA AQUI"
                     className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg text-3xl font-mono text-center tracking-widest uppercase focus:ring-amber-500 focus:border-amber-500 transition duration-150 shadow-inner"
                 />
-                <p className="mt-3 text-sm text-amber-600 font-bold text-center">
+                <p className="mt-3 text-sm text-amber-500 font-bold text-center">
                     {placa.length < 7
                         ? `Faltam ${7 - placa.length} caracteres para a placa ser válida.`
                         : 'Placa pronta para ativação!'
