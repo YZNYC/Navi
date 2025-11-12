@@ -3,7 +3,7 @@
 
 import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '../lib/api'; // Importamos o api para o interceptor de logout
+import api from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -13,17 +13,14 @@ export const AuthProvider = ({ children }) => {
     const router = useRouter();
 
     const loadUserFromStorage = useCallback(() => {
-        // Unifica a lógica de carregamento
         try {
             const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
             const storedUser = localStorage.getItem('usuario') || sessionStorage.getItem('usuario');
-            
             if (token && storedUser) {
                 setUser(JSON.parse(storedUser));
             }
         } catch (error) {
-            console.error("Erro ao carregar dados de autenticação do storage", error);
-            // Limpa o storage se estiver corrompido
+            console.error("Erro ao carregar dados", error);
             localStorage.clear();
             sessionStorage.clear();
         } finally {
@@ -35,41 +32,53 @@ export const AuthProvider = ({ children }) => {
         loadUserFromStorage();
     }, [loadUserFromStorage]);
 
-    // --- A FUNÇÃO CHAVE ---
-    // Esta função será chamada pelo seu LoginForm
     const login = (userData, token, rememberMe) => {
         const storage = rememberMe ? localStorage : sessionStorage;
+        
+        // Define qual a rota de login correspondente ao papel do usuário
+        let loginRouteType = 'proprietario'; // Padrão
+        if (userData.papel === 'ADMINISTRADOR') loginRouteType = 'admin';
+        if (userData.papel === 'GESTOR' || userData.papel === 'OPERADOR') loginRouteType = 'funcionario';
 
+        // Salva as informações
         storage.setItem('authToken', token);
         storage.setItem('usuario', JSON.stringify(userData));
+        storage.setItem('loginRouteType', loginRouteType); // <-- SALVA O "TIPO" DE LOGIN
 
-        setUser(userData); // ATUALIZA O ESTADO IMEDIATAMENTE!
+        setUser(userData);
     };
 
-    const logout = () => {
+    const logout = useCallback(() => {
+        const loginRouteType = localStorage.getItem('loginRouteType') || sessionStorage.getItem('loginRouteType') || 'proprietario';
+        
         localStorage.removeItem('usuario');
         localStorage.removeItem('authToken');
+        localStorage.removeItem('loginRouteType');
         sessionStorage.removeItem('usuario');
         sessionStorage.removeItem('authToken');
+        sessionStorage.removeItem('loginRouteType');
+        
         setUser(null);
-        router.push('/');
-    };
+        // --- REDIRECIONAMENTO INTELIGENTE ---
+        router.push(`/login/${loginRouteType}`); 
+    }, [router]);
     
-    // Configura um interceptor para deslogar em caso de erro 401
     useEffect(() => {
         const responseInterceptor = api.interceptors.response.use(
             response => response,
             error => {
-                if (error.response?.status === 401) {
+                const { config, response } = error;
+                const isUnauthorized = response?.status === 401;
+                const isLoginAttempt = config.url.endsWith('/auth/login');
+                
+                if (isUnauthorized && !isLoginAttempt) {
                     logout();
                 }
                 return Promise.reject(error);
             }
         );
-
-        // Função de limpeza para remover o interceptor
         return () => api.interceptors.response.eject(responseInterceptor);
-    }, []);
+    }, [logout]);
 
 
     const value = { user, isLoading, login, logout };

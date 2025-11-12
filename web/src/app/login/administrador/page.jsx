@@ -134,32 +134,40 @@ const onSubmit = async (data) => {
     try {
         const response = await api.post('/auth/login', data);
 
-        console.log("Resposta completa da API:", response);
-        console.log("Dados da resposta (response.data):", response.data);
-
         if (response.data && response.data.token && response.data.usuario) {
-        
             const { token, usuario } = response.data;
-            login(usuario, token, lembrarDeMim); 
+            
+            const userDataToStore = {
+                nome: usuario.nome,
+                email: usuario.email,
+                papel: usuario.papel
+            };
 
+            // Chama a função 'login' do seu AuthContext
+            login(userDataToStore, token, lembrarDeMim);
+
+            // Define a mensagem de sucesso para ser exibida no formulário
             setApiSuccess("Login bem-sucedido! Redirecionando ...");
+
             setTimeout(() => {
-                router.push('/admin/dashboard'); 
-            }, 1200);
+                router.push('/admin/dashboard');
+            }, 500);
 
         } else {
-
-            throw new Error("Resposta da API não contém os dados esperados (token/usuario).");
+            // Se a API retornar sucesso (200 OK) mas sem os dados esperados
+            setError("apiError", { type: 'custom', message: "Resposta inesperada do servidor." });
         }
-    } catch (error) {
-    
-        console.error("Erro completo no bloco catch:", error);
 
-        const errorMessage = error.message.includes("esperados") 
-            ? error.message 
-            : (error.response?.data?.message || 'Não foi possível conectar ao servidor.');
-            
-        setError("apiError", { type: 'custom', message: errorMessage });
+    } catch (error) {
+        // Verifica se o erro veio da API (ex: 401 Unauthorized, 404 Not Found, etc.)
+        if (error.response && error.response.data && error.response.data.message) {
+            // Pega a mensagem de erro que o backend enviou (ex: "Email ou senha inválidos.")
+            // e a define para ser exibida no formulário.
+            setError("apiError", { type: 'custom', message: error.response.data.message });
+        } else {
+            // Se for um erro de rede (backend offline), exibe a mensagem de conexão.
+            setError("apiError", { type: 'custom', message: 'Não foi possível conectar ao servidor.' });
+        }
     } finally {
         setIsSubmitting(false);
     }
