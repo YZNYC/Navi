@@ -20,6 +20,9 @@ import contratoRoutes from './routes/ContratoRoutes.js';
 import cupomRoutes from './routes/CupomRoutes.js';
 import relatoriosRoutes from './routes/relatoriosRoutes.js';
 import chatRoutes from './routes/ChatRoutes.js'; // Nossas novas rotas HTTP do chat
+import NaviRoutes from './routes/NaviRoutes.js'
+import ConversaNaviRoutes from './routes/ConversasNaviRoutes.js'
+
 
 // 3. INICIALIZAÇÃO DO SERVIDOR HÍBRIDO
 const app = express();
@@ -51,6 +54,8 @@ app.use('/contratos', contratoRoutes);
 app.use('/cupons', cupomRoutes);
 app.use('/relatorios', relatoriosRoutes);
 app.use('/chat', chatRoutes);
+app.use('/api/navi', NaviRoutes);
+app.use('/api/conversas-navi', ConversaNaviRoutes);
 
 // Rota raiz de verificação
 app.get('/', (req, res) => {
@@ -62,3 +67,6 @@ app.get('/', (req, res) => {
 httpServer.listen(port, () => {
     console.log(`Servidor híbrido rodando e ouvindo na porta ${port}`);
 });
+
+
+
