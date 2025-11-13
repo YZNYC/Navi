@@ -1,5 +1,5 @@
 import express from 'express';
-import {  listarEstacionamentoController,  obterEstacionamentoPorIdController,  criarEstacionamentoController,  atualizarEstacionamentoController,excluirEstacionamentoController} from '../controllers/EstacionamentoController.js';
+import {  listarEstacionamentoController,  obterEstacionamentoPorIdController,  criarEstacionamentoController,  atualizarEstacionamentoController,excluirEstacionamentoController, listarMeusEstacionamentosController} from '../controllers/EstacionamentoController.js';
 import { listarReservasDeEstacionamentoController } from '../controllers/ReservaController.js';
 import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
 import politicaPrecoRoutes from './politicaPrecoRoutes.js';
@@ -7,14 +7,16 @@ import planoMensalRoutes from './PlanoMensalRoutes.js';
 import { listarContratosDeEstacionamentoController } from '../controllers/ContratoController.js'; 
 import avaliacaoRoutes from './AvaliacaoRoutes.js';
 import funcionarioRoutes from './FuncionariosRoutes.js';
+import { listarVagasPorEstacionamentoController } from '../controllers/VagaController.js';
 
 const router = express.Router();
 const permissoesDeGestao = ['PROPRIETARIO', 'ADMINISTRADOR'];
 
 // ROTAS PÚBLICAS PARA CONSULTA 
 router.get('/', listarEstacionamentoController);
+router.get('/meus', authMiddleware, listarMeusEstacionamentosController);
 router.get('/:id', obterEstacionamentoPorIdController);
-
+router.get('/:estacionamentoId/vagas', listarVagasPorEstacionamentoController);
 
 // ROTAS PROTEGIDAS PARA GESTÃO DE ESTACIONAMENTOS 
 router.post('/', authMiddleware, authorize(permissoesDeGestao), criarEstacionamentoController);

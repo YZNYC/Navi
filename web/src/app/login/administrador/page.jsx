@@ -251,7 +251,7 @@ const RegisterForm = ({ onLoginClick, role = "ADMINISTRADOR" }) => {
         try {
         
             await api.post('/usuarios/cadastro', apiData);
-            
+                        
             setApiSuccess("Cadastro realizado! Você será redirecionado para o login.");
             setTimeout(() => onLoginClick(), 2500); 
 

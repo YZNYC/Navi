@@ -1,71 +1,110 @@
-// src/models/Conversa.js
+// src/models/Chat.js
 
 import prisma from '../config/prisma.js';
 
 /**
- * Salva uma nova conversa ou atualiza uma existente.
- * Garante que id_usuario é um INT e o histórico é stringificado.
+ * Busca todas as conversas ativas de um usuário.
  */
-export const salvarOuAtualizarConversa = async (conversaId, userId, titulo, topico, historico) => {
-    // 1. GARANTE QUE O HISTÓRICO É UM JSON VÁLIDO PARA O DB
-    const historicoJson = JSON.stringify(historico);
-
-    // Converte userId para INT (necessário para a operação do Prisma)
-    const parsedUserId = parseInt(userId); 
-    const parsedConversaId = conversaId ? parseInt(conversaId) : null;
-
-    if (parsedConversaId) {
-        // ATUALIZAÇÃO
-        return prisma.conversaNavi.update({
-            where: { id: parsedConversaId },
-            data: {
-                historico_json: historicoJson,
-                titulo: titulo,
-            },
-        });
-    } else {
-        // CRIAÇÃO NOVA CONVERSA (Ponto de falha mais comum - FK)
-        return prisma.conversaNavi.create({
-            data: {
-                id_usuario: parsedUserId, 
-                titulo: titulo,
-                topico: topico,
-                historico_json: historicoJson,
-            },
-        });
-    }
+export const getConversas = async (userId) => {
+    const conversasBrutas = await prisma.$queryRaw`
+        SELECT 
+            u.id_usuario AS id,
+            u.nome,
+            u.url_foto_perfil as profilePictureUrl,
+            (SELECT m.conteudo FROM mensagem m WHERE (m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId}) OR (m.id_remetente = ${userId} AND m.id_destinatario = u.id_usuario) ORDER BY m.timestamp DESC LIMIT 1) as lastMessage,
+            (SELECT m.timestamp FROM mensagem m WHERE (m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId}) OR (m.id_remetente = ${userId} AND m.id_destinatario = u.id_usuario) ORDER BY m.timestamp DESC LIMIT 1) as lastMessageTimestamp,
+            (SELECT m.id_remetente FROM mensagem m WHERE (m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId}) OR (m.id_remetente = ${userId} AND m.id_destinatario = u.id_usuario) ORDER BY m.timestamp DESC LIMIT 1) as lastMessageSenderId,
+            (SELECT COUNT(*) FROM mensagem m WHERE m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId} AND m.lida = FALSE) as unreadCount
+        FROM usuario u
+        JOIN (
+            SELECT DISTINCT CASE WHEN id_remetente = ${userId} THEN id_destinatario ELSE id_remetente END as partner_id
+            FROM mensagem
+            WHERE id_remetente = ${userId} OR id_destinatario = ${userId}
+        ) AS partners ON u.id_usuario = partners.partner_id
+        WHERE u.id_usuario != ${userId} AND NOT EXISTS (
+            SELECT 1 FROM conversa_oculta co 
+            WHERE co.id_usuario = ${userId} AND co.id_parceiro_chat = u.id_usuario
+        )
+        ORDER BY lastMessageTimestamp DESC;
+    `;
+    
+    // --- CORREÇÃO DO BUG BigInt ---
+    // Mapeamos os resultados para converter o campo 'unreadCount' de BigInt para Number.
+    const conversas = conversasBrutas.map(convo => ({
+        ...convo,
+        unreadCount: Number(convo.unreadCount), // Conversão segura
+    }));
+    
+    return conversas;
 };
 
 /**
- * Lista todas as conversas de um usuário.
+ * Busca o histórico completo de mensagens entre dois usuários.
  */
-export const listarConversasPorUsuario = async (userId) => {
-    return prisma.conversaNavi.findMany({
-        where: { id_usuario: parseInt(userId) },
-        select: {
-            id: true,
-            titulo: true,
-            topico: true,
-            data_criacao: true,
+export const getHistoricoMensagens = async (usuarioLogadoId, outroUsuarioId) => {
+    return await prisma.mensagem.findMany({
+        where: {
+            OR: [
+                { id_remetente: usuarioLogadoId, id_destinatario: outroUsuarioId },
+                { id_remetente: outroUsuarioId, id_destinatario: usuarioLogadoId },
+            ],
         },
-        orderBy: { data_criacao: 'desc' },
+        include: {
+            remetente: {
+                select: { id_usuario: true, nome: true, url_foto_perfil: true }
+            },
+            reply_to_message: {
+                select: {
+                    conteudo: true,
+                    remetente: { select: { nome: true } }
+                }
+            }
+        },
+        orderBy: { timestamp: 'asc' },
     });
 };
 
 /**
- * Obtém o histórico completo de uma conversa específica.
+ * Marca todas as mensagens de um chat como lidas.
  */
-export const obterHistoricoPorId = async (conversaId) => {
-    const conversa = await prisma.conversaNavi.findUnique({
-        where: { id: parseInt(conversaId) },
-        select: { historico_json: true, id_usuario: true }, // Inclui id_usuario para checagem de permissão
+export const marcarMensagensComoLidas = async (remetenteId, destinatarioId) => {
+    return await prisma.mensagem.updateMany({
+        where: {
+            id_remetente: remetenteId,
+            id_destinatario: destinatarioId,
+            lida: false,
+        },
+        data: { lida: true },
     });
-    
-    if (!conversa) return null;
-    
-    // Retorna a conversa com o histórico parseado
-    return {
-        ...conversa,
-        historico_json: JSON.parse(conversa.historico_json)
-    };
+};
+
+/**
+ * Adiciona um registro para ocultar uma conversa da lista do usuário.
+ */
+export const ocultarConversa = async (usuarioLogadoId, outroUsuarioId) => {
+    return await prisma.conversa_oculta.create({
+        data: {
+            id_usuario: usuarioLogadoId,
+            id_parceiro_chat: outroUsuarioId,
+        }
+    });
+};
+
+/**
+ * Busca usuários pelo nome para iniciar novas conversas.
+ */
+export const buscarUsuarios = async (termoDeBusca, usuarioLogadoId) => {
+    return await prisma.usuario.findMany({
+        where: {
+            id_usuario: { not: usuarioLogadoId },
+            nome: { contains: termoDeBusca }, // MySQL é case-insensitive por padrão
+        },
+        select: {
+            id_usuario: true,
+            nome: true,
+            email: true,
+            url_foto_perfil: true,
+        },
+        take: 10,
+    });
 };
