@@ -3,14 +3,17 @@ import { useLogin } from '../../providers/loginProvider';
 
 //importando bibliotecas
 import { useState, useEffect } from 'react';
-import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import * as SQLite from 'expo-sqlite';
-import { Link } from 'expo-router';
 
+
+//inicialização do db
 const openDb = async () => {
   return await SQLite.openDatabaseAsync('navi.db');
 }
 
+
+//Criação da tabela usuario
 const setupDatabase = async (db) => {
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -29,6 +32,7 @@ const setupDatabase = async (db) => {
     );
   `);
 
+  //Verificar se a tabela usuario esta vazia, se estiver inserre alguns dados iniciais
   const firstUser = await db.getFirstAsync('SELECT * FROM usuario');
   if (!firstUser) {
     console.log('Banco de dados vazio. Inserindo dados iniciais...');
@@ -46,8 +50,6 @@ const setupDatabase = async (db) => {
 
 export default function Account() {
 
-
-
   return (
     <View style={styles.page}>
       <Text style={styles.title}>Tela da Conta</Text>
@@ -56,7 +58,8 @@ export default function Account() {
   );
 }
 
-export const LoginForm = () => {
+//Formulario de login
+export const LoginForm = ({ navigation }) => {
   const { setUser } = useLogin();
   const [form, setForm] = useState({
     email: '',
@@ -77,6 +80,8 @@ export const LoginForm = () => {
     initializeDb();
   }, []);
 
+
+  // enviar o formulário
   const handleSubmit = async () => {
     try {
       if (!form.email || !form.senha) {
@@ -131,18 +136,30 @@ export const LoginForm = () => {
         secureTextEntry={true}
       />
 
-      <Link href="mobile/navi/src/app/account/forgot-password/forgot-password.js">
-        <Text>Esqueci a senha</Text>
-      </Link>
+
+      {/* Esqueci a senha */}
+      <View>
+        <TouchableOpacity href="/forgot-password" onPress={() => navigation.navigate('Esqueci a senha')}>
+          <Text>Esqueci a senha</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Botao de login */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
 
+
+      {/* cadastrar */}
       <View style={{ display: "flex", flexDirection: "row" }}>
         <Text>Não tem uma conta? </Text>
-        <Link href="/register">Cadastre-se</Link>
+        <TouchableOpacity href="/register" />
       </View>
     </View>
+
+
+
+
   );
 }
 
