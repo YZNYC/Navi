@@ -24,7 +24,7 @@ const setupDatabase = async (db) => {
       senha VARCHAR(255) NOT NULL,
       telefone VARCHAR(20) NULL,
       url_foto_perfil VARCHAR(255) NULL,
-      papel TEXT NOT NULL CHECK(papel IN ('ADMINISTRADOR', 'PROPRIETARIO', 'MOTORISTA')),
+      papel TEXT NOT NULL DEFAULT 'MOTORISTA' CHECK(papel IN ('ADMINISTRADOR', 'PROPRIETARIO', 'MOTORISTA')),
       data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       ativo BOOLEAN NULL DEFAULT 1,
       resetToken VARCHAR(255) NULL UNIQUE,
