@@ -8,35 +8,45 @@ import {
     ocultarConversaController,
     buscarUsuariosController
 } from '../controllers/ChatController.js';
-import { authMiddleware } from '../middlewares/AuthMiddlewares.js'; // Ajuste o nome se necessário
+import { authMiddleware } from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router();
 
-// ---- PROTEÇÃO GLOBAL ----
-// Todas as rotas do chat exigem que o usuário esteja autenticado.
+// -----------------------------------------------------------------------------
+// SEGURANÇA GLOBAL DO CHAT
+// -----------------------------------------------------------------------------
+// O middleware 'authMiddleware' é aplicado a TODAS as rotas definidas neste arquivo.
+// Nenhuma função do chat pode ser acessada sem um token JWT válido.
 router.use(authMiddleware);
 
 
-// ---- ROTAS PRINCIPAIS DO CHAT ----
+// -----------------------------------------------------------------------------
+// DEFINIÇÃO DAS ROTAS HTTP
+// -----------------------------------------------------------------------------
 
-// GET /chat/conversations
-// Retorna a lista de todas as conversas do usuário logado.
+// MÉTODO: GET
+// ROTA: /chat/conversations
+// FUNÇÃO: Retorna a lista de todas as conversas do usuário autenticado.
 router.get('/conversations', getConversasController);
 
-// GET /chat/users?search=termo
-// Busca usuários na plataforma pelo nome.
+// MÉTODO: GET
+// ROTA: /chat/users?search=termo_de_busca
+// FUNÇÃO: Procura por outros usuários na plataforma para iniciar uma nova conversa.
 router.get('/users', buscarUsuariosController);
 
-// GET /chat/history/:outroUsuarioId
-// Retorna o histórico de mensagens entre o usuário logado e outro usuário.
+// MÉTODO: GET
+// ROTA: /chat/history/:outroUsuarioId
+// FUNÇÃO: Retorna o histórico completo de mensagens com um usuário específico.
 router.get('/history/:outroUsuarioId', getHistoricoController);
 
-// PUT /chat/messages/mark-as-read/:remetenteId
-// Marca todas as mensagens recebidas de um remetente como lidas.
+// MÉTODO: PUT
+// ROTA: /chat/messages/mark-as-read/:remetenteId
+// FUNÇÃO: Marca todas as mensagens recebidas de um remetente como lidas.
 router.put('/messages/mark-as-read/:remetenteId', marcarComoLidoController);
 
-// DELETE /chat/conversations/:parceiroChatId
-// Oculta (arquiva) a conversa com um usuário específico.
+// MÉTODO: DELETE
+// ROTA: /chat/conversations/:parceiroChatId
+// FUNÇÃO: "Esconde" ou "arquiva" a conversa com um usuário da lista principal.
 router.delete('/conversations/:parceiroChatId', ocultarConversaController);
 
 

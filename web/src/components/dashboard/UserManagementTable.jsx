@@ -4,19 +4,20 @@
 import React, { useState } from 'react';
 import { Search, Eye, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react'; 
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation'; // 🚨 IMPORTAÇÃO NECESSÁRIA
+import { useRouter } from 'next/navigation'; 
 
 const ITEMS_PER_PAGE = 4; // Itens por página
 
-export default function UserManagementTable({ users, onUpdate, axiosFetcher }) { 
+// 🚨 CORREÇÃO: onLocalStatusChange está na desestruturação da prop
+export default function UserManagementTable({ users = [], onUpdate, axiosFetcher, onLocalStatusChange }) { 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all'); 
   const [filterStatus, setFilterStatus] = useState('all'); 
-  const [currentPage, setCurrentPage] = useState(1);
-  const router = useRouter(); // 🚨 INICIALIZAÇÃO
+  const [currentPage, setCurrentPage] = useState(1); 
+  const router = useRouter(); 
 
-  
-  const filteredUsers = users.filter(user => {
+  // 1. FILTRAGEM (executada em toda re-renderização)
+  const filteredUsers = users.filter(user => { 
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = filterRole === 'all' || user.role === filterRole;
@@ -24,10 +25,10 @@ export default function UserManagementTable({ users, onUpdate, axiosFetcher }) {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  // LÓGICA DE PAGINAÇÃO
+  // 🚨 LÓGICA DE PAGINAÇÃO MOVIDA PARA O TOPO
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const currentItems = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE); 
   
   // Ações de navegação
   const goToPage = (page) => {
@@ -37,7 +38,7 @@ export default function UserManagementTable({ users, onUpdate, axiosFetcher }) {
   };
 
 
-  // LÓGICA DE AÇÃO: Alternar Status (ativo/inativo)
+  // LÓGICA DE AÇÃO: Alternar Status (ativo/inativo) - SEM RE-FETCH
   const handleToggleStatus = async (user) => {
     const newStatus = !user.isActive; 
     
@@ -48,13 +49,19 @@ export default function UserManagementTable({ users, onUpdate, axiosFetcher }) {
 
     toast.promise(promise, {
         loading: `Alterando status de ${user.name}...`,
-        success: `Status de ${user.name} atualizado para ${newStatus ? 'Ativo' : 'Inativo'}.`,
+        success: `Usuário ${newStatus ? 'ativado' : 'inativado'} com sucesso!`, // 🚨 TOAST
         error: (err) => `Falha ao alterar status: ${err.message}`,
     });
 
     try {
         await promise;
-        onUpdate();
+        
+        // 🚨 ATUALIZAÇÃO LOCAL IMEDIATA
+        onLocalStatusChange({ id: user.id, isActive: newStatus }); 
+        
+        // 🚨 RE-FETCH APENAS PARA ATUALIZAR KPIS (MANTÉM TOAST APARENTE)
+        onUpdate(); 
+
     } catch (e) {
         console.error(e);
     }
@@ -75,13 +82,17 @@ export default function UserManagementTable({ users, onUpdate, axiosFetcher }) {
 
       try {
           await promise;
-          onUpdate();
+          
+          // 🚨 ATUALIZAÇÃO LOCAL IMEDIATA
+          onLocalStatusChange({ id: userId, role: newRole.toLowerCase() });
+          
+          onUpdate(); // Para sincronizar os dados e KPIs
       } catch (e) {
           console.error(e);
       }
   };
 
-  // 🚨 AÇÃO REAL: Redireciona para a página de detalhes do usuário
+  // AÇÃO REAL: Redireciona para a página de detalhes do usuário
   const handleViewDetails = (userId) => {
     toast.info(`Redirecionando para detalhes do usuário ID: ${userId}`);
     router.push(`/admin/usuarios/${userId}`); 
@@ -89,7 +100,7 @@ export default function UserManagementTable({ users, onUpdate, axiosFetcher }) {
 
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 mb-8 flex flex-col h-full">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 mb-8 flex flex-col h-full border-b-3 border-amber-500">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Gerenciamento de Usuários</h3>
       
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
@@ -175,7 +186,7 @@ export default function UserManagementTable({ users, onUpdate, axiosFetcher }) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => handleViewDetails(user.id)} // 🚨 AÇÃO REAL
+                      onClick={() => handleViewDetails(user.id)}
                       className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 mr-2"
                       title="Ver Detalhes"
                     >
