@@ -22,6 +22,8 @@ import relatoriosRoutes from './routes/relatoriosRoutes.js';
 import chatRoutes from './routes/ChatRoutes.js'; // Nossas novas rotas HTTP do chat
 import NaviRoutes from './routes/NaviRoutes.js'
 import ConversaNaviRoutes from './routes/ConversasNaviRoutes.js'
+import EstabelecimentoKpiRoutes from './routes/EstabelecimentoKpiRoutes.js'
+import UsuarioKpiRoutes from './routes/UsuarioKpiRoutes.js'
 
 
 // 3. INICIALIZAÇÃO DO SERVIDOR HÍBRIDO
@@ -56,6 +58,8 @@ app.use('/relatorios', relatoriosRoutes);
 app.use('/chat', chatRoutes);
 app.use('/api/navi', NaviRoutes);
 app.use('/api/conversas-navi', ConversaNaviRoutes);
+app.use('/estabelecimentos/kpi', EstabelecimentoKpiRoutes);
+app.use('/usuarios/kpi', UsuarioKpiRoutes);
 
 // Rota raiz de verificação
 app.get('/', (req, res) => {
