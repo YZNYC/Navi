@@ -1,6 +1,7 @@
+import express from 'express';
+import { getUserSummaryKpis } from '../controllers/UsuarioKpiController.js';
+import { authMiddleware } from '../middlewares/AuthMiddlewares.js';
 
-import express from 'express'import { getUserSummaryKpis } from '../controllers/UsuarioKpiController.js';
-import { authMiddleware} from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router();
 
