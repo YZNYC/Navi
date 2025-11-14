@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Alert } from 'react-native';
 import * as SQLite from 'expo-sqlite';
-
-
-
 //inicialização do db
-
 export const Register = () => {
   const [form, setForm] = useState({
     nome: '',
@@ -13,30 +9,30 @@ export const Register = () => {
     senha: '',
     telefone: ''
   });
-
   const handleChange = (name, value) => {
     setForm({ ...form, [name]: value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Form submitted:', form);
     try {
-      if (!form.name || !form.email || !form.senha) {
+      if (!form.nome || !form.email || !form.senha) {
         throw new Error('Preencha todos os campos obrigatórios');
       }
       const db = await SQLite.openDatabaseAsync('navi.db');
-      const newUser = await db.runAsync('nome, email, senha, telefone, papel VALUES (?, ?, ?, ?)', form.name, form.email, form.senha, form.telefone);
-      if (newUser) {
-        console.log("Usuário cadastrado com sucesso")
+      const newUser = await db.runAsync('INSERT INTO usuario (nome, email, senha, telefone, papel) VALUES (?, ?, ?, ?, ?)', form.nome, form.email, form.senha, form.telefone || null, "MOTORISTA");
+      if (newUser.changes > 0) {
         Alert.alert('Usuário cadastrado. Seja bem-vindo!');
       }
     } catch (error) {
-      
+      console.error("ERRO AO CADASTRAR:", error);
+      if (error.message.includes("UNIQUE constraint failed: usuario.email")) {
+        Alert.alert("Erro", "Este email já está cadastrado.");
+      } else {
+        Alert.alert("Erro ao cadastrar", `Não foi possível concluir o cadastro. Por favor, tente novamente. Detalhes: ${error.message}`);
+      }
     }
-
   };
-
   return (
     <View>
       <Text>Nome:</Text>
