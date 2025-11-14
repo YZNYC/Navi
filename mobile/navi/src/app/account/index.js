@@ -5,6 +5,7 @@ import { useLogin } from '../../providers/loginProvider';
 import { useState, useEffect } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import { sha256 } from 'js-sha256';
 
 
 //inicialização do db
@@ -39,14 +40,12 @@ const setupDatabase = async (db) => {
     await db.execAsync(`
       INSERT INTO usuario (nome, email, senha, telefone, url_foto_perfil, papel)
       VALUES
-      ('Alice Andrade', 'alice.admin@empresa.com', 'admin123', '(11) 99999-1111', 'https://i.pravatar.cc/150?img=10', 'ADMINISTRADOR'),
-      ('Bruno Paiva', 'bruno.proprietario@empresa.com', 'prop456', '(11) 98888-2222', 'https://i.pravatar.cc/150?img=11', 'PROPRIETARIO'),
-      ('Carla Souza', 'carla.motorista@empresa.com', 'motor789', '(11) 97777-3333', 'https://i.pravatar.cc/150?img=12', 'MOTORISTA');
-    `);
+      ('Alice Andrade', 'alice.admin@empresa.com', '${sha256('admin123')}', '(11) 99999-1111', 'https://i.pravatar.cc/150?img=10', 'ADMINISTRADOR'),
+      ('Bruno Paiva', 'bruno.proprietario@empresa.com',  '${sha256('prop456')}', '(11) 98888-2222', 'https://i.pravatar.cc/150?img=11', 'PROPRIETARIO'),
+      ('Carla Souza', 'carla.motorista@empresa.com',  '${sha256('motor789')}', '(11) 97777-3333', 'https://i.pravatar.cc/150?img=12', 'MOTORISTA');
+    `); // --> dados iniciais experimentais
   }
 };
-
-
 
 export default function Account() {
 
@@ -89,30 +88,27 @@ export const LoginForm = ({ navigation }) => {
       }
 
       const db = await openDb();
+      const senhaHasheada = sha256(form.senha);
       const user = await db.getFirstAsync(
         'SELECT * FROM usuario WHERE email = ? AND senha = ?',
-        [form.email.trim(), form.senha.trim()]
+        [form.email.trim(), senhaHasheada]
       );
 
       if (!user) {
         throw new Error('Usuário não encontrado');
       }
-
       setUser(user);
-
       Alert.alert('Login bem-sucedido!', `Bem-vindo, ${user.nome}!`);
       setForm({
         email: '',
         senha: ''
       });
       console.log("Usuário logado:", user);
-
     } catch (error) {
       console.error(error);
       Alert.alert('Erro no Login', error.message || 'Ocorreu um erro ao tentar logar.');
     }
   }
-
   return (
     <View style={styles.container}>
       <View style={{ alignItems: "center" }}>
@@ -136,9 +132,8 @@ export const LoginForm = ({ navigation }) => {
         secureTextEntry={true}
       />
 
-
       {/* Esqueci a senha */}
-      <View>
+      <View style={{ paddingTop: 10 }}>
         <TouchableOpacity href="/forgot-password" onPress={() => navigation.navigate('Esqueci a senha')}>
           <Text style={styles.links}>Esqueci a senha</Text>
         </TouchableOpacity>
@@ -149,9 +144,8 @@ export const LoginForm = ({ navigation }) => {
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
 
-
       {/* cadastrar */}
-      <View style={{ display: "flex", flexDirection: "row" }}>
+      <View style={{ display: "flex", flexDirection: "row", paddingTop: 15 }}>
         <Text>Não tem uma conta? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Cadastre-se')}>
         <Text style={styles.links}>Cadastre-se</Text>
@@ -160,7 +154,6 @@ export const LoginForm = ({ navigation }) => {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   page: {
     flex: 1,
