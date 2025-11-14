@@ -6,9 +6,7 @@ import {
 
   obterHistorico,
 
-  salvarConversa,
-
-  atualizarTituloConversa,
+  salvarConversa
 
 } from '../controllers/ConversaNaviController.js';
 
@@ -51,13 +49,5 @@ router.get('/:id/historico', obterHistorico);
 // POST /api/conversas-navi/salvar -> Salvar ou criar uma conversa
 
 router.post('/salvar', salvarConversa);
-
-
-
-// PATCH /api/conversas-navi/:id/titulo -> Atualizar o título de uma conversa
-
-router.patch('/:id/titulo', atualizarTituloConversa);
-
-
 
 export default router; 
