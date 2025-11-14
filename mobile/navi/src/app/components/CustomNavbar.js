@@ -7,7 +7,6 @@ const PRIMARY_COLOR = '#EAB308';
 
 export default function CustomNavbar({ toggleSidebar }) {
   const { user } = useLogin();
-  const userName = user?.nome || 'Usuário';
 
   const handleNotificationPress = () => {
     console.log('Botão de Notificação Pressionado');
@@ -36,8 +35,6 @@ export default function CustomNavbar({ toggleSidebar }) {
             <Ionicons name="notifications-outline" size={26} color="#fff" />
           </TouchableOpacity>
         </View>
-
-        <Text style={styles.greetingText}>Olá, {userName}</Text>
       </View>
     </View>
   );

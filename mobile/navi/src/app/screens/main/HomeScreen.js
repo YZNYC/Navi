@@ -23,7 +23,7 @@ const parkingData = [
     price: "R$ 6/h",
     tags: ["Coberto", "Segurança 24h"],
     availableSpots: 12,
-    imageUrl: "https://images.unsplash.com/photo-1543477134-8469c84918e5?fit=crop&w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1565043666747-69f6646db940?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   },
   {
     id: "3",
@@ -33,7 +33,7 @@ const parkingData = [
     price: "R$ 10/h",
     tags: ["VIP", "Recarga Elétrica"],
     availableSpots: 2,
-    imageUrl: "https://images.unsplash.com/photo-1629853315891-b3b0d1e01865?fit=crop&w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1630165356623-266076eaceb6?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   },
   {
     id: "4",
@@ -43,7 +43,7 @@ const parkingData = [
     price: "R$ 5/h",
     tags: ["Aberto", "Auto-serviço"],
     availableSpots: 35,
-    imageUrl: "https://images.unsplash.com/photo-1583091176008-01121f153282?fit=crop&w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1617886322207-6f504e7472c5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   }
 ];
 
@@ -54,7 +54,6 @@ const quickActions = [
   { title: "Aberto Agora", icon: "time-outline", filter: 'abertoAgora' },
 ];
 
-// COMPONENTE DE FILTRO (AGORA SELECIONÁVEL)
 const QuickAction = ({ icon, title, selected, onPress }) => (
   <TouchableOpacity
     style={[styles.quickActionButton, selected && styles.quickActionButtonSelected]}
@@ -77,7 +76,6 @@ const ParkingCard = ({ parking }) => (
     <View style={styles.cardContent}>
       <View style={styles.cardHeaderRow}>
         <Text style={styles.cardTitle}>{parking.name}</Text>
-        <Text style={styles.priceText}>{parking.price}</Text>
       </View>
 
       <View style={styles.ratingDistanceRow}>
@@ -89,6 +87,11 @@ const ParkingCard = ({ parking }) => (
         <Text style={styles.dotSeparator}>•</Text>
         <Ionicons name="navigate-circle-outline" size={16} color="#6B7280" style={{ marginRight: 4 }} />
         <Text style={styles.distanceText}>{parking.distance}</Text>
+
+        <View style={styles.priceContainer}>
+          <Text style={styles.newPriceLabel}>Preço/h:</Text>
+          <Text style={styles.newPriceText}>{parking.price}</Text>
+        </View>
       </View>
 
       <View style={styles.tagsContainer}>
@@ -111,7 +114,6 @@ const ParkingCard = ({ parking }) => (
   </View>
 );
 
-// MAPA FAKE
 const MapPlaceholder = () => (
   <View style={styles.mapContainer}>
     <Image
@@ -126,7 +128,6 @@ export default function HomeScreen() {
   const { user } = useLogin();
   const userName = user?.nome || "Usuário";
 
-  // ESTADOS PARA FILTROS
   const [selectedFilters, setSelectedFilters] = useState([]);
 
   const toggleFilter = (filter) => {
@@ -152,12 +153,8 @@ export default function HomeScreen() {
               <Text style={styles.greetingTitle}>Olá, {userName}</Text>
               <Text style={styles.greetingSubtitle}>Pronto para estacionar?</Text>
             </View>
-            <TouchableOpacity style={styles.profileButton}>
-              <Ionicons name="notifications-outline" size={24} color="#1F2937" />
-            </TouchableOpacity>
           </View>
 
-          {/* 🔎 BARRA DE PESQUISA */}
           <View style={styles.searchSection}>
             <View style={styles.searchBarContainer}>
               <Ionicons name="search" size={20} color="#9CA3AF" style={{ marginRight: 10 }} />
@@ -173,7 +170,6 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* ⭐ FILTROS ATUALIZADOS */}
           <View style={styles.quickActionsContainer}>
             {quickActions.map((action, index) => (
               <QuickAction
@@ -188,7 +184,6 @@ export default function HomeScreen() {
 
         </View>
 
-        {/* BANNERS */}
         <Text style={styles.sectionTitle}>Ofertas e Promoções</Text>
         <View style={styles.carouselContainer}>
           <ScrollView
@@ -198,21 +193,20 @@ export default function HomeScreen() {
             contentContainerStyle={styles.carousel}
           >
             <Image
-              source={{ uri: "https://images.unsplash.com/photo-1506744038136-46273834b3fb" }}
+              source={{ uri: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }}
               style={styles.carouselImage}
             />
             <Image
-              source={{ uri: "https://images.unsplash.com/photo-1526045478516-99145907023c" }}
+              source={{ uri: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }}
               style={styles.carouselImage}
             />
             <Image
-              source={{ uri: "https://images.unsplash.com/photo-1491553895911-0055eca6402d" }}
+              source={{ uri: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }}
               style={styles.carouselImage}
             />
           </ScrollView>
         </View>
 
-        {/* RECOMENDADOS */}
         <View style={styles.recommendationsContainer}>
           <Text style={styles.sectionTitle}>Recomendados na Região</Text>
 
@@ -297,7 +291,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  /** ⭐ FILTROS / QUICKACTIONS */
   quickActionsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -367,19 +360,28 @@ const styles = StyleSheet.create({
   },
   cardImage: { width: "100%", height: 160 },
   cardContent: { padding: 15 },
+  
+  // ALTERADO: O nome do estacionamento ocupa a linha inteira (flex-start)
   cardHeaderRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
     marginBottom: 5,
   },
-  cardTitle: { fontSize: 19, fontWeight: "800", color: TEXT_COLOR },
-  priceText: { fontSize: 18, fontWeight: "800", color: PRIMARY_COLOR },
+  cardTitle: { 
+    fontSize: 19, 
+    fontWeight: "800", 
+    color: TEXT_COLOR,
+    flexShrink: 1, // Permite que o texto encolha
+  },
+  // priceText original removido
 
+  // ALTERADO: Adicionado space-between para empurrar o preço para o lado
   ratingDistanceRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
+    justifyContent: 'space-between', 
   },
   ratingBox: {
     flexDirection: "row",
@@ -393,6 +395,27 @@ const styles = StyleSheet.create({
   ratingText: { fontSize: 14, color: "#fff", marginLeft: 4 },
   dotSeparator: { marginHorizontal: 8, color: "#D1D5DB", fontSize: 18 },
   distanceText: { fontSize: 15, color: "#6B7280", fontWeight: "600" },
+
+  // NOVOS ESTILOS PARA O PREÇO
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6', 
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+  },
+  newPriceLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginRight: 4,
+    fontWeight: '600',
+  },
+  newPriceText: { 
+    fontSize: 14, // Fonte menor
+    fontWeight: "800", 
+    color: PRIMARY_COLOR 
+  },
 
   tagsContainer: { flexDirection: "row", flexWrap: "wrap", marginBottom: 15 },
   tag: {
