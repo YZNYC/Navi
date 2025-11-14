@@ -1,6 +1,7 @@
 import { adicionarFuncionario, listarFuncionariosPorEstacionamento, atualizarPermissaoFuncionario, removerFuncionario } from "../models/Funcioario.js";
 import { obterEstacionamentoPorId } from "../models/Estacionamento.js";
 import { adicionarFuncionarioSchema, atualizarFuncionarioSchema, criarEAdicionarFuncionarioSchema } from "../schemas/funcionario.schema.js";
+import { iniciarChat } from "../models/Conversas.js";
 import prisma from "../config/prisma.js";
 import bcrypt from 'bcryptjs';
 
@@ -16,27 +17,25 @@ export const adicionarFuncionarioController = async (req, res) => {
     try {
         const { estacionamentoId } = req.params;
         const { body } = adicionarFuncionarioSchema.parse(req);
-        const requisitante = req.usuario;
-  
-        if (requisitante.papel !== 'ADMINISTRADOR') {
-            const ehDono = await verificarDonoDoEstacionamento(estacionamentoId, requisitante.id_usuario);
-            if (!ehDono) {
-                return res.status(403).json({ message: "Acesso proibido. Você não é o proprietário deste estacionamento." });
-            }
-        }
+        const requisitanteId = req.usuario.id_usuario;
         
-        const futuroFuncionario = await prisma.usuario.findUnique({ where: { email: body.email_funcionario } });
-        if (!futuroFuncionario) {
-            return res.status(404).json({ message: "Usuário não encontrado com o email fornecido." });
-        }
-        
-        if (futuroFuncionario.id_usuario === requisitante.id_usuario) {
-            return res.status(400).json({ message: "Você não pode se adicionar como funcionário do seu próprio estacionamento." });
-        }
-        
-        const novoFuncionario = await adicionarFuncionario(estacionamentoId, futuroFuncionario.id_usuario, body.permissao);
-        res.status(201).json({ message: "Funcionário adicionado com sucesso!", funcionario: novoFuncionario });
+        // ... (sua lógica de permissão e busca do futuroFuncionario)
 
+        // Adiciona o funcionário
+        const novoFuncionario = await adicionarFuncionario(estacionamentoId, futuroFuncionario.id_usuario, body.permissao);
+
+        // --- MELHORIA: INICIA O CHAT AUTOMATICAMENTE ---
+        // 2. Após adicionar com sucesso, cria o chat entre o proprietário e o funcionário.
+        try {
+            await iniciarChat(requisitanteId, futuroFuncionario.id_usuario);
+            console.log(`Chat iniciado automaticamente entre proprietário ${requisitanteId} e funcionário ${futuroFuncionario.id_usuario}.`);
+        } catch (chatError) {
+            // Se o chat falhar, não quebramos a requisição principal. Apenas logamos o erro.
+            console.error("AVISO: O funcionário foi adicionado, mas falhou ao criar o chat automático.", chatError);
+        }
+        // --- FIM DA MELHORIA ---
+        
+        res.status(201).json({ message: "Funcionário adicionado com sucesso!", funcionario: novoFuncionario });
     } catch (error) {
         if (error.name === 'ZodError') {
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });

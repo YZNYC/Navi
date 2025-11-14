@@ -1,87 +1,131 @@
 // src/controllers/ChatController.js
 
-import * as ChatModel from '../models/conversas.js';
+import { iniciarChat, listarChatsDoUsuario, listarMensagensDoChat, criarMensagem } from '../models/Conversas.js';
+import { iniciarChatSchema, enviarMensagemSchema } from '../schemas/chat.schema.js';
+import { paramsSchema } from '../schemas/params.schema.js';
+import prisma from '../config/prisma.js';
 
-// Busca a lista de conversas do usuário autenticado.
-export const getConversasController = async (req, res) => {
-    try {
-        const usuarioLogadoId = req.usuario.id_usuario;
-        const conversas = await ChatModel.getConversas(usuarioLogadoId);
-        res.status(200).json(conversas);
-    } catch (error) {
-        console.error("Erro ao buscar conversas:", error);
-        res.status(500).json({ message: "Erro interno no servidor ao buscar conversas." });
-    }
-};
+// Função auxiliar de permissão para iniciar um chat
+async function verificarPermissaoParaChat(id_remetente, id_destinatario) {
+    const usuarios = await prisma.usuario.findMany({
+        where: { id_usuario: { in: [id_remetente, id_destinatario] } },
+        select: { id_usuario: true, papel: true }
+    });
 
-// Busca o histórico de mensagens com um usuário específico.
-export const getHistoricoController = async (req, res) => {
-    try {
-        const usuarioLogadoId = req.usuario.id_usuario;
-        const outroUsuarioId = parseInt(req.params.outroUsuarioId);
+    const remetente = usuarios.find(u => u.id_usuario === id_remetente);
+    const destinatario = usuarios.find(u => u.id_usuario === id_destinatario);
 
-        if (isNaN(outroUsuarioId)) {
-            return res.status(400).json({ message: "ID de usuário inválido." });
+    if (!remetente || !destinatario) return false; // Um dos usuários não existe
+
+    // Um admin pode falar com qualquer um
+    if (remetente.papel === 'ADMINISTRADOR' || destinatario.papel === 'ADMINISTRADOR') return true;
+
+    // Obtém os vínculos de estacionamento de ambos
+    const vinculos = await prisma.estacionamento_funcionario.findMany({
+        where: { id_usuario: { in: [id_remetente, id_destinatario] } },
+        select: { id_usuario: true, id_estacionamento: true }
+    });
+
+    // Encontra todos os estacionamentos em que CADA usuário trabalha
+    const estacionamentosRemetente = new Set(vinculos.filter(v => v.id_usuario === id_remetente).map(v => v.id_estacionamento));
+    const estacionamentosDestinatario = new Set(vinculos.filter(v => v.id_usuario === id_destinatario).map(v => v.id_estacionamento));
+    
+    // Regra: Se um for proprietário, o outro deve ser seu funcionário
+    const ehProprietarioDoOutro = await prisma.estacionamento_funcionario.findFirst({
+        where: {
+            id_usuario: id_destinatario,
+            estacionamento: { id_proprietario: id_remetente }
         }
-
-        const historico = await ChatModel.getHistoricoMensagens(usuarioLogadoId, outroUsuarioId);
-        res.status(200).json(historico);
-    } catch (error) {
-        console.error("Erro ao buscar histórico de mensagens:", error);
-        res.status(500).json({ message: "Erro interno no servidor ao buscar histórico." });
-    }
-};
-
-// Marca as mensagens de uma conversa como lidas.
-export const marcarComoLidoController = async (req, res) => {
-    try {
-        const usuarioLogadoId = req.usuario.id_usuario;
-        const remetenteId = parseInt(req.params.remetenteId);
-
-        if (isNaN(remetenteId)) {
-            return res.status(400).json({ message: "ID de remetente inválido." });
+    }) || await prisma.estacionamento_funcionario.findFirst({
+        where: {
+            id_usuario: id_remetente,
+            estacionamento: { id_proprietario: id_destinatario }
         }
+    });
 
-        await ChatModel.marcarMensagensComoLidas(remetenteId, usuarioLogadoId);
-        res.status(204).send(); // 204 No Content, pois não há nada a retornar.
-    } catch (error) {
-        console.error("Erro ao marcar mensagens como lidas:", error);
-        res.status(500).json({ message: "Erro interno no servidor." });
-    }
-};
+    if (ehProprietarioDoOutro) return true;
 
-// Oculta/Arquiva uma conversa da lista do usuário.
-export const ocultarConversaController = async (req, res) => {
-    try {
-        const usuarioLogadoId = req.usuario.id_usuario;
-        const parceiroChatId = parseInt(req.params.parceiroChatId);
-
-        if (isNaN(parceiroChatId)) {
-            return res.status(400).json({ message: "ID de usuário inválido." });
+    // Regra: Se ambos forem funcionários, devem trabalhar em pelo menos um estacionamento em comum
+    for (const idEstacionamento of estacionamentosRemetente) {
+        if (estacionamentosDestinatario.has(idEstacionamento)) {
+            return true;
         }
-
-        await ChatModel.ocultarConversa(usuarioLogadoId, parceiroChatId);
-        res.status(200).json({ message: "Conversa ocultada com sucesso." });
-    } catch (error) {
-        console.error("Erro ao ocultar conversa:", error);
-        res.status(500).json({ message: "Erro interno no servidor." });
     }
-};
+    
+    return false;
+}
 
-// Busca usuários para iniciar uma nova conversa.
-export const buscarUsuariosController = async (req, res) => {
+
+export const iniciarChatController = async (req, res) => {
     try {
-        const { search } = req.query; // Pega o termo da query string (ex: /chat/usuarios?search=Joao)
-        const usuarioLogadoId = req.usuario.id_usuario;
+        const { body } = iniciarChatSchema.parse(req);
+        const requisitanteId = req.usuario.id_usuario;
+        const destinatarioId = body.id_destinatario;
+
+        if (requisitanteId === destinatarioId) {
+            return res.status(400).json({ message: "Você не pode iniciar um chat consigo mesmo." });
+        }
         
-        if (!search) {
-            return res.status(400).json({ message: "Termo de busca é obrigatório." });
+        const temPermissao = await verificarPermissaoParaChat(requisitanteId, destinatarioId);
+        if (!temPermissao) {
+            return res.status(403).json({ message: "Você não tem permissão para iniciar um chat com este usuário." });
         }
-
-        const usuarios = await ChatModel.buscarUsuarios(search, usuarioLogadoId);
-        res.status(200).json(usuarios);
-    } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-        res.status(500).json({ message: "Erro interno ao buscar usuários." });
+        
+        const { chat, criadoAgora } = await iniciarChat(requisitanteId, destinatarioId);
+        
+        res.status(criadoAgora ? 201 : 200).json({ message: "Chat disponível.", chat });
+    } catch(error) {
+        if (error.name === 'ZodError') return res.status(400).json({ errors: error.flatten().fieldErrors });
+        console.error("Erro ao iniciar chat:", error);
+        res.status(500).json({ message: "Erro interno." });
     }
+};
+
+export const listarMeusChatsController = async (req, res) => {
+    try {
+        const chats = await listarChatsDoUsuario(req.usuario.id_usuario);
+        res.status(200).json(chats);
+    } catch(error) {
+        console.error("Erro ao listar chats:", error);
+        res.status(500).json({ message: "Erro interno." });
+    }
+};
+
+
+export const listarMensagensController = async (req, res) => {
+    try {
+        const { params } = paramsSchema.parse(req);
+        const chatId = parseInt(params.id);
+
+        const participante = await prisma.chatparticipante.findFirst({ // NOME CORRIGIDO
+            where: { id_chat: chatId, id_usuario: req.usuario.id_usuario }
+        });
+        if (!participante) return res.status(403).json({ message: "Acesso proibido." });
+
+        const mensagens = await listarMensagensDoChat(chatId);
+        res.status(200).json(mensagens);
+    } catch(error) { if (error.name === 'ZodError') return res.status(400).json({ errors: error.flatten().fieldErrors });
+        console.error("Erro ao listar mensagens:", error);
+        res.status(500).json({ message: "Erro interno." });  }
+};
+
+export const enviarMensagemController = async (req, res) => {
+    try {
+        const { params } = paramsSchema.parse(req);
+        const { body } = enviarMensagemSchema.parse(req);
+        const chatId = parseInt(params.id);
+        
+        const participante = await prisma.chatparticipante.findFirst({ // NOME CORRIGIDO
+            where: { id_chat: chatId, id_usuario: req.usuario.id_usuario }
+        });
+        if (!participante) return res.status(403).json({ message: "Acesso proibido." });
+        
+        const novaMensagem = await criarMensagem(chatId, req.usuario.id_usuario, body.conteudo);
+        
+        const io = req.app.get('io');
+        io.to(chatId.toString()).emit('receber-mensagem', novaMensagem);
+        res.status(201).json(novaMensagem);
+    } catch(error) { if (error.name === 'ZodError') return res.status(400).json({ errors: error.flatten().fieldErrors });
+        console.error("Erro ao enviar mensagem:", error);
+        res.status(500).json({ message: "Erro interno." });}
 };

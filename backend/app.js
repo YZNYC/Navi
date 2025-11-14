@@ -3,49 +3,85 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import http from 'http';
+// A inicialização do WebSocket será feita mais abaixo.
 
-// 1. IMPORTAÇÕES NECESSÁRIAS PARA O SERVIDOR HÍBRIDO
-import { createServer } from 'http'; // Do próprio Node.js
-import { Server } from 'socket.io';   // A classe do servidor de Socket.IO
-import { configureChatSocket } from './sockets/chatHandler.js'; // Nosso handler de chat que acabamos de criar
-
-// 2. IMPORTAÇÕES DE TODAS AS NOSSAS ROTAS HTTP
-import authRoutes from './routes/AuthRoutes.js';
-import usuarioRoutes from './routes/usuarioRoutes.js';
+// =================================================================================
+// IMPORTAÇÃO PADRONIZADA DE TODAS AS ROTAS
+// Garantindo caminhos e nomes corretos (camelCase)
+// =================================================================================
+import authRoutes from './routes/authRoutes.js';
+import usuarioRoutes from './routes/UsuarioRoutes.js';
 import estacionamentoRoutes from './routes/EstacionamentoRoutes.js';
-import vagaRoutes from './routes/vagaRoutes.js';
-import veiculoRoutes from './routes/veiculoRoutes.js';
-import reservaRoutes from './routes/ReservRoutes.js';
+import vagaRoutes from './routes/VagaRoutes.js';
+import veiculoRoutes from './routes/VeiculoRoutes.js';
+import reservaRoutes from './routes/ReservRoutes.js'; 
 import contratoRoutes from './routes/ContratoRoutes.js';
 import cupomRoutes from './routes/CupomRoutes.js';
-import relatoriosRoutes from './routes/relatoriosRoutes.js';
-import chatRoutes from './routes/ChatRoutes.js'; // Nossas novas rotas HTTP do chat
-import NaviRoutes from './routes/NaviRoutes.js'
-import ConversaNaviRoutes from './routes/ConversasNaviRoutes.js'
-import EstabelecimentoKpiRoutes from './routes/EstabelecimentoKpiRoutes.js'
-import UsuarioKpiRoutes from './routes/UsuarioKpiRoutes.js'
+import relatoriosRoutes from './routes/RelatoriosRoutes.js';
+import chatRoutes from './routes/ChatRoutes.js';
+import naviRoutes from './routes/NaviRoutes.js'; 
+// import conversaNaviRoutes from './routes/conversasNaviRoutes.js';
+import estabelecimentoKpiRoutes from './routes/EstabelecimentoKpiRoutes.js';
+import usuarioKpiRoutes from './routes/UsuarioKpiRoutes.js';
 
 
-// 3. INICIALIZAÇÃO DO SERVIDOR HÍBRIDO
+// =================================================================================
+// CONFIGURAÇÃO DO SERVIDOR E MIDDLEWARES
+// =================================================================================
+const port = process.env.PORT || 3000;
 const app = express();
-const httpServer = createServer(app); // Cria um servidor HTTP "pai" que encapsula o Express
+const httpServer = http.createServer(app);
+
+// Middlewares Globais do Express
+app.use(cors());       // Permite que seu frontend acesse a API
+app.use(express.json()); // Permite que a API entenda requisições com corpo em JSON
+
+
+// =================================================================================
+// INICIALIZAÇÃO E CONFIGURAÇÃO DO WEBSOCKET (Socket.IO)
+// =================================================================================
+// Aqui vamos configurar o Socket.IO e exportar a instância 'io' para ser
+// usada em outros lugares (como no ChatController).
+import { Server } from 'socket.io';
+
 const io = new Server(httpServer, {
-    // Configuração do CORS para o Socket.IO, permitindo que nosso frontend se conecte
     cors: {
         origin: "http://localhost:3001", // Endereço do seu frontend
         methods: ["GET", "POST"]
     }
 });
 
-// 4. "PLUGA" TODA A LÓGICA DO CHAT NO NOSSO SERVIDOR SOCKET.IO
-configureChatSocket(io);
+io.on('connection', (socket) => {
+    console.log(`🔌 Novo cliente conectado: ${socket.id}`);
 
-// Configuração dos Middlewares do Express
-const port = process.env.PORT || 3000;
-app.use(cors()); // CORS para as rotas HTTP
-app.use(express.json());
+    // Ouve por um evento 'entrar-na-sala' quando o usuário abre um chat
+    socket.on('entrar-na-sala', (chatId) => {
+        socket.join(chatId);
+        console.log(`Cliente ${socket.id} entrou na sala do chat ${chatId}`);
+    });
+    
+    // Ouve por um evento 'enviar-mensagem' vindo de um cliente
+    socket.on('enviar-mensagem', (dados) => {
+        const { chatId, mensagem } = dados;
+        // Re-emite a mensagem para TODOS os outros clientes que estão na mesma sala (chatId)
+        socket.to(chatId).emit('receber-mensagem', mensagem);
+        console.log(`Mensagem enviada na sala ${chatId}:`, mensagem.conteudo);
+    });
 
-// 5. REGISTRO DE TODAS AS ROTAS HTTP
+    socket.on('disconnect', () => {
+        console.log(`🔌 Cliente desconectado: ${socket.id}`);
+    });
+});
+
+// Tornamos a instância 'io' acessível globalmente via 'app.set'
+// para que possamos usá-la nos nossos controllers.
+app.set('io', io);
+
+
+// =================================================================================
+// REGISTRO DE TODAS AS ROTAS DA API
+// =================================================================================
 app.use('/auth', authRoutes);
 app.use('/usuarios', usuarioRoutes);
 app.use('/estacionamentos', estacionamentoRoutes);
@@ -56,21 +92,20 @@ app.use('/contratos', contratoRoutes);
 app.use('/cupons', cupomRoutes);
 app.use('/relatorios', relatoriosRoutes);
 app.use('/chat', chatRoutes);
-app.use('/api/navi', NaviRoutes);
-app.use('/api/conversas-navi', ConversaNaviRoutes);
-app.use('/estabelecimentos/kpi', EstabelecimentoKpiRoutes);
-app.use('/usuarios/kpi', UsuarioKpiRoutes);
+app.use('/api/navi', naviRoutes);
+// app.use('/api/conversas-navi', conversaNaviRoutes);
+app.use('/estabelecimentos/kpi', estabelecimentoKpiRoutes);
+app.use('/usuarios/kpi', usuarioKpiRoutes);
 
-// Rota raiz de verificação
+
+// Rota raiz para verificar se o servidor está online
 app.get('/', (req, res) => {
-    res.send('API Navi em funcionamento! (HTTP + WebSockets)');
+    res.send('API Navi em funcionamento! (HTTP + WebSocket)');
 });
 
-// 6. INICIALIZAÇÃO DO SERVIDOR PAI
-// Note que agora usamos 'httpServer.listen' em vez de 'app.listen'
+// =================================================================================
+// INICIALIZAÇÃO DO SERVIDOR HÍBRIDO
+// =================================================================================
 httpServer.listen(port, () => {
-    console.log(`Servidor híbrido rodando e ouvindo na porta ${port}`);
+    console.log(`🚀 Servidor HTTP e WebSocket rodando em http://localhost:${port}`);
 });
-
-
-

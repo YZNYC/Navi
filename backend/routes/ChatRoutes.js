@@ -1,53 +1,21 @@
 // src/routes/chatRoutes.js
-
 import express from 'express';
 import {
-    getConversasController,
-    getHistoricoController,
-    marcarComoLidoController,
-    ocultarConversaController,
-    buscarUsuariosController
+    iniciarChatController,
+    listarMeusChatsController,
+    listarMensagensController,
+    enviarMensagemController
 } from '../controllers/ChatController.js';
 import { authMiddleware } from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router();
 
-// -----------------------------------------------------------------------------
-// SEGURANÇA GLOBAL DO CHAT
-// -----------------------------------------------------------------------------
-// O middleware 'authMiddleware' é aplicado a TODAS as rotas definidas neste arquivo.
-// Nenhuma função do chat pode ser acessada sem um token JWT válido.
+// Todas as rotas de chat são protegidas e exigem um usuário logado.
 router.use(authMiddleware);
 
-
-// -----------------------------------------------------------------------------
-// DEFINIÇÃO DAS ROTAS HTTP
-// -----------------------------------------------------------------------------
-
-// MÉTODO: GET
-// ROTA: /chat/conversations
-// FUNÇÃO: Retorna a lista de todas as conversas do usuário autenticado.
-router.get('/conversations', getConversasController);
-
-// MÉTODO: GET
-// ROTA: /chat/users?search=termo_de_busca
-// FUNÇÃO: Procura por outros usuários na plataforma para iniciar uma nova conversa.
-router.get('/users', buscarUsuariosController);
-
-// MÉTODO: GET
-// ROTA: /chat/history/:outroUsuarioId
-// FUNÇÃO: Retorna o histórico completo de mensagens com um usuário específico.
-router.get('/history/:outroUsuarioId', getHistoricoController);
-
-// MÉTODO: PUT
-// ROTA: /chat/messages/mark-as-read/:remetenteId
-// FUNÇÃO: Marca todas as mensagens recebidas de um remetente como lidas.
-router.put('/messages/mark-as-read/:remetenteId', marcarComoLidoController);
-
-// MÉTODO: DELETE
-// ROTA: /chat/conversations/:parceiroChatId
-// FUNÇÃO: "Esconde" ou "arquiva" a conversa com um usuário da lista principal.
-router.delete('/conversations/:parceiroChatId', ocultarConversaController);
-
+router.post('/iniciar', iniciarChatController);       // Inicia uma conversa com outro usuário
+router.get('/', listarMeusChatsController);               // Lista todos os chats do usuário (caixa de entrada)
+router.get('/:id/mensagens', listarMensagensController);    // Lista todas as mensagens de um chat específico
+router.post('/:id/mensagens', enviarMensagemController); // Envia uma nova mensagem para um chat
 
 export default router;
