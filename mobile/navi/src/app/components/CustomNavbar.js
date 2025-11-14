@@ -1,39 +1,83 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLogin } from "../../providers/loginProvider"; 
 
 const PRIMARY_COLOR = '#EAB308';
 
-export default function CustomNavbar({ toggleSidebar, title }) {
+export default function CustomNavbar({ toggleSidebar }) {
+  const { user } = useLogin();
+  const userName = user?.nome || 'Usuário';
+
+  const handleNotificationPress = () => {
+    console.log('Botão de Notificação Pressionado');
+  };
+
   return (
-    <View style={styles.navbar}>
+    <View style={styles.navbarContainer}>
       <StatusBar barStyle="light-content" backgroundColor={PRIMARY_COLOR} />
-      <TouchableOpacity onPress={toggleSidebar} style={styles.hamburger} activeOpacity={0.7}>
-        <Ionicons name="menu" size={30} color="#fff" />
-      </TouchableOpacity>
-      <Text style={styles.navbarTitle}>{title}</Text>
+
+      <View style={styles.navbar}>
+
+        <View style={styles.leftIconsContainer}>
+          <TouchableOpacity 
+            onPress={toggleSidebar} 
+            style={styles.iconButton}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="menu" size={30} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            onPress={handleNotificationPress} 
+            style={styles.iconButton}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="notifications-outline" size={26} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.greetingText}>Olá, {userName}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  navbar: {
-    height: 90,
-    paddingTop: 40,
+  navbarContainer: {
+    width: '100%',
     backgroundColor: PRIMARY_COLOR,
+    paddingTop: 35,
+    paddingBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+
+  navbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+  },
+
+  leftIconsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
+    gap: 5,
   },
-  hamburger: { paddingRight: 15 },
-  navbarTitle: {
+
+  greetingText: {
     color: 'white',
-    fontSize: 21,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 19,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+  },
+
+  iconButton: {
+    padding: 6,
+    marginRight: 5,
+    borderRadius: 12,
   },
 });

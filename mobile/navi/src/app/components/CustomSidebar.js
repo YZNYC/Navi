@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLogin } from "../../providers/loginProvider"; 
 
 const SIDEBAR_WIDTH = 270;
 const PRIMARY_COLOR = '#EAB308';
@@ -15,6 +16,22 @@ const MENU_ITEMS = [
 ];
 
 export default function CustomSidebar({ isSidebarOpen, animatedValue, onClose, onNavigate }) {
+  const { setUser } = useLogin();
+
+  function handleLogout() {
+    Alert.alert("Sair", "Deseja realmente sair?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Sair",
+        style: "destructive",
+        onPress: () => {
+          setUser(null);
+          onClose(); 
+        },
+      },
+    ]);
+  }
+
   return (
     <>
       <Animated.View style={[styles.sidebar, { transform: [{ translateX: animatedValue }] }]}>
@@ -33,10 +50,17 @@ export default function CustomSidebar({ isSidebarOpen, animatedValue, onClose, o
             </TouchableOpacity>
           ))}
 
-          <TouchableOpacity style={styles.closeButton} activeOpacity={0.6} onPress={onClose}>
-            <Ionicons name="close-circle-outline" size={22} color="#555" />
-            <Text style={[styles.menuText, { marginLeft: 8 }]}>Fechar</Text>
+          <TouchableOpacity 
+            style={styles.logoutButton} 
+            activeOpacity={0.6} 
+            onPress={handleLogout}
+          >
+            <Ionicons name="log-out-outline" size={22} color="#dc2626" style={styles.menuIcon} />
+            <Text style={[styles.menuText, { color: '#dc2626' }]}>Sair da Conta</Text>
           </TouchableOpacity>
+
+
+    
         </SafeAreaView>
       </Animated.View>
 
@@ -86,11 +110,19 @@ const styles = StyleSheet.create({
     color: DARK_TEXT,
     fontWeight: '500',
   },
-  closeButton: {
+  logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
     marginTop: 'auto',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    paddingHorizontal: 5,
+  },
+  closeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
   },

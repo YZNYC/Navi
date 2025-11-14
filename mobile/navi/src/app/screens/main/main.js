@@ -7,6 +7,7 @@ import FooterNav from "./FooterNav";
 import HomeScreen from "./HomeScreen";
 import ProfileScreen from "./ProfileScreen";
 import SettingsScreen from "./SettingsScreen";
+import HistoricoScreen from "./HistoricoScreen";
 
 const SIDEBAR_WIDTH = 270;
 const DARK_TEXT = "#1f2937";
@@ -35,6 +36,8 @@ export default function Main({ navigation }) {
     switch (activeTab) {
       case "home":
         return <HomeScreen />;
+        case "historico":
+          return <HistoricoScreen />;
       case "profile":
         return <ProfileScreen />;
       case "settings":

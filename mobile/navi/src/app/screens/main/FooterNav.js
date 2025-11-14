@@ -14,6 +14,15 @@ export default function FooterNav({ activeTab, setActiveTab }) {
         <Text style={[styles.tab, activeTab === "home" && styles.active]}>Home</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity onPress={() => setActiveTab("historico")} style={styles.tabContainer}>
+        <Ionicons
+          name={activeTab === "historico" ? "time" : "time-outline"}
+          size={24}
+          color={activeTab === "historico" ? "#fff" : "#fff"}
+        />
+        <Text style={[styles.tab, activeTab === "historico" && styles.active]}>Histíorico</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity onPress={() => setActiveTab("profile")} style={styles.tabContainer}>
         <Ionicons
           name={activeTab === "profile" ? "person" : "person-outline"}
