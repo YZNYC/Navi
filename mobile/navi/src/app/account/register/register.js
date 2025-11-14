@@ -3,14 +3,6 @@ import { View, TextInput, Button, Text } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 
 
-//inicialização do db
-const db = await SQLite.openDatabaseAsync('navi.db');
-
-function handleSubmit() {
-  
-}
-
-
 export const Register = () => {
   const [formData, setFormData] = useState({
     nome: '',
