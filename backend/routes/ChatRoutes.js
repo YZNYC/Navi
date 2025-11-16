@@ -1,21 +1,31 @@
-// src/routes/chatRoutes.js
+// backend/routes/ChatRoutes.js
+
 import express from 'express';
+import { upload } from '../middlewares/upload.js';
+
 import {
     iniciarChatController,
     listarMeusChatsController,
     listarMensagensController,
     enviarMensagemController
 } from '../controllers/ChatController.js';
+
 import { authMiddleware } from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router();
 
-// Todas as rotas de chat são protegidas e exigem um usuário logado.
 router.use(authMiddleware);
 
-router.post('/iniciar', iniciarChatController);       // Inicia uma conversa com outro usuário
-router.get('/', listarMeusChatsController);               // Lista todos os chats do usuário (caixa de entrada)
-router.get('/:id/mensagens', listarMensagensController);    // Lista todas as mensagens de um chat específico
-router.post('/:id/mensagens', enviarMensagemController); // Envia uma nova mensagem para um chat
+router.post('/iniciar', iniciarChatController);
+
+router.get('/', listarMeusChatsController);
+
+router.get('/:id/mensagens', listarMensagensController);
+
+router.post(
+    '/:id/mensagens',
+    upload.array("anexos", 5), // 👈 até 10 arquivos por mensagem
+    enviarMensagemController
+);
 
 export default router;

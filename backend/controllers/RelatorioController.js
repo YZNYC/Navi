@@ -53,3 +53,32 @@ export const obterKpisDashboardController = async (req, res) => {
         res.status(500).json({ message: "Erro interno ao gerar relatórios." });
     }
 };
+export const getDashboardProprietario = async (req, res) => {
+    try {
+        const { estacionamentoId } = req.params; // Pega o ID da URL
+
+        // A verificação de permissão já acontece na rota
+        
+        const [kpis, avaliacaoMedia, ultimosContratos, ultimasAvaliacoes] = await Promise.all([
+            RelatorioModel.getKpisForEstacionamento(estacionamentoId),
+            RelatorioModel.getAvaliacaoMedia(estacionamentoId),
+            prisma.contrato_mensalista.findMany({
+                where: { plano_mensal: { id_estacionamento: parseInt(estacionamentoId) } },
+                orderBy: { data_inicio: 'desc' },
+                take: 5,
+                include: { usuario: { select: { nome: true } }, plano_mensal: { select: { nome_plano: true } } }
+            }),
+            prisma.avaliacao.findMany({
+                where: { id_estacionamento: parseInt(estacionamentoId) },
+                orderBy: { data_postagem: 'desc' },
+                take: 3,
+                include: { usuario: { select: { nome: true } } }
+            })
+        ]);
+        
+        res.status(200).json({ kpis, avaliacaoMedia, ultimosContratos, ultimasAvaliacoes });
+    } catch (error) {
+        console.error("Erro ao gerar dashboard do proprietário:", error);
+        res.status(500).json({ message: "Erro interno ao gerar relatórios." });
+    }
+};

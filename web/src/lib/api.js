@@ -1,9 +1,19 @@
 // frontend/lib/api.js
 import axios from 'axios';
 
-// A URL do seu backend. Se estiver rodando na porta 3000, ajuste aqui.
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// ===============================
+// Normalização da URL base
+// ===============================
+function normalizeUrl(url) {
+    return url?.replace(/\/+$/, '') || ''; // remove barras no final
+}
 
+const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = normalizeUrl(RAW_API_URL);
+
+// ===============================
+// Instância Axios
+// ===============================
 const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -11,30 +21,34 @@ const api = axios.create({
     },
 });
 
-// --- INTERCEPTOR CORRIGIDO ---
+// ===============================
+// Interceptor de Token (mantido igual ao seu)
+// ===============================
 api.interceptors.request.use(
     (config) => {
-        let token;
-        
-        // 1. Procura o token primeiro no localStorage...
-        token = localStorage.getItem('authToken'); 
-        
-        // 2. ...se não o encontrar, procura no sessionStorage.
+        let token = localStorage.getItem('authToken');
+
         if (!token) {
             token = sessionStorage.getItem('authToken');
         }
 
-        // 3. Se um token foi encontrado em qualquer um dos locais, injeta no cabeçalho.
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Exportar o 'api' para ser usado diretamente (Ex: api.get('/usuarios'))
+// ===============================
+// Helper buildUrl (para anexos etc.)
+// ===============================
+export const buildUrl = (path = '') => {
+    return `${API_URL}/${path.replace(/^\/+/, '')}`;
+};
+
+// ===============================
+// Export principal
+// ===============================
 export default api;
