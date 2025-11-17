@@ -1,5 +1,6 @@
 import { criarContrato, obterContratoPorId, listarContratosPorUsuario, listarContratosPorEstacionamento, atualizarContrato } from "../models/Contrato.js";
 import { criarContratoSchema, atualizarContratoSchema } from "../schemas/contrato.schema.js";
+import { registrarLog } from "../services/logServices.js";
 import prisma from "../config/prisma.js";
 
 
@@ -19,7 +20,16 @@ export const criarContratoController = async (req, res) => {
             return res.status(409).json({ message: "Conflito: Este veículo já possui um contrato de mensalista ativo." });
         }
 
+        
         const novoContrato = await criarContrato(body, requisitanteId);
+                registrarLog({
+            id_usuario_acao: requisitanteId,
+            id_estacionamento: contratoCompleto.plano_mensal.id_estacionamento,
+            acao: 'NOVO CONTRATO DE MENSALISTA',
+            detalhes: { contratoId: novoContrato.id_contrato, plano: contratoCompleto.plano_mensal.nome_plano }
+        });
+
+
         res.status(201).json({ message: "Contrato de mensalista criado com sucesso!", contrato: novoContrato });
 
     } catch (error) {
@@ -61,6 +71,12 @@ export const cancelarMeuContratoController = async (req, res) => {
         }
 
         const dadosAtualizacao = { status: 'CANCELADO', data_fim: new Date() };
+              registrarLog({
+            id_usuario_acao: requisitante.id_usuario,
+            id_estacionamento: contratoAlvo.plano_mensal.id_estacionamento,
+            acao: 'CONTRATO DE MENSALISTA CANCELADO',
+            detalhes: { contratoId: contratoAlvo.id_contrato }
+        });
         const contratoCancelado = await atualizarContrato(contratoId, dadosAtualizacao);
 
         res.status(200).json({ message: "Contrato cancelado com sucesso.", contrato: contratoCancelado });

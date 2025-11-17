@@ -1,6 +1,7 @@
 import { criarReserva, listarReservasPorUsuario, listarReservasPorEstacionamento, obterReservaPorId, concluirOuCancelarReserva } from "../models/Reserva.js";
 import { criarReservaSchema } from "../schemas/reserva.schema.js";
 import { paramsSchema } from '../schemas/params.schema.js';
+import { registrarLog } from "../services/logServices.js";
 import prisma from "../config/prisma.js";
 
 
@@ -33,6 +34,13 @@ export const criarReservaController = async (req, res) => {
         }
 
         const novaReserva = await criarReserva(body, usuarioId);
+        
+        registrarLog({
+            id_usuario_acao: usuarioId,
+            id_estacionamento: novaReserva.vaga.id_estacionamento, // Assumindo que o model retorna a vaga
+            acao: 'NOVA RESERVA CRIADA',
+            detalhes: { reservaId: novaReserva.id_reserva, vagaId: novaReserva.id_vaga }
+        });
         res.status(201).json({ message: "Reserva criada com sucesso!", reserva: novaReserva });
     } catch (error) {
         if (error.name === 'ZodError') {
@@ -94,6 +102,12 @@ export const cancelarReservaController = async (req, res) => {
             return res.status(400).json({ message: "Ação inválida: esta reserva não está mais ativa." });
         }
         const reservaCancelada = await concluirOuCancelarReserva(params.id, 'CANCELADA');
+               registrarLog({
+            id_usuario_acao: req.usuario.id_usuario,
+            id_estacionamento: reservaCancelada.vaga.id_estacionamento,
+            acao: 'RESERVA CANCELADA',
+            detalhes: { reservaId: reservaCancelada.id_reserva }
+        });
         res.status(200).json({ message: "Reserva cancelada com sucesso!", reserva: reservaCancelada });
 
     } catch (error) {

@@ -1,6 +1,7 @@
 import { criarVaga, atualizarVaga, excluirVaga, listarVagas, obterVagasPorId } from "../models/Vaga.js";
 import { criarVagaSchema, atualizarVagaSchema } from "../schemas/vaga.schema.js";
 import { paramsSchema } from "../schemas/params.schema.js";
+import { registrarLog } from '../services/logServices.js'
 import prisma from '../config/prisma.js';
 
 const temPermissaoSobreEstacionamento = async (id_estacionamento, requisitante) => {
@@ -54,6 +55,12 @@ export const criarVagaController = async (req, res) => {
 
         const novaVaga = await criarVaga(body);
         res.status(201).json({ message: 'Vaga criada com sucesso!', vaga: novaVaga });
+        registrarLog({
+            id_usuario_acao: req.usuario.id_usuario,
+            id_estacionamento: body.id_estacionamento,
+            acao: 'CRIAÇÃO DE VAGA',
+            detalhes: { vagaId: novaVaga.id_vaga, identificador: novaVaga.identificador }
+        });
     } catch (error) {
 
         if (error.name === 'ZodError') {
@@ -104,7 +111,12 @@ export const excluirVagaController = async (req, res) => {
         if (!vagaAlvo) {
             return res.status(404).json({ message: "Vaga não encontrada." });
         }
-
+        registrarLog({
+            id_usuario_acao: req.usuario.id_usuario,
+            id_estacionamento: vagaAlvo.id_estacionamento,
+            acao: 'EXCLUSÃO DE VAGA',
+            detalhes: { vagaId: vagaAlvo.id_vaga, identificador: vagaAlvo.identificador }
+        });
         const temPermissao = await temPermissaoSobreEstacionamento(vagaAlvo.id_estacionamento, req.usuario);
         if (!temPermissao) {
             return res.status(403).json({ message: "Acesso proibido. Você não gerencia o estacionamento desta vaga." });
