@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Alert } from 'react-native';
+import { sha256 } from 'js-sha256';
 import * as SQLite from 'expo-sqlite';
 //inicialização do db
-export const Register = () => {
+export const Register = ({ navigation }) => {
   const [form, setForm] = useState({
     nome: '',
     email: '',
@@ -20,9 +21,11 @@ export const Register = () => {
         throw new Error('Preencha todos os campos obrigatórios');
       }
       const db = await SQLite.openDatabaseAsync('navi.db');
-      const newUser = await db.runAsync('INSERT INTO usuario (nome, email, senha, telefone, papel) VALUES (?, ?, ?, ?, ?)', form.nome, form.email, form.senha, form.telefone || null, "MOTORISTA");
+      const senhaHasheada = sha256(form.senha);
+      const newUser = await db.runAsync('INSERT INTO usuario (nome, email, senha, telefone, papel) VALUES (?, ?, ?, ?, ?)', form.nome, form.email, senhaHasheada, form.telefone || null, "MOTORISTA");
       if (newUser.changes > 0) {
-        Alert.alert('Usuário cadastrado. Seja bem-vindo!');
+        Alert.alert('Sucesso!', 'Usuário cadastrado. Você será redirecionado para o login.', [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+        )
       }
     } catch (error) {
       console.error("ERRO AO CADASTRAR:", error);

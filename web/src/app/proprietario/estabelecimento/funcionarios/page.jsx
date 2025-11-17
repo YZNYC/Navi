@@ -17,15 +17,15 @@ import { IMaskInput } from 'react-imask';
 // SCHEMAS E COMPONENTES DE UI
 // -----------------------------------------------------------------------------
 const criarEAdicionarFuncionarioSchema = z.object({
-  nome: z.string().min(3, "O nome completo é obrigatório."),
-  email: z.string().email("Formato de email inválido."),
-  telefone: z.string().optional(),
-  permissao: z.enum(['GESTOR', 'OPERADOR']),
+    nome: z.string().min(3, "O nome completo é obrigatório."),
+    email: z.string().email("Formato de email inválido."),
+    telefone: z.string().optional(),
+    permissao: z.enum(['GESTOR', 'OPERADOR']),
 });
 const editarFuncionarioSchema = z.object({
-  email: z.string().email("Formato de email inválido."),
-  telefone: z.string().optional(),
-  permissao: z.enum(['GESTOR', 'OPERADOR']),
+    email: z.string().email("Formato de email inválido."),
+    telefone: z.string().optional(),
+    permissao: z.enum(['GESTOR', 'OPERADOR']),
 });
 
 const Modal = ({ isOpen, onClose, title, children }) => (
@@ -40,7 +40,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
                     className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg p-6 pt-12 relative border-t-4 border-amber-500"
                     onClick={e => e.stopPropagation()}>
                     <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-amber-500 dark:hover:text-amber-400 transition-all duration-300 hover:rotate-90">
-                        <X size={28}/>
+                        <X size={28} />
                     </button>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">{title}</h2>
                     {children}
@@ -127,7 +127,7 @@ const ModalAdicionarFuncionario = ({ isOpen, onClose, estacionamentoId, onFuncio
                     <input {...register('nome')} id="nome_add" className="w-full p-2 border rounded-md dark:bg-slate-700 dark:border-slate-600 focus:ring-amber-500 focus:border-amber-500" />
                     {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome.message}</p>}
                 </div>
-                 <div>
+                <div>
                     <label htmlFor="email_add" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                     <input {...register('email')} id="email_add" type="email" placeholder="email@exemplo.com" className="w-full p-2 border rounded-md dark:bg-slate-700 dark:border-slate-600 focus:ring-amber-500 focus:border-amber-500" />
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
@@ -151,7 +151,7 @@ const ModalAdicionarFuncionario = ({ isOpen, onClose, estacionamentoId, onFuncio
 
 const ModalEditarFuncionario = ({ isOpen, onClose, estacionamentoId, funcionario, onFuncionarioAtualizado }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm({ resolver: zodResolver(editarFuncionarioSchema) });
-    
+
     useEffect(() => {
         if (funcionario) {
             reset({
@@ -180,7 +180,7 @@ const ModalEditarFuncionario = ({ isOpen, onClose, estacionamentoId, funcionario
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={`Editar ${funcionario.usuario.nome}`}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                 <div>
+                <div>
                     <label htmlFor="email_edit" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                     <input {...register('email')} id="email_edit" type="email" placeholder="email@exemplo.com" className="w-full p-2 border rounded-md dark:bg-slate-700 dark:border-slate-600 focus:ring-amber-500 focus:border-amber-500" />
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
@@ -215,14 +215,14 @@ export default function GerenciarFuncionariosPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingFuncionario, setEditingFuncionario] = useState(null);
     const [deletingFuncionario, setDeletingFuncionario] = useState(null);
-    
+
     const fetchFuncionarios = useCallback(async (estacionamentoId) => {
         if (!estacionamentoId) return;
         setIsLoading(true); setFuncionarios([]);
         try {
             const response = await api.get(`/estacionamentos/${estacionamentoId}/funcionarios`);
             setFuncionarios(response.data);
-        } catch (err) { toast.error('Erro ao carregar funcionários.'); } 
+        } catch (err) { toast.error('Erro ao carregar funcionários.'); }
         finally { setIsLoading(false); }
     }, []);
 
@@ -241,7 +241,7 @@ export default function GerenciarFuncionariosPage() {
         };
         fetchEstacionamentos();
     }, []);
-    
+
     useEffect(() => {
         if (filtroEstacionamento) fetchFuncionarios(filtroEstacionamento);
     }, [filtroEstacionamento, fetchFuncionarios]);
@@ -255,7 +255,7 @@ export default function GerenciarFuncionariosPage() {
             fetchFuncionarios(filtroEstacionamento);
         } catch (error) { toast.error(error.response?.data?.message || 'Erro ao remover.', { id: loadingToast }); }
     };
-    
+
     const funcionariosFiltradosEOrdenados = useMemo(() => {
         return funcionarios
             .filter(func => filtroPermissao === 'TODOS' || func.permissao === filtroPermissao)
@@ -269,97 +269,99 @@ export default function GerenciarFuncionariosPage() {
     }, [funcionarios, filtroPermissao, ordem]);
 
     if (isLoading && meusEstacionamentos.length === 0 && !error) {
-        return <div className="p-8 flex justify-center items-center h-screen"><Loader2 className="animate-spin text-amber-500" size={48}/></div>;
+        return <div className="p-8 flex justify-center items-center h-screen"><Loader2 className="animate-spin text-amber-500" size={48} /></div>;
     }
     if (error) { return <div className="p-8 text-center text-red-500">{error}</div>; }
-    
+
     return (
         <main className="min-h-screen bg-white dark:bg-slate-900 p-4 sm:p-8 font-sans">
-             <div className="w-full max-w-7xl mx-auto space-y-8">
-                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gerenciamento de Funcionários</h1>
-                
+            <div className="w-full max-w-7xl mx-auto space-y-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gerenciamento de Funcionários</h1>
+
                 {meusEstacionamentos.length === 0 && !isLoading ? (
                     <div className="text-center bg-white dark:bg-slate-800 rounded-lg p-12 shadow-sm">
                         <h2 className="text-xl font-bold text-gray-700 dark:text-white">Nenhum estacionamento encontrado.</h2>
                         <p className="text-gray-500 dark:text-gray-400 mt-2">Você precisa cadastrar um estacionamento antes de poder adicionar funcionários.</p>
                     </div>
                 ) : (
-                <>
-                <div className="bg-gray-50 dark:bg-slate-800 rounded-lg shadow-sm p-4 flex flex-col sm:flex-row items-center gap-4 border-l-4 border-amber-500">
-                    <div className="w-full sm:w-1/4">
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Estacionamento</label>
-                        <select onChange={(e) => setFiltroEstacionamento(e.target.value)} value={filtroEstacionamento} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                           {meusEstacionamentos.map(e => <option key={e.id_estacionamento} value={e.id_estacionamento}>{e.nome}</option>)}
-                        </select>
-                    </div>
-                    <div className="w-full sm:w-1/4">
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Cargo</label>
-                        <select onChange={(e) => setFiltroPermissao(e.target.value)} value={filtroPermissao} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                           <option value="TODOS">Todos os Cargos</option><option value="GESTOR">Gestor</option><option value="OPERADOR">Operador</option>
-                        </select>
-                    </div>
-                    <div className="w-full sm:w-1/4">
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Ordenar por</label>
-                        <select onChange={(e) => setOrdem(e.target.value)} value={ordem} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-                           <option value="ALFABETICA">Ordem Alfabética</option><option value="DATA_CRIACAO">Mais Recentes</option>
-                        </select>
-                    </div>
-                  {/* --- Botão de Criação --- */}
-                     <div className="w-full sm:w-1/4">
-                      
-                         <label className="text-xs font-medium text-transparent select-none hidden sm:block">Ação</label>
-                         <button 
-                             onClick={() => setIsCriarModalOpen(true)} 
-                             disabled={meusEstacionamentos.length === 0} 
-                             className="w-full sm:w-full mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center gap-2 transition whitespace-nowrap h-10 text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
-                         >
-                             <PlusCircle size={20} /> Criar Vaga
-                         </button>
-                     </div>
-                </div>
+                    <>
+                        <div className="bg-gray-50 dark:bg-slate-800 rounded-lg shadow-sm p-4 flex flex-col sm:flex-row items-center gap-4 border-l-4 border-amber-500">
+                            <div className="w-full sm:w-1/4">
+                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Estacionamento</label>
+                                <select onChange={(e) => setFiltroEstacionamento(e.target.value)} value={filtroEstacionamento} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
+                                    {meusEstacionamentos.map(e => <option key={e.id_estacionamento} value={e.id_estacionamento}>{e.nome}</option>)}
+                                </select>
+                            </div>
+                            <div className="w-full sm:w-1/4">
+                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Cargo</label>
+                                <select onChange={(e) => setFiltroPermissao(e.target.value)} value={filtroPermissao} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
+                                    <option value="TODOS">Todos os Cargos</option><option value="GESTOR">Gestor</option><option value="OPERADOR">Operador</option>
+                                </select>
+                            </div>
+                            <div className="w-full sm:w-1/4">
+                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Ordenar por</label>
+                                <select onChange={(e) => setOrdem(e.target.value)} value={ordem} className="w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
+                                    <option value="ALFABETICA">Ordem Alfabética</option><option value="DATA_CRIACAO">Mais Recentes</option>
+                                </select>
+                            </div>
+                            {/* --- Botão de Criação --- */}
+                            <div className="w-full sm:w-1/4">
+                                <label className="text-xs font-medium text-transparent select-none hidden sm:block">Ação</label>
+                                <button
+                                    // CORREÇÃO 1: Usar 'setIsAddModalOpen'
+                                    onClick={() => setIsAddModalOpen(true)}
+                                    disabled={meusEstacionamentos.length === 0}
+                                    className="w-full sm:w-full mt-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center gap-2 transition whitespace-nowrap h-10 text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    <PlusCircle size={20} />
+                                    {/* CORREÇÃO 2: Alterar o texto do botão */}
+                                    Adicionar Funcionário
+                                </button>
+                            </div>
+                        </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                    {isLoading ? (
-                        <div className="flex justify-center p-12"><Loader2 className="animate-spin text-amber-500" size={48} /></div>
-                    ) : funcionariosFiltradosEOrdenados.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                                <thead className="bg-gray-50 dark:bg-slate-700/50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Funcionário</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Permissão</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Telefone</th>
-                                        <th className="relative px-6 py-3"><span className="sr-only">Ações</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                                    {funcionariosFiltradosEOrdenados.map(func => (
-                                        <FuncionarioTableRow key={func.usuario.id_usuario} funcionario={func} 
-                                            onEditClick={setEditingFuncionario}
-                                            onDeleteClick={setDeletingFuncionario}
-                                        />
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                            {isLoading ? (
+                                <div className="flex justify-center p-12"><Loader2 className="animate-spin text-amber-500" size={48} /></div>
+                            ) : funcionariosFiltradosEOrdenados.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                                        <thead className="bg-gray-50 dark:bg-slate-700/50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Funcionário</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Permissão</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Telefone</th>
+                                                <th className="relative px-6 py-3"><span className="sr-only">Ações</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+                                            {funcionariosFiltradosEOrdenados.map(func => (
+                                                <FuncionarioTableRow key={func.usuario.id_usuario} funcionario={func}
+                                                    onEditClick={setEditingFuncionario}
+                                                    onDeleteClick={setDeletingFuncionario}
+                                                />
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="text-center py-16">
+                                    <Users className="mx-auto h-12 w-12 text-gray-400" />
+                                    <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">Nenhum funcionário encontrado</h3>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Filtre novamente ou adicione o primeiro funcionário.</p>
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                         <div className="text-center py-16">
-                            <Users className="mx-auto h-12 w-12 text-gray-400" />
-                            <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">Nenhum funcionário encontrado</h3>
-                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Filtre novamente ou adicione o primeiro funcionário.</p>
-                        </div>
-                    )}
-                </div>
-                </>
+                    </>
                 )}
             </div>
-            
-            <ModalAdicionarFuncionario isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} estacionamentoId={filtroEstacionamento} onFuncionarioAdicionado={() => fetchFuncionarios(filtroEstacionamento)}/>
-            
-            <ModalEditarFuncionario isOpen={!!editingFuncionario} onClose={() => setEditingFuncionario(null)} estacionamentoId={filtroEstacionamento} funcionario={editingFuncionario} onFuncionarioAtualizado={() => fetchFuncionarios(filtroEstacionamento)}/>
+
+            <ModalAdicionarFuncionario isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} estacionamentoId={filtroEstacionamento} onFuncionarioAdicionado={() => fetchFuncionarios(filtroEstacionamento)} />
+
+            <ModalEditarFuncionario isOpen={!!editingFuncionario} onClose={() => setEditingFuncionario(null)} estacionamentoId={filtroEstacionamento} funcionario={editingFuncionario} onFuncionarioAtualizado={() => fetchFuncionarios(filtroEstacionamento)} />
 
             <Modal isOpen={!!deletingFuncionario} onClose={() => setDeletingFuncionario(null)} title={`Remover ${deletingFuncionario?.usuario.nome}?`}>
-                 <div className="text-center">
+                <div className="text-center">
                     <p className="text-sm text-gray-600 dark:text-gray-300">Tem certeza que deseja remover <strong className="dark:text-white">{deletingFuncionario?.usuario.nome}</strong> como funcionário? Esta ação não pode ser desfeita.</p>
                     <div className="flex gap-4 mt-6">
                         <button onClick={() => onDeleteFuncionario(deletingFuncionario)} className="flex-1 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition">Sim, Remover</button>

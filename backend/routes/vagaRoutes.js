@@ -2,7 +2,7 @@
 // src/routes/vagaRoutes.js
 import express from 'express';
 import { listarVagasController, obterVagasPorIdController, criarVagaController, atualizarVagaController, excluirVagaController, } from '../controllers/VagaController.js';
-import { authMiddleware, authorize } from '../middlewares/authMiddlewares.js';
+import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
 
 const router = express.Router();
 

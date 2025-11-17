@@ -8,6 +8,7 @@ import { listarContratosDeEstacionamentoController } from '../controllers/Contra
 import avaliacaoRoutes from './AvaliacaoRoutes.js';
 import funcionarioRoutes from './FuncionariosRoutes.js';
 import { listarVagasPorEstacionamentoController } from '../controllers/VagaController.js';
+import { getDashboardProprietario } from '../controllers/RelatorioController.js'; // <-- Importe
 
 const router = express.Router();
 const permissoesDeGestao = ['PROPRIETARIO', 'ADMINISTRADOR'];
@@ -31,6 +32,8 @@ router.delete('/:id', authMiddleware, authorize(permissoesDeGestao), excluirEsta
 
 
 // ANINHAMENTO DE ROTAS FILHAS 
+
+router.get('/:estacionamentoId/dashboard', authMiddleware, authorize(permissoesDeGestao), getDashboardProprietario);
 
 // Delega rotas de políticas de preço para seu próprio roteador
 router.use('/:estacionamentoId/politicas', politicaPrecoRoutes);

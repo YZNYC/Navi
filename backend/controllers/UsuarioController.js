@@ -36,40 +36,62 @@ export const criarUsuarioController = async (req, res) => {
     }
 };
 
-// src/controllers/UsuarioController.js - DENTRO DE atualizarUsuarioController
 
 export const atualizarUsuarioController = async (req, res) => {
     try {
-        // 1. VALIDAÇÃO: Valida tanto o ID na URL quanto os campos no body
-        const { params } = paramsSchema.parse(req); // Assume que paramsSchema está importado
-        const idAlvo = parseInt(params.id);
-        const requisitante = req.usuario;
+        const { params } = paramsSchema.parse(req);
+        const { body } = atualizarUsuarioSchema.parse(req);
+        const idAlvo = parseInt(params.id);       // ID do usuário a ser editado
+        const requisitante = req.usuario; // O usuário que está fazendo a requisição (ex: o proprietário)
 
-        // 🚨 CORREÇÃO 1: Extrai o body e valida APENAS o body
-        const { body: dadosAtualizacao } = atualizarUsuarioSchema.parse(req); 
+        let permissaoConcedida = false;
         
-        // 🚨 CORREÇÃO 2: Verifica se o objeto de atualização tem chaves
-        if (Object.keys(dadosAtualizacao).length === 0) {
-            return res.status(400).json({ message: "Corpo da requisição vazio ou inválido." });
-        }
-
-        // 2. EXECUÇÃO: Lógica de negócio e permissão.
-        if (requisitante.id_usuario !== idAlvo && requisitante.papel !== 'ADMINISTRADOR') {
-            return res.status(403).json({ message: "Acesso proibido. Você só pode editar seu próprio perfil." });
+        // Regra 1: O próprio usuário pode se editar
+        if (requisitante.id_usuario === idAlvo) {
+            permissaoConcedida = true;
         }
         
-        // Regra para impedir que não-admins mudem o papel
-        if (dadosAtualizacao.papel && requisitante.papel !== 'ADMINISTRADOR') {
-            // Remove o papel do objeto se não for admin
-            delete dadosAtualizacao.papel; 
+        // Regra 2: Um Administrador pode editar qualquer um
+        if (requisitante.papel === 'ADMINISTRADOR') {
+            permissaoConcedida = true;
         }
 
-        const usuarioAtualizado = await atualizarUsuario(idAlvo, dadosAtualizacao);
+        // --- NOVA REGRA 3: Um Proprietário pode editar um usuário se este for seu funcionário ---
+        if (requisitante.papel === 'PROPRIETARIO' && !permissaoConcedida) {
+            // Verifica se existe um vínculo na tabela `estacionamento_funcionario`
+            const vinculo = await prisma.estacionamento_funcionario.findFirst({
+                where: {
+                    id_usuario: idAlvo, // O usuário-alvo é o funcionário
+                    estacionamento: {
+                        id_proprietario: requisitante.id_usuario // E o estacionamento pertence ao requisitante
+                    }
+                }
+            });
+            // Se o vínculo existir, a permissão é concedida
+            if (vinculo) {
+                permissaoConcedida = true;
+            }
+        }
+        
+        // Se nenhuma das regras foi atendida, bloqueia o acesso
+        if (!permissaoConcedida) {
+            return res.status(403).json({ message: "Acesso proibido. Você não tem permissão para editar este usuário." });
+        }
+        
+        // Impede que usuários não-admin alterem seu próprio papel
+        if (body.papel && requisitante.papel !== 'ADMINISTRADOR') {
+            delete body.papel;
+        }
+
+        const usuarioAtualizado = await atualizarUsuario(idAlvo, body);
         res.status(200).json({ message: "Usuário atualizado com sucesso!", usuario: removerSenha(usuarioAtualizado) });
+
     } catch (error) {
         if (error.name === 'ZodError') {
-            // Se o Zod falhar por dados inválidos, ele retorna 400
             return res.status(400).json({ message: "Dados de entrada inválidos.", errors: error.flatten().fieldErrors });
+        }
+        if (error.code === 'P2002' && error.meta?.target.includes('email')) {
+            return res.status(409).json({ message: 'Conflito: Este email já está em uso por outra conta.' });
         }
         console.error("Erro ao atualizar usuário:", error);
         res.status(500).json({ message: "Erro ao atualizar usuário." });

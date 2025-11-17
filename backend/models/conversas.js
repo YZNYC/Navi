@@ -1,110 +1,131 @@
-// src/models/Chat.js
-
+// src/models/Conversas.js
 import prisma from '../config/prisma.js';
 
 /**
- * Busca todas as conversas ativas de um usuário.
+ * Inicia (ou retorna) um chat entre dois usuários.
+ * Correção: a busca de chat existente usa apenas `some` para verificar que
+ * ambos estão presentes no chat — evita matches com chat consigo mesmo.
  */
-export const getConversas = async (userId) => {
-    const conversasBrutas = await prisma.$queryRaw`
-        SELECT 
-            u.id_usuario AS id,
-            u.nome,
-            u.url_foto_perfil as profilePictureUrl,
-            (SELECT m.conteudo FROM mensagem m WHERE (m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId}) OR (m.id_remetente = ${userId} AND m.id_destinatario = u.id_usuario) ORDER BY m.timestamp DESC LIMIT 1) as lastMessage,
-            (SELECT m.timestamp FROM mensagem m WHERE (m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId}) OR (m.id_remetente = ${userId} AND m.id_destinatario = u.id_usuario) ORDER BY m.timestamp DESC LIMIT 1) as lastMessageTimestamp,
-            (SELECT m.id_remetente FROM mensagem m WHERE (m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId}) OR (m.id_remetente = ${userId} AND m.id_destinatario = u.id_usuario) ORDER BY m.timestamp DESC LIMIT 1) as lastMessageSenderId,
-            (SELECT COUNT(*) FROM mensagem m WHERE m.id_remetente = u.id_usuario AND m.id_destinatario = ${userId} AND m.lida = FALSE) as unreadCount
-        FROM usuario u
-        JOIN (
-            SELECT DISTINCT CASE WHEN id_remetente = ${userId} THEN id_destinatario ELSE id_remetente END as partner_id
-            FROM mensagem
-            WHERE id_remetente = ${userId} OR id_destinatario = ${userId}
-        ) AS partners ON u.id_usuario = partners.partner_id
-        WHERE u.id_usuario != ${userId} AND NOT EXISTS (
-            SELECT 1 FROM conversa_oculta co 
-            WHERE co.id_usuario = ${userId} AND co.id_parceiro_chat = u.id_usuario
-        )
-        ORDER BY lastMessageTimestamp DESC;
-    `;
-    
-    // --- CORREÇÃO DO BUG BigInt ---
-    // Mapeamos os resultados para converter o campo 'unreadCount' de BigInt para Number.
-    const conversas = conversasBrutas.map(convo => ({
-        ...convo,
-        unreadCount: Number(convo.unreadCount), // Conversão segura
-    }));
-    
-    return conversas;
-};
-
-/**
- * Busca o histórico completo de mensagens entre dois usuários.
- */
-export const getHistoricoMensagens = async (usuarioLogadoId, outroUsuarioId) => {
-    return await prisma.mensagem.findMany({
-        where: {
-            OR: [
-                { id_remetente: usuarioLogadoId, id_destinatario: outroUsuarioId },
-                { id_remetente: outroUsuarioId, id_destinatario: usuarioLogadoId },
-            ],
-        },
-        include: {
-            remetente: {
-                select: { id_usuario: true, nome: true, url_foto_perfil: true }
-            },
-            reply_to_message: {
-                select: {
-                    conteudo: true,
-                    remetente: { select: { nome: true } }
-                }
-            }
-        },
-        orderBy: { timestamp: 'asc' },
+export const iniciarChat = async (id_usuario1, id_usuario2) => {
+  return prisma.$transaction(async (tx) => {
+    // Busca chat que contenha ambos os participantes (não necessariamente exclusivamente)
+    const chatExistente = await tx.chat.findFirst({
+      where: {
+        AND: [
+          { chatparticipante: { some: { id_usuario: id_usuario1 } } },
+          { chatparticipante: { some: { id_usuario: id_usuario2 } } }
+        ]
+      },
+      include: {
+        chatparticipante: { include: { usuario: true } },
+        mensagem: { orderBy: { data_envio: 'desc' }, take: 1 }
+      }
     });
-};
 
-/**
- * Marca todas as mensagens de um chat como lidas.
- */
-export const marcarMensagensComoLidas = async (remetenteId, destinatarioId) => {
-    return await prisma.mensagem.updateMany({
-        where: {
-            id_remetente: remetenteId,
-            id_destinatario: destinatarioId,
-            lida: false,
-        },
-        data: { lida: true },
-    });
-};
+    if (chatExistente) return { chat: chatExistente, criadoAgora: false };
 
-/**
- * Adiciona um registro para ocultar uma conversa da lista do usuário.
- */
-export const ocultarConversa = async (usuarioLogadoId, outroUsuarioId) => {
-    return await prisma.conversa_oculta.create({
-        data: {
-            id_usuario: usuarioLogadoId,
-            id_parceiro_chat: outroUsuarioId,
+    const novoChat = await tx.chat.create({
+      data: {
+        chatparticipante: {
+          create: [{ id_usuario: id_usuario1 }, { id_usuario: id_usuario2 }]
         }
+      },
+      include: {
+        chatparticipante: { include: { usuario: true } },
+        mensagem: { orderBy: { data_envio: 'desc' }, take: 1 }
+      }
     });
+
+    return { chat: novoChat, criadoAgora: true };
+  });
 };
 
 /**
- * Busca usuários pelo nome para iniciar novas conversas.
+ * Lista chats do usuário.
+ * Inclui: participantes (com dados do usuário) e última mensagem.
  */
-export const buscarUsuarios = async (termoDeBusca, usuarioLogadoId) => {
-    return await prisma.usuario.findMany({
-        where: {
-            id_usuario: { not: usuarioLogadoId },
-            nome: { contains: termoDeBusca }, // MySQL é case-insensitive por padrão
-        },
-        select: {
-            id_usuario: true,
-            nome: true,
-            email: true,
-            url_foto_perfil: true,
-        },
-        take: 10,
+export const listarChatsDoUsuario = async (usuarioId) => {
+  return prisma.chat.findMany({
+    where: { chatparticipante: { some: { id_usuario: parseInt(usuarioId) } } },
+    include: {
+      chatparticipante: { include: { usuario: { select: { id_usuario: true, nome: true, url_foto_perfil: true, papel: true } } } },
+      mensagem: { orderBy: { data_envio: 'desc' }, take: 1 }
+    },
+    orderBy: { mensagem: { _count: 'desc' } } // tentativa de priorizar chats com mensagens; opcional
+  });
+};
+
+/**
+ * Lista mensagens de um chat (ordenadas asc).
+ * Inclui dados do remetente (usuario) e anexos (se houver).
+ */
+export const listarMensagensDoChat = async (chatId) => {
+  return prisma.mensagem.findMany({
+    where: { id_chat: parseInt(chatId) },
+    include: {
+      usuario: { select: { id_usuario: true, nome: true, url_foto_perfil: true } },
+      anexos: { select: { id: true, url: true, tipo: true, nome_arquivo: true } } // exige model mensagem_anexo
+    },
+    orderBy: { data_envio: 'asc' }
+  });
+};
+
+/**
+ * Cria uma mensagem. Pode incluir urlAnexo (string) e meta de arquivo.
+ * Retorna a mensagem com o relacionamento usuario e anexos.
+ */
+export const criarMensagem = async (chatId, remetenteId, conteudo, anexos = []) => {
+  return prisma.$transaction(async (tx) => {
+    const novaMensagem = await tx.mensagem.create({
+      data: {
+        id_chat: parseInt(chatId),
+        id_remetente: parseInt(remetenteId),
+        conteudo
+      },
+      include: {
+        usuario: { select: { id_usuario: true, nome: true, url_foto_perfil: true } },
+        anexos: true
+      }
     });
+
+    if (anexos && Array.isArray(anexos) && anexos.length > 0) {
+      const createAnexos = anexos.map(a => ({
+        id_mensagem: novaMensagem.id,
+        url: a.url,
+        tipo: a.tipo || 'ARQUIVO',
+        nome_arquivo: a.nome || null
+      }));
+      await tx.mensagem_anexo.createMany({ data: createAnexos });
+      // Recarrega os anexos
+      const mensagemComAnexos = await tx.mensagem.findUnique({
+        where: { id: novaMensagem.id },
+        include: {
+          usuario: { select: { id_usuario: true, nome: true, url_foto_perfil: true } },
+          anexos: true
+        }
+      });
+      return mensagemComAnexos;
+    }
+
+    return novaMensagem;
+  });
+};
+
+/**
+ * Marca uma mensagem como lida por um usuário (cria registro em leituramensagem).
+ * Retorna a leitura criada (ou existente).
+ */
+export const marcarMensagemComoLida = async (mensagemId, leitorId) => {
+  const exist = await prisma.leituramensagem.findUnique({
+    where: { id_mensagem_id_leitor: { id_mensagem: parseInt(mensagemId), id_leitor: parseInt(leitorId) } }
+  }).catch(() => null);
+
+  if (exist) return exist;
+
+  return prisma.leituramensagem.create({
+    data: {
+      id_mensagem: parseInt(mensagemId),
+      id_leitor: parseInt(leitorId)
+    }
+  });
 };

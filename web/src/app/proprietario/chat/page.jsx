@@ -1,401 +1,370 @@
+// chat/page.jsx — versão FINAL atualizada para usar api.get/post e buildUrl apenas em anexos
+
 'use client';
 
-// -----------------------------------------------------------------------------
-// IMPORTAÇÕES
-// -----------------------------------------------------------------------------
-import React, { useState, useEffect, useRef, useCallback, Fragment } from 'react';
-import { useRouter } from 'next/navigation';
-import io from 'socket.io-client';
-import { useAuth } from '../../../contexts/AuthContext';
-import api from '../../../lib/api';
-import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Transition } from '@headlessui/react';
-import { Send, MessageSquare, Search, MoreVertical, X, Check, CheckCheck, Loader2, ArrowLeft, ImagePlus, CornerUpLeft, Pencil, Download, Trash2 } from 'lucide-react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import api, { buildUrl } from '@/lib/api';
+import { socket } from '@/lib/socket';
+import { useAuth } from '@/contexts/AuthContext';
+import { Search, PaperClip, Send, Loader2 } from 'lucide-react';
 
-// -----------------------------------------------------------------------------
-// COMPONENTES DE UI
-// -----------------------------------------------------------------------------
-const Modal = ({ isOpen, onClose, title, children }) => (
-    <AnimatePresence>
-        {isOpen && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-                onClick={onClose}>
-                <motion.div
-                    initial={{ scale: 0.9, y: 30, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 30, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                    className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg p-6 pt-12 relative border-t-4 border-amber-500"
-                    onClick={e => e.stopPropagation()}>
-                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-amber-500 transition-all duration-300 hover:rotate-90">
-                        <X size={28}/>
-                    </button>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">{title}</h2>
-                    {children}
-                </motion.div>
-            </motion.div>
-        )}
-    </AnimatePresence>
-);
+// =============== AVATAR ==================
+const Avatar = ({ user, small=false }) => {
+  const size = small ? 'w-8 h-8' : 'w-12 h-12';
+  const font = small ? 'text-xs' : 'text-sm';
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
-        <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>
-            <div className="flex gap-4 mt-6">
-                <button onClick={onConfirm} className="flex-1 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition">Sim, Excluir</button>
-                <button onClick={onClose} className="flex-1 bg-gray-200 dark:bg-slate-600 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition">Cancelar</button>
-            </div>
-        </div>
-    </Modal>
-);
+  if (!user)
+    return <div className={`${size} ${font} rounded-full bg-amber-500 flex items-center justify-center text-white`}>?</div>;
 
-const Avatar = ({ user, size = "w-10 h-10" }) => {
-    const iniciais = user.nome?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '';
-    return (
-        <div className={`relative flex-shrink-0 ${size}`}>
-            {user.url_foto_perfil ? (
-                <img className={`rounded-full object-cover ${size}`} src={user.url_foto_perfil} alt={user.nome} />
-            ) : (
-                <div className={`rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-lg ${size}`}>
-                    {iniciais}
-                </div>
-            )}
-        </div>
-    );
-};
+  if (user.url_foto_perfil)
+    return <img src={user.url_foto_perfil} alt={user.nome} className={`${size} rounded-full object-cover`} />;
 
-const ConversationCard = ({ convo, isSelected, onClick, currentUserId }) => (
-    <button onClick={() => onClick(convo)} className={`w-full flex items-center gap-4 p-3 rounded-xl text-left transition-colors ${isSelected ? 'bg-amber-100 dark:bg-amber-900/50' : 'hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-        <Avatar user={{ nome: convo.nome, url_foto_perfil: convo.profilePictureUrl }} />
-        <div className="flex-1 overflow-hidden">
-            <div className="flex justify-between items-center">
-                <p className="font-bold text-gray-800 dark:text-white truncate">{convo.nome}</p>
-                {convo.lastMessageTimestamp && <p className="text-xs text-gray-500 flex-shrink-0">{new Date(convo.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>}
-            </div>
-            <div className="flex justify-between items-start mt-1">
-                <p className={`text-sm truncate ${convo.unreadCount > 0 ? 'text-gray-900 dark:text-white font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
-                    {convo.lastMessageSenderId === currentUserId ? `Você: ${convo.lastMessage || 'Mídia'}` : convo.lastMessage || 'Mídia'}
-                </p>
-                {convo.unreadCount > 0 && <span className="bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">{convo.unreadCount}</span>}
-            </div>
-        </div>
-    </button>
-);
-
-const MessageBubble = ({ msg, isCurrentUser, onReply, onEdit }) => {
-    const temMidia = !!msg.url_midia;
-    const temTexto = msg.conteudo && msg.conteudo.trim().length > 0;
-    
-    return (
-        <div className={`group flex items-start gap-3 max-w-xl w-fit ${isCurrentUser ? 'self-end flex-row-reverse' : 'self-start'}`}>
-            <Avatar user={msg.remetente} size="w-8 h-8"/>
-            <div className="relative">
-                <div className={`rounded-2xl shadow-sm ${isCurrentUser ? 'bg-amber-500 text-white rounded-br-none' : 'bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
-                    {!isCurrentUser && <p className="font-bold text-sm mb-1 px-3 pt-3 text-amber-600 dark:text-amber-400">{msg.remetente.nome}</p>}
-                    {temMidia && <img src={msg.url_midia} alt="Mídia enviada" className={`max-w-xs w-full ${temTexto ? 'rounded-t-xl' : 'rounded-xl'}`} />}
-                    {temTexto && <p className="text-base break-words whitespace-pre-wrap p-3">{msg.conteudo}</p>}
-                    
-                    <div className="flex items-center justify-end gap-2 px-3 pb-2 pt-1">
-                        {msg.foi_editada && <span className={`text-xs italic ${isCurrentUser ? 'text-white/70' : 'text-gray-500'}`}>(editado)</span>}
-                        <span className={`text-xs ${isCurrentUser ? 'text-white/70' : 'text-gray-500'}`}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        {isCurrentUser && (msg.lida ? <CheckCheck size={16} className="text-blue-400"/> : <Check size={16} className="text-white/70"/>)}
-                    </div>
-                </div>
-
-                <div className={`absolute top-0 flex gap-1 p-1 bg-white dark:bg-slate-600 rounded-full shadow-lg border dark:border-slate-500 opacity-0 group-hover:opacity-100 transition-opacity -translate-y-1/2 ${isCurrentUser ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'}`}>
-                    <button onClick={() => onReply(msg)} className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"><CornerUpLeft size={16}/></button>
-                    {isCurrentUser && <button onClick={() => onEdit(msg)} className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"><Pencil size={16}/></button>}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const WelcomeScreen = () => (
-    <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-gray-50 dark:bg-slate-800/50">
-        <MessageSquare className="h-16 w-16 text-gray-300 dark:text-gray-600" />
-        <h2 className="mt-4 text-2xl font-bold text-gray-800 dark:text-white">Bem-vindo ao Chat Navi</h2>
-        <p className="max-w-md text-gray-500 dark:text-gray-400">Selecione uma conversa na barra lateral para começar.</p>
+  const initials = user.nome?.split(' ').map(n => n[0]).join('').toUpperCase() || '?';
+  return (
+    <div className={`${size} ${font} rounded-full bg-amber-500 flex items-center justify-center text-white font-bold`}>
+      {initials}
     </div>
+  );
+};
+
+// =============== BUBBLE ==================
+const MessageBubble = ({ msg, me }) => (
+  <div className={`flex ${me ? 'justify-end' : 'justify-start'} gap-3 my-2`}>
+    {!me && <Avatar user={msg.usuario} small />}
+
+    <div className={`p-3 rounded-2xl max-w-[70%] break-words ${me ? 'bg-amber-500 text-white rounded-br-none' : 'bg-white dark:bg-slate-800 dark:text-white shadow-sm rounded-bl-none'}`}>
+
+      {/* Texto */}
+      {msg.conteudo && <div className="text-sm">{msg.conteudo}</div>}
+
+      {/* Anexos */}
+      {msg.anexos?.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {msg.anexos.map(a => {
+            const finalUrl = buildUrl(a.url.replace(/^\//, ''));
+            return (
+              <div key={a.id}>
+                {a.tipo?.startsWith('image/') ? (
+                  <img
+                    src={finalUrl}
+                    className="w-40 h-40 object-cover rounded-md cursor-pointer"
+                    onClick={() => window.open(finalUrl, '_blank')}
+                  />
+                ) : (
+                  <a href={finalUrl} target="_blank" className="underline text-sm">📎 {a.nome_arquivo}</a>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="text-xs text-gray-400 mt-1 text-right">
+        {new Date(msg.data_envio).toLocaleString()}
+      </div>
+    </div>
+
+    {me && <Avatar user={msg.usuario} small />}
+  </div>
 );
 
-const ChatInput = ({ onSendMessage, replyingTo, editingMessage, onCancelAction }) => {
-    const [text, setText] = useState('');
-    const [mediaFile, setMediaFile] = useState(null);
-    const fileInputRef = useRef(null);
-    
-    useEffect(() => {
-        if (editingMessage) {
-            setText(editingMessage.conteudo);
-        }
-    }, [editingMessage]);
+// =============== HEADER ==================
+const ChatHeader = ({ other, onBack }) => (
+  <div className="flex items-center gap-3 p-3 border-b dark:border-slate-700 bg-white dark:bg-slate-900">
+    {onBack && <button onClick={onBack} className="sm:hidden mr-2">◀</button>}
+    <Avatar user={other} />
+    <div>
+      <div className="font-bold">{other?.nome}</div>
+      <div className="text-sm text-gray-500">{other?.email}</div>
+    </div>
+  </div>
+);
 
-    const handleSend = () => {
-        const textToSend = text.trim();
-        if (!textToSend && !mediaFile) return;
-        const mediaUrl = mediaFile ? URL.createObjectURL(mediaFile) : null;
-        onSendMessage({ text: textToSend, mediaUrl, replyingTo, editingMessage });
-        setText(''); setMediaFile(null);
-    };
-    
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) { setMediaFile(file); event.target.value = null; }
-    };
+// =============== SIDEBAR ==================
+const Sidebar = ({ chats, users, selectedChatId, onSelectChat, onStartChatWithUser, query, setQuery, isLoading, user }) => (
+  <aside className="w-full sm:w-80 border-r dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col">
+    <div className="p-4 border-b dark:border-slate-700 flex items-center justify-between">
+      <h2 className="text-lg font-semibold">Conversas</h2>
+    </div>
 
-    const cancelAll = () => { onCancelAction(); setText(''); setMediaFile(null); };
+    <div className="p-3">
+      <div className="flex items-center gap-2 bg-gray-100 dark:bg-slate-800 rounded-md px-3 py-2">
+        <Search size={16} className="text-gray-500" />
+        <input
+          placeholder="Pesquisar pessoas..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="bg-transparent flex-1 outline-none text-sm dark:text-white"
+        />
+      </div>
+    </div>
 
-    return (
-        <footer className="p-4 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 flex-shrink-0">
-             <AnimatePresence>
-                 {(replyingTo || editingMessage || mediaFile) && (
-                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                         className="bg-gray-100 dark:bg-slate-700 px-3 pt-2 rounded-t-lg text-sm flex justify-between items-start mb-2 overflow-hidden">
-                        
-                         {replyingTo && (
-                             <div className="border-l-2 border-amber-500 pl-2">
-                                 <p className="font-bold text-gray-700 dark:text-gray-200">Respondendo a {replyingTo.remetente.nome}</p>
-                                 <p className="text-gray-500 dark:text-gray-400 truncate max-w-xs">{replyingTo.conteudo || 'Mídia'}</p>
-                             </div>
-                         )}
-                         {editingMessage && <div className="border-l-2 border-blue-500 pl-2"><p className="font-bold text-blue-800 dark:text-blue-300">Editando mensagem...</p></div>}
-                         {mediaFile && (
-                            <div className="flex items-center gap-2">
-                                <img src={URL.createObjectURL(mediaFile)} alt="preview" className="w-10 h-10 object-cover rounded-md"/>
-                                <span className="text-gray-600 dark:text-gray-300 text-xs">{mediaFile.name}</span>
-                            </div>
-                         )}
-                         <button onClick={cancelAll} className="text-gray-400 hover:text-red-600"><X size={18}/></button>
-                     </motion.div>
-                 )}
-            </AnimatePresence>
-             <div className="relative flex items-center">
-                 <button onClick={() => fileInputRef.current.click()} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-amber-500 transition-colors">
-                     <ImagePlus size={20} />
-                 </button>
-                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-                 <input type="text" value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey ? (e.preventDefault(), handleSend()) : null} placeholder="Escreva uma mensagem..." className="w-full pl-12 pr-14 py-3 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 border-transparent focus:outline-none focus:ring-2 focus:ring-amber-500"/>
-                 <button onClick={handleSend} disabled={!text.trim() && !mediaFile} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 transition-colors bg-amber-500 text-white rounded-full hover:bg-amber-600 disabled:bg-gray-300 dark:disabled:bg-slate-600">
-                     <Send size={20}/>
-                 </button>
-             </div>
-        </footer>
-    );
-};
-// -----------------------------------------------------------------------------
-// COMPONENTE PRINCIPAL DA PÁGINA DE CHAT
-// -----------------------------------------------------------------------------
-export default function ChatPage() {
-    const router = useRouter();
-    const { user: currentUser, isLoading: isAuthLoading } = useAuth();
-    const socketRef = useRef(null);
-    const messageContainerRef = useRef(null);
+    <div className="flex-1 overflow-y-auto">
+      {/* Se está pesquisando → lista usuários */}
+      {query.trim() ? (
+        users.length ? (
+          users.map(u => (
+            <button
+              key={u.id_usuario}
+              onClick={() => onStartChatWithUser(u)}
+              className="w-full text-left p-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-800"
+            >
+              <Avatar user={u} />
+              <div className="flex-1">
+                <div className="font-semibold truncate">{u.nome}</div>
+                <div className="text-sm text-gray-500 truncate">{u.email}</div>
+              </div>
+            </button>
+          ))
+        ) : (
+          <div className="p-4 text-sm text-gray-500">Nenhum usuário encontrado.</div>
+        )
+      ) : (
+        /* SENÃO: lista chats existentes */
+        isLoading ? (
+          <div className="flex items-center justify-center p-4">
+            <Loader2 className="animate-spin text-amber-500" />
+          </div>
+        ) : (
+          chats.length ? chats.map(chat => {
+            const other = chat.chatparticipante.find(p => p.id_usuario !== user.id_usuario)?.usuario;
+            const last = chat.mensagem?.[0];
+            if (!other) return null;
 
-    const [conversations, setConversations] = useState([]);
-    const [selectedConversation, setSelectedConversation] = useState(null);
-    const [messages, setMessages] = useState([]);
-    const [isLoadingData, setIsLoadingData] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    
-    const [replyingTo, setReplyingTo] = useState(null);
-    const [editingMessage, setEditingMessage] = useState(null);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    
-    const fetchConversations = useCallback(async (showLoading = true) => {
-        if (!currentUser) return;
-        if (showLoading) setIsLoadingData(true);
-        try {
-            const response = await api.get('/chat/conversations');
-            setConversations(response.data);
-        } catch { toast.error("Não foi possível carregar suas conversas."); } 
-        finally { if (showLoading) setIsLoadingData(false); }
-    }, [currentUser]);
+            return (
+              <button
+                key={chat.id}
+                onClick={() => onSelectChat(chat)}
+                className={`w-full text-left p-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-800 ${selectedChatId === chat.id ? 'bg-amber-50 dark:bg-amber-900/20' : ''}`}
+              >
+                <Avatar user={other} />
+                <div className="flex-1">
+                  <div className="font-semibold truncate">{other.nome}</div>
+                  <div className="text-sm text-gray-500 truncate">{last?.conteudo || 'Nenhuma mensagem'}</div>
+                </div>
+              </button>
+            );
+          }) : (
+            <div className="p-4 text-sm text-gray-500">Nenhuma conversa.</div>
+          )
+        )
+      )}
+    </div>
+  </aside>
+);
 
-    useEffect(() => {
-        if (!currentUser || isAuthLoading) return;
+// =============== CHAT WINDOW ==================
+const ChatWindow = ({ chat, user, typingState }) => {
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState('');
+  const [files, setFiles] = useState([]);
+  const [isSending, setIsSending] = useState(false);
+  const scrollRef = useRef(null);
+  const typingTimeout = useRef(null);
 
-        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-        if (!token) { router.push('/auth'); return; }
+  // Carrega mensagens prévias
+  useEffect(() => {
+    setMessages(chat?.loadedMessages || []);
+  }, [chat?.id]);
 
-        const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000', {
-            auth: { token },
-            transports: ['websocket']
-        });
-        socketRef.current = socket;
-        
-        socket.on('receiveMessage', (newMessage) => {
-            const convoId = selectedConversation?.id || selectedConversation?.id_usuario;
-            if (newMessage.id_remetente === convoId || newMessage.id_destinatario === convoId) {
-                setMessages(prev => [...prev, newMessage]);
-            }
-            fetchConversations(false);
-        });
+  // Auto scroll
+  useEffect(() => {
+    if (scrollRef.current)
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages]);
 
-        socket.on('messageEdited', (updatedData) => {
-            setMessages(prev => prev.map(m => m.id_mensagem === updatedData.id ? { ...m, conteudo: updatedData.text, foi_editada: updatedData.foi_editada } : m));
-        });
-        
-        socket.on('error', (error) => toast.error(error.message || 'Ocorreu um erro no servidor.'));
-        return () => socket.disconnect();
-        
-    }, [currentUser, isAuthLoading, router, selectedConversation, fetchConversations]);
-    
-    useEffect(() => {
-        if(currentUser) fetchConversations();
-    }, [currentUser, fetchConversations]);
+  // Receber mensagens socket
+  useEffect(() => {
+    if (!chat) return;
 
-    useEffect(() => {
-        if (!searchTerm.trim()) { setSearchResults([]); return; }
-        const timer = setTimeout(async () => {
-            if (!currentUser) return;
-            try {
-                const res = await api.get(`/chat/users?search=${searchTerm}`);
-                const existingConvoIds = new Set(conversations.map(c => c.id));
-                setSearchResults(res.data.filter(u => !existingConvoIds.has(u.id_usuario) && u.id_usuario !== currentUser.id_usuario));
-            } catch { toast.error("Erro ao buscar usuários."); }
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [searchTerm, conversations, currentUser]);
-    
-    const handleSelectConversation = useCallback(async (convo) => {
-        setSearchTerm(''); setSearchResults([]);
-        const convoId = convo.id || convo.id_usuario;
-        if(selectedConversation?.id === convoId) return;
-
-        const newSelected = conversations.find(c => c.id === convoId) || { id: convoId, nome: convo.nome, profilePictureUrl: convo.url_foto_perfil, unreadCount: 0 };
-        setSelectedConversation(newSelected);
-        setIsLoadingData(true);
-        setMessages([]);
-        
-        try {
-            if (newSelected.unreadCount > 0) {
-                await api.put(`/chat/messages/mark-as-read/${convoId}`);
-                socketRef.current?.emit('messagesRead', { readerId: currentUser.id_usuario, chatPartnerId: convoId });
-                setConversations(prev => prev.map(c => c.id === convoId ? {...c, unreadCount: 0} : c));
-            }
-            const response = await api.get(`/chat/history/${convoId}`);
-            setMessages(response.data);
-        } catch { toast.error("Não foi possível carregar o histórico."); } 
-        finally { setIsLoadingData(false); }
-    }, [conversations, currentUser, selectedConversation]);
-    
-    const handleSendMessage = ({ text, mediaUrl, replyingTo, editingMessage }) => {
-        if ((!text || !text.trim()) && !mediaUrl) return;
-        const recipientId = selectedConversation.id || selectedConversation.id_usuario;
-        if (editingMessage) {
-            socketRef.current.emit('editMessage', { messageId: editingMessage.id_mensagem, newText: text });
-        } else {
-            socketRef.current.emit('sendMessage', {
-                recipientId: recipientId, text, mediaUrl,
-                replyingTo: replyingTo ? { id_mensagem: replyingTo.id_mensagem, remetente: { nome: replyingTo.remetente.nome }, conteudo: replyingTo.conteudo } : null,
-            });
-        }
-        handleCancelAction();
+    const handleReceber = (msg) => {
+      if (msg.id_chat === chat.id)
+        setMessages((prev) => [...prev, msg]);
     };
 
-    const handleCancelAction = () => { setReplyingTo(null); setEditingMessage(null); };
+    socket.on('receber-mensagem', handleReceber);
+    return () => socket.off('receber-mensagem', handleReceber);
+  }, [chat?.id]);
 
-    const handleDeleteConversation = async () => {
-        if (!selectedConversation) return;
-        const loadingToast = toast.loading("Excluindo conversa...");
-        try {
-            await api.delete(`/chat/conversations/${selectedConversation.id}`);
-            toast.success("Conversa excluída.", { id: loadingToast });
-            setSelectedConversation(null); setIsDeleteModalOpen(false);
-            fetchConversations(false);
-        } catch (error) { toast.error("Erro ao excluir conversa.", { id: loadingToast });}
-    };
-    
-    const handleDownloadConversation = () => {
-        if (!selectedConversation || messages.length === 0) return;
-        let textContent = `Transcrição da Conversa com ${selectedConversation.nome}\n`;
-        textContent += `Exportado em: ${new Date().toLocaleString()}\n\n---\n\n`;
-        messages.forEach(msg => {
-            const date = new Date(msg.timestamp).toLocaleString();
-            const senderName = msg.remetente?.nome || (msg.id_remetente === currentUser?.id_usuario ? currentUser.nome : selectedConversation.nome);
-            textContent += `[${date}] ${senderName}:\n${msg.conteudo || "(Mídia)"}\n\n`;
-        });
-        const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `conversa_${selectedConversation.nome.replace(/\s/g, '_')}.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-     };
-    
-    useEffect(() => {
-        if (messageContainerRef.current) {
-            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
-        }
-    }, [messages]);
+  const handleTyping = () => {
+    socket.emit('digitando', { chatId: chat.id, usuarioId: user.id_usuario });
+    clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(() => {
+      socket.emit('parou-digitando', { chatId: chat.id, usuarioId: user.id_usuario });
+    }, 700);
+  };
 
-    if (isAuthLoading || !currentUser) {
-        return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-amber-500" size={48} /></div>;
+  const handleFiles = (e) => setFiles([...e.target.files]);
+
+  const submit = async (e) => {
+    e?.preventDefault();
+    if (!text.trim() && files.length === 0) return;
+
+    setIsSending(true);
+    try {
+      const form = new FormData();
+      form.append('conteudo', text);
+      files.forEach(f => form.append('anexos', f));
+
+      // Agora usando api.post — baseURL normalizado
+      const resp = await api.post(`/chat/${chat.id}/mensagens`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setMessages(prev => [...prev, resp.data]);
+      socket.emit('receber-mensagem', resp.data);
+
+      setText('');
+      setFiles([]);
+    } catch (err) {
+      console.error('Erro ao enviar mensagem:', err);
+    } finally {
+      setIsSending(false);
     }
-    
+  };
+
+  if (!chat)
     return (
-        <div className="h-screen flex bg-white text-gray-800 dark:bg-slate-900 font-sans overflow-hidden">
-            <aside className={`absolute sm:relative h-full w-full sm:w-[380px] z-20 bg-white dark:bg-slate-800/50 p-4 flex flex-col border-r border-gray-200 dark:border-slate-700 transition-transform duration-300 ${selectedConversation ? "-translate-x-full sm:translate-x-0" : "translate-x-0"}`}>
-                 <div className="flex-shrink-0 mb-4 relative">
-                     <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"/>
-                     <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar ou iniciar conversa" className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"/>
-                 </div>
-                 <div className="flex-1 overflow-y-auto pr-2">
-                     {isLoadingData ? <div className="flex justify-center p-12"><Loader2 className="animate-spin text-amber-500"/></div> 
-                     : searchResults.length > 0 ? (
-                        <>
-                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider px-2 mb-2">Resultados da Busca</h3>
-                            <ul className="space-y-1">{searchResults.map(user => (<li key={user.id_usuario}><ConversationCard convo={user} isSelected={false} onClick={handleSelectConversation} currentUserId={currentUser?.id_usuario}/></li>))}</ul>
-                        </>
-                    ) : (
-                        <>
-                            <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-2">Conversas</h3>
-                            <ul className="space-y-1">
-                                {conversations.map(convo => (
-                                    <li key={convo.id}><ConversationCard convo={convo} isSelected={selectedConversation?.id === convo.id} onClick={handleSelectConversation} currentUserId={currentUser?.id_usuario}/></li>
-                                ))}
-                            </ul>
-                        </>
-                    )}
-                 </div>
-            </aside>
-            <main className="flex-1 flex flex-col h-screen">
-                 {!selectedConversation ? ( <WelcomeScreen/> ) 
-                : (
-                    <>
-                        <header className="p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 flex items-center gap-4 shadow-sm z-10 flex-shrink-0">
-                            <button onClick={() => setSelectedConversation(null)} className="sm:hidden text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white mr-2"><ArrowLeft/></button>
-                             <Avatar user={{ nome: selectedConversation.nome, url_foto_perfil: selectedConversation.profilePictureUrl }} size="w-10 h-10"/>
-                             <div className="flex-1"><h3 className="font-bold text-lg text-gray-800 dark:text-white">{selectedConversation.nome}</h3></div>
-                            <Menu as="div" className="relative">
-                                <Menu.Button className="p-2 text-gray-400 hover:text-amber-500 rounded-full"><MoreVertical/></Menu.Button>
-                                <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white dark:bg-slate-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                        <div className="py-1">
-                                            <Menu.Item>{({ active }) => ( <button onClick={handleDownloadConversation} className={`${active && 'bg-gray-100 dark:bg-slate-600'} group flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm text-gray-700 dark:text-gray-200`}><Download size={16}/> Baixar Conversa</button> )}</Menu.Item>
-                                             <Menu.Item>{({ active }) => ( <button onClick={() => setIsDeleteModalOpen(true)} className={`${active && 'bg-red-100/50 dark:bg-red-900/50'} text-red-700 dark:text-red-400 group flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm`}><Trash2 size={16}/> Excluir Conversa</button> )}</Menu.Item>
-                                        </div>
-                                    </Menu.Items>
-                                </Transition>
-                            </Menu>
-                        </header>
-                        <div ref={messageContainerRef} className="flex-1 p-6 bg-gray-50 dark:bg-slate-900/70 overflow-y-auto space-y-4">
-                            {isLoadingData ? (
-                                <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin text-amber-500" size={32}/></div> 
-                            ) : messages.map(msg => (
-                                <MessageBubble key={msg.id_mensagem || msg.timestamp} msg={msg} isCurrentUser={msg.id_remetente === currentUser?.id_usuario} onReply={setReplyingTo} onEdit={setEditingMessage} />
-                            ))}
-                        </div>
-                        <ChatInput onSendMessage={handleSendMessage} replyingTo={replyingTo} editingMessage={editingMessage} onCancelAction={handleCancelAction}/>
-                    </>
-                )}
-            </main>
-            <ConfirmationModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={handleDeleteConversation} title="Excluir Conversa" message={`Tem certeza que deseja excluir seu histórico de conversa com ${selectedConversation?.nome}? Esta ação é irreversível.`} />
-        </div>
+      <div className="flex-1 flex items-center justify-center text-gray-400 dark:text-gray-500">
+        Selecione uma conversa
+      </div>
     );
-}
+
+  const other = chat.chatparticipante.find(p => p.id_usuario !== user.id_usuario)?.usuario;
+
+  return (
+    <div className="flex-1 flex flex-col bg-gray-50 dark:bg-slate-900">
+      <ChatHeader other={other} />
+
+      {/* Mensagens */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
+        {messages.map((msg) => (
+          <MessageBubble
+            key={msg.id}
+            msg={msg}
+            me={msg.id_remetente === user.id_usuario}
+          />
+        ))}
+
+        {typingState[chat.id] && (
+          <div className="text-xs text-gray-500 dark:text-gray-400 italic mt-2">
+            Digitando...
+          </div>
+        )}
+      </div>
+
+      {/* Formulário de envio */}
+      <form onSubmit={submit} className="p-3 flex items-center gap-3 border-t dark:border-slate-700 bg-white dark:bg-slate-900">
+        <label className="cursor-pointer text-amber-600 dark:text-amber-400">
+          <PaperClip size={22} />
+          <input type="file" multiple className="hidden" onChange={handleFiles} />
+        </label>
+
+        <input
+          value={text}
+          onChange={(e) => { setText(e.target.value); handleTyping(); }}
+          placeholder="Digite uma mensagem..."
+          className="flex-1 bg-gray-100 dark:bg-slate-800 dark:text-white rounded-full px-4 py-2 outline-none"
+        />
+
+        <button
+          type="submit"
+          disabled={isSending}
+          className="p-2 rounded-full bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50"
+        >
+          {isSending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// =============== PÁGINA PRINCIPAL ==================
+const ChatPage = () => {
+  const { user } = useAuth();
+  const [chats, setChats] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [query, setQuery] = useState('');
+  const [typingState, setTypingState] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  // Fetch inicial de chats
+  const fetchChats = useCallback(async () => {
+    setLoading(true);
+    try {
+      const resp = await api.get('/chat');
+      setChats(resp.data || []);
+    } catch (err) {
+      console.error('Erro ao carregar chats:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchChats(); }, [fetchChats]);
+
+  // Eventos socket: digitando
+  useEffect(() => {
+    socket.on('digitando', ({ chatId, usuarioId }) => {
+      setTypingState((prev) => ({ ...prev, [chatId]: true }));
+    });
+    socket.on('parou-digitando', ({ chatId }) => {
+      setTypingState((prev) => ({ ...prev, [chatId]: false }));
+    });
+    return () => {
+      socket.off('digitando');
+      socket.off('parou-digitando');
+    };
+  }, []);
+
+  // Selecionar chat
+  const handleSelectChat = async (chat) => {
+    try {
+      const resp = await api.get(`/chat/${chat.id}/mensagens`);
+      const loaded = { ...chat, loadedMessages: resp.data };
+      setSelectedChat(loaded);
+      socket.emit('entrar-na-sala', chat.id);
+    } catch (err) {
+      console.error('Erro ao abrir chat:', err);
+    }
+  };
+
+  // Iniciar nova conversa
+  const handleStartChat = async () => {
+    const email = prompt('Digite o e-mail do usuário:');
+    if (!email) return;
+
+    try {
+      const respUser = await api.get(`/usuarios/email/${email}`);
+      const dest = respUser.data;
+
+      const respChat = await api.post('/chat/iniciar', { id_destinatario: dest.id_usuario });
+
+      await fetchChats();
+      handleSelectChat(respChat.data.chat);
+    } catch (err) {
+      alert('Erro ao iniciar conversa.');
+    }
+  };
+
+  if (!user) return <div>Carregando...</div>;
+
+  return (
+    <div className="flex h-[calc(100vh-4rem)] bg-gray-100 dark:bg-slate-900">
+      <Sidebar
+        chats={chats}
+        selectedChatId={selectedChat?.id}
+        onSelect={handleSelectChat}
+        query={query}
+        setQuery={setQuery}
+        isLoading={loading}
+        onStartChat={handleStartChat}
+        user={user}
+      />
+
+      <ChatWindow chat={selectedChat} user={user} typingState={typingState} />
+    </div>
+  );
+};
+
+export default ChatPage;
