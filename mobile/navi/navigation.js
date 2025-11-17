@@ -3,12 +3,13 @@ import { createStackNavigator } from "@react-navigation/stack";
 // Importando as rotas
 import { LoginForm } from "./src/app/account/index.js";
 import { ForgotPassword } from "./src/app/account/forgot-password/forgot-password.js";
+import { UpdatePassword } from "./src/app/account/forgot-password/forgot-password.js";
 import Account from "./src/app/account/account.js";
 
-import Main from "./src/app/main/main.js";
-import History from "./src/app/history/history.js";
-import Settings from "./src/app/settings/settings.js";
-import Help from "./src/app/help/help.js";
+import Main from "./src/app/screens/main/main.js";
+import History from "./src/app/screens/history/history.js";
+import Settings from "./src/app/screens/settings/settings.js";
+import Help from "./src/app/screens/help/help.js";
 import { Register } from "./src/app/account/register/register.js";
 
 import { useLogin } from "./src/providers/loginProvider.js";
@@ -33,6 +34,7 @@ function AppNavigator() {
                 <>
                     <Stack.Screen name="Login" component={LoginForm} />
                     <Stack.Screen name="Esqueci a senha" component={ForgotPassword} />
+                    <Stack.Screen name="Atualizar a senha" component={UpdatePassword} />
                     <Stack.Screen name="Cadastre-se" component={Register} />
                 </>
             )}

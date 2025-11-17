@@ -1,35 +1,86 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native'; // Juntei o StyleSheet no import principal
+import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { useLogin } from '../../../providers/loginProvider';
+import * as SQLite from 'expo-sqlite';
 
-export const ForgotPassword = () => {
+//inicialização do db
+const openDb = async () => {
+    return await SQLite.openDatabaseAsync('navi.db');
+}
+
+export const ForgotPassword = ({ navigation }) => {
     const [email, setEmail] = useState('');
 
-    const handleForgotPassword = () => {
-        // A sua lógica de recuperação de senha permanece a mesma
-        if (email) {
-            Alert.alert('Email enviado!', 'Verifique sua caixa de entrada para redefinir sua senha.');
-        } else {
-            Alert.alert('Erro', 'Por favor, insira um email válido.');
+    const handleForgotPassword = async () => {
+        try {
+            if (!email) {
+                Alert.alert("Por-favor digite um e-mail válido!");
+            }
+            const db = await openDb();
+            const user = await db.getFirstAsync(
+                'SELECT * FROM usuario WHERE email = ?',
+                [email.trim()]
+            );
+            if (user) {
+                navigation.navigate('UpdatePassword', { userEmail: email.trim() });
+            } else {
+                Alert.alert("Erro", "E-mail não encontrado");
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Ocorreu um erro ao tentar criar a senha');
         }
     };
 
-    // AQUI É O ÚNICO E CORRETO 'RETURN' DO COMPONENTE
-    // Note que agora ele usa os estilos de 'styles'
     return (
         <View style={styles.container}>
             <TextInput
                 placeholder="Digite seu email"
                 value={email}
                 onChangeText={setEmail}
-                style={styles.input} // <-- Usando o estilo do StyleSheet
-                keyboardType="email-address" // <-- Boa prática para campos de email
-                autoCapitalize="none" // <-- Boa prática para campos de email
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
             />
-            <Button title="Recuperar Senha" onPress={handleForgotPassword} /> 
-            {/* O componente Button do React Native não aceita a prop 'style'. A cor é passada diretamente. */}
+            <Button title="Recuperar Senha" onPress={handleForgotPassword} />
         </View>
     );
 };
+
+export const UpdatePassword = ({ navigation }) => {
+    const route = useRoute(); 
+    const { userEmail } = route.params; 
+    const [newPassword, setNewPassword] = useState('');
+
+    const handleUpdatePassword = async () => {
+        try {
+            if (!newPassword) {
+                Alert.alert("Coloque uma senha válida!");
+            }
+            const db = await openDb();
+            const password = await db.runAsync('UPDATE usuario SET senha = ? WHERE email = ?', [newPassword, userEmail]);;
+            if (password) {
+                navigation.navigate('Login');
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Ocorreu um erro ao tentar criar a senha');
+        }
+    };
+
+    return (
+        <View>
+            <Text>Usuário: {userEmail}</Text>
+            <TextInput
+                placeholder="Digite a nova senha"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry={true}
+            />
+            <Button title="Salvar Nova Senha" onPress={() => { /* ... */ }} />
+        </View>
+    );
+}
 
 // O StyleSheet fica fora do componente, como deve ser.
 const styles = StyleSheet.create({
