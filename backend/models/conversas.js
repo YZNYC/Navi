@@ -4,11 +4,9 @@ import prisma from '../config/prisma.js';
 
 /**
  * Busca todas as conversas ativas de um usuário.
- * Esta função já usa $queryRaw, que não depende dos nomes de relação do Prisma,
- * então ela continua funcionando perfeitamente.
  */
 export const getConversas = async (userId) => {
-    const conversas = await prisma.$queryRaw`
+    const conversasBrutas = await prisma.$queryRaw`
         SELECT 
             u.id_usuario AS id,
             u.nome,
@@ -29,17 +27,21 @@ export const getConversas = async (userId) => {
         )
         ORDER BY lastMessageTimestamp DESC;
     `;
+    
+    // --- CORREÇÃO DO BUG BigInt ---
+    // Mapeamos os resultados para converter o campo 'unreadCount' de BigInt para Number.
+    const conversas = conversasBrutas.map(convo => ({
+        ...convo,
+        unreadCount: Number(convo.unreadCount), // Conversão segura
+    }));
+    
     return conversas;
 };
 
 /**
- * Busca o histórico completo de mensagens entre dois usuários, usando os
- * nomes de relação gerados pelo Prisma 'db pull'.
+ * Busca o histórico completo de mensagens entre dois usuários.
  */
 export const getHistoricoMensagens = async (usuarioLogadoId, outroUsuarioId) => {
-    // Usamos um `select` explícito para renomear os campos no resultado,
-    // tornando a resposta da API mais limpa e desacoplando o frontend
-    // dos nomes de relação do banco.
     return await prisma.mensagem.findMany({
         where: {
             OR: [
@@ -47,33 +49,23 @@ export const getHistoricoMensagens = async (usuarioLogadoId, outroUsuarioId) => 
                 { id_remetente: outroUsuarioId, id_destinatario: usuarioLogadoId },
             ],
         },
-        select: {
-            // Mapeia os campos da tabela 'mensagem'
-            id_mensagem: true,
-            conteudo: true,
-            timestamp: true,
-            id_remetente: true,
-            id_destinatario: true,
-            lida: true,
-            foi_editada: true,
-
-            // Mapeia o relacionamento, renomeando o resultado para 'remetente'
-            usuario_mensagem_id_remetenteTousuario: {
+        include: {
+            remetente: {
+                select: { id_usuario: true, nome: true, url_foto_perfil: true }
+            },
+            reply_to_message: {
                 select: {
-                    id_usuario: true,
-                    nome: true,
-                    url_foto_perfil: true,
+                    conteudo: true,
+                    remetente: { select: { nome: true } }
                 }
             }
-            // Para 'reply_to' a lógica seria similar se o Prisma gerasse um nome de relação
         },
         orderBy: { timestamp: 'asc' },
     });
 };
 
 /**
- * Funções de marcar como lida, ocultar conversa e buscar usuários não dependem
- * de `include`, então elas permanecem as mesmas.
+ * Marca todas as mensagens de um chat como lidas.
  */
 export const marcarMensagensComoLidas = async (remetenteId, destinatarioId) => {
     return await prisma.mensagem.updateMany({
@@ -86,6 +78,9 @@ export const marcarMensagensComoLidas = async (remetenteId, destinatarioId) => {
     });
 };
 
+/**
+ * Adiciona um registro para ocultar uma conversa da lista do usuário.
+ */
 export const ocultarConversa = async (usuarioLogadoId, outroUsuarioId) => {
     return await prisma.conversa_oculta.create({
         data: {
@@ -95,6 +90,9 @@ export const ocultarConversa = async (usuarioLogadoId, outroUsuarioId) => {
     });
 };
 
+/**
+ * Busca usuários pelo nome para iniciar novas conversas.
+ */
 export const buscarUsuarios = async (termoDeBusca, usuarioLogadoId) => {
     return await prisma.usuario.findMany({
         where: {

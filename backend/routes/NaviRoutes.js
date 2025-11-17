@@ -1,18 +1,49 @@
-// src/routes/naviRoutes.js
+import { Router } from 'express';
 
-import express from 'express';
-import { naviProprietarioController } from '../controllers/NaviProprietarioController.js'; 
-import { naviAdminController } from '../controllers/NaviAdminController.js';
-import { authMiddleware, authorize } from '../middlewares/authMiddlewares.js';
+import { askAdmin, askProprietario } from '../controllers/NaviController.js';
 
-const router = express.Router();
+// [CORREÇÃO-CHAVE]: Importando ambos os middlewares
 
-router.use(authMiddleware);
+import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
 
-// ROTA DA IA GLOBAL (ADMINISTRADOR)
-router.post('/admin/ask', authorize(['ADMINISTRADOR']), naviAdminController);
 
-// ROTA DA IA POR ESTACIONAMENTO (PROPRIETARIO)
-router.post('/proprietario/ask', authorize(['PROPRIETARIO']), naviProprietarioController);
+
+const router = Router();
+
+
+
+// Rota para o PROPRIETÁRIO
+
+router.post(
+
+  '/proprietario/ask',
+
+  // [CORREÇÃO-CHAVE]: Usando os middlewares em sequência
+
+  authMiddleware, // 1. Primeiro, verifica se o token é válido. É chamado sem () porque é um middleware direto.
+
+  authorize(['PROPRIETARIO', 'GESTOR']), // 2. Depois, verifica se o usuário tem o papel correto.
+
+  askProprietario // 3. Se ambos passarem, executa o controller.
+
+);
+
+
+
+// Rota para o ADMIN
+
+router.post(
+
+  '/admin/ask',
+
+  authMiddleware, // 1. Verifica se está autenticado
+
+  authorize(['ADMINISTRADOR']), // 2. Verifica se é um administrador
+
+  askAdmin // 3. Executa o controller
+
+);
+
+
 
 export default router;

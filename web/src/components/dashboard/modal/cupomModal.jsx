@@ -1,27 +1,86 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Tag, Percent, Calendar } from 'lucide-react';
+import { toast } from 'sonner';
+import api from '../../../lib/api'; // Importa a instância do Axios
 
-export default function CouponModal({ isOpen, onClose }) {
-  const [couponData, setCouponData] = useState({
-    code: '',
-    discountType: 'percentage',
-    discountValue: '',
-    expirationDate: '',
-  });
+// Funcao auxiliar que usa o axios (para o modal não precisar da prop axiosFetcher)
+const axiosFetcher = async (endpoint, options) => {
+    try {
+        const response = await api.request(options);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || error.message);
+    }
+};
+
+// Estado inicial limpo para evitar o erro de input controlado/não controlado
+const initialCupomData = {
+    codigo: '', 
+    tipo_desconto: 'PERCENTUAL', // ENUM em maiúsculas
+    valor: '',
+    data_validade: '', // String vazia, mas tratada no useEffect
+    descricao: '', 
+    usos_maximos: 1, 
+};
+
+export default function CupomModal({ isOpen, onClose, onCreate }) {
+  const [cupomData, setcupomData] = useState(initialCupomData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 🚨 CORREÇÃO 1: Redefinir o estado quando o modal abre (para garantir o estado inicial)
+  useEffect(() => {
+    if (isOpen) {
+        setcupomData(initialCupomData);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCouponData(prev => ({ ...prev, [name]: value }));
+    // O backend espera ENUM em MAIÚSCULAS para tipo_desconto
+    const finalValue = name === 'tipo_desconto' ? value.toUpperCase() : value;
+    setcupomData(prev => ({ ...prev, [name]: finalValue }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Criar Cupom:", couponData);
-    onClose(); 
+    setIsSubmitting(true);
+    
+    // 🚨 Mapeamento para garantir que o backend receba o body esperado
+    const dataToSend = {
+        codigo: cupomData.codigo.toUpperCase(),
+        descricao: cupomData.descricao || `Cupom de ${cupomData.valor}${cupomData.tipo_desconto === 'PERCENTUAL' ? '%' : 'R$'}`,
+        tipo_desconto: cupomData.tipo_desconto, 
+        valor: parseFloat(cupomData.valor),
+        data_validade: cupomData.data_validade, // O formato 'YYYY-MM-DD' já é aceito pelo backend
+        usos_maximos: parseInt(cupomData.usos_maximos)
+    };
+    
+    const promise = axiosFetcher('/cupons', {
+        method: 'POST',
+        data: dataToSend, 
+        url: '/cupons' 
+    });
+
+    toast.promise(promise, {
+        loading: 'Criando cupom...',
+        success: (response) => {
+            onCreate(response.cupom); // Notifica o pai com os dados do cupom criado
+            return `Cupom ${response.cupom.codigo} criado com sucesso!`;
+        },
+        error: (err) => `Falha: ${err.message}`,
+    });
+
+    try {
+        await promise;
+    } catch (e) {
+        // o toast.promise já tratou o erro
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -35,20 +94,37 @@ export default function CouponModal({ isOpen, onClose }) {
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="space-y-2">
-            <label htmlFor="code" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="codigo" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
               <Tag className="w-4 h-4 mr-2" /> Código do Cupom
             </label>
             <input
               type="text"
-              id="code"
-              name="code"
-              value={couponData.code}
+              id="codigo"
+              name="codigo"
+              value={cupomData.codigo}
               onChange={handleChange}
               placeholder="Ex: NAVI10OFF"
               required
+              maxLength={15} 
+              className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-yellow-500 focus:border-yellow-500 uppercase"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="descricao" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Descrição (Opcional)
+            </label>
+            <input
+              type="text"
+              id="descricao"
+              name="descricao"
+              value={cupomData.descricao}
+              onChange={handleChange}
+              placeholder="Ex: 10% de desconto para novos usuários"
               className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-yellow-500 focus:border-yellow-500"
             />
           </div>
+
           <div className="space-y-2">
             <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
               <Percent className="w-4 h-4 mr-2" /> Tipo de Desconto
@@ -57,9 +133,9 @@ export default function CouponModal({ isOpen, onClose }) {
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="discountType"
+                  name="tipo_desconto"
                   value="percentage"
-                  checked={couponData.discountType === 'percentage'}
+                  checked={cupomData.tipo_desconto === 'PERCENTUAL'}
                   onChange={handleChange}
                   className="form-radio text-yellow-500 focus:ring-yellow-500 cursor-pointer"
                 />
@@ -68,9 +144,9 @@ export default function CouponModal({ isOpen, onClose }) {
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="discountType"
+                  name="tipo_desconto"
                   value="fixed"
-                  checked={couponData.discountType === 'fixed'}
+                  checked={cupomData.tipo_desconto === 'FIXO'}
                   onChange={handleChange}
                   className="form-radio text-yellow-500 focus:ring-yellow-500 cursor-pointer"
                 />
@@ -78,43 +154,63 @@ export default function CouponModal({ isOpen, onClose }) {
               </label>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="discountValue" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Valor ({couponData.discountType === 'percentage' ? '%' : 'R$'})
-              </label>
-              <input
-                type="number"
-                id="discountValue"
-                name="discountValue"
-                value={couponData.discountValue}
-                onChange={handleChange}
-                min="1"
-                required
-                className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-yellow-500 focus:border-yellow-500"
-              />
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2 col-span-1">
+                <label htmlFor="valor" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Valor ({cupomData.tipo_desconto === 'PERCENTUAL' ? '%' : 'R$'})
+                </label>
+                <input
+                  type="number"
+                  id="valor"
+                  name="valor"
+                  value={cupomData.valor}
+                  onChange={handleChange}
+                  min="1"
+                  step={cupomData.tipo_desconto === 'FIXO' ? "0.01" : "1"}
+                  required
+                  className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-yellow-500 focus:border-yellow-500"
+                />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="expirationDate" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Calendar className="w-4 h-4 mr-2" /> Expira em
+            <div className="space-y-2 col-span-2">
+              <label htmlFor="data_validade" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Calendar className="w-4 h-4 mr-2" /> Data de Validade
               </label>
               <input
                 type="date"
-                id="expirationDate"
-                name="expirationDate"
-                value={couponData.expirationDate}
+                id="data_validade"
+                name="data_validade"
+                value={cupomData.data_validade}
                 onChange={handleChange}
                 required
                 className="cursor-pointer w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-yellow-500 focus:border-yellow-500"
               />
             </div>
           </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="usos_maximos" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Usos Máximos (Total na Plataforma)
+            </label>
+            <input
+              type="number"
+              id="usos_maximos"
+              name="usos_maximos"
+              value={cupomData.usos_maximos}
+              onChange={handleChange}
+              min="1"
+              required
+              className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-yellow-500 focus:border-yellow-500"
+            />
+          </div>
+
           <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="cursor-pointer px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+              disabled={isSubmitting}
+              className="cursor-pointer w-screen py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
             >
-              Criar Cupom
+              {isSubmitting ? 'Criando...' : 'Criar Cupom'}
             </button>
           </div>
         </form>

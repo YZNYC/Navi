@@ -8,6 +8,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/* ===== models ===== */
+
 model anexo_avaliacao {
   id_anexo     Int                         @id @default(autoincrement())
   id_avaliacao Int
@@ -15,7 +17,7 @@ model anexo_avaliacao {
   url_anexo    String                      @db.VarChar(255)
   avaliacao    avaliacao                   @relation(fields: [id_avaliacao], references: [id_avaliacao], onDelete: Cascade, onUpdate: Restrict, map: "anexo_avaliacao_ibfk_1")
 
-  @@index([id_avaliacao], map: "id_avaliacao")
+  @@index([id_avaliacao], map: "idx_anexo_avaliacao_id_avaliacao")
 }
 
 model avaliacao {
@@ -29,8 +31,8 @@ model avaliacao {
   usuario           usuario           @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "avaliacao_ibfk_1")
   estacionamento    estacionamento    @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, onUpdate: Restrict, map: "avaliacao_ibfk_2")
 
-  @@index([id_estacionamento], map: "id_estacionamento")
-  @@index([id_usuario], map: "id_usuario")
+  @@index([id_estacionamento], map: "idx_avaliacao_id_estacionamento")
+  @@index([id_usuario], map: "idx_avaliacao_id_usuario")
 }
 
 model contrato_mensalista {
@@ -45,14 +47,14 @@ model contrato_mensalista {
   plano_mensal plano_mensal               @relation(fields: [id_plano], references: [id_plano], onUpdate: Restrict, map: "contrato_mensalista_ibfk_2")
   veiculo      veiculo                    @relation(fields: [id_veiculo], references: [id_veiculo], onDelete: Cascade, onUpdate: Restrict, map: "contrato_mensalista_ibfk_3")
 
-  @@index([id_plano], map: "id_plano")
-  @@index([id_usuario], map: "id_usuario")
-  @@index([id_veiculo], map: "id_veiculo")
+  @@index([id_plano], map: "idx_contrato_id_plano")
+  @@index([id_usuario], map: "idx_contrato_id_usuario")
+  @@index([id_veiculo], map: "idx_contrato_id_veiculo")
 }
 
 model cupom {
   id_cupom      Int                 @id @default(autoincrement())
-  codigo        String              @unique(map: "codigo") @db.VarChar(50)
+  codigo        String              @unique(map: "uq_cupom_codigo") @db.VarChar(50)
   descricao     String?             @db.Text
   tipo_desconto cupom_tipo_desconto
   valor         Decimal             @db.Decimal(10, 2)
@@ -67,7 +69,7 @@ model estacionamento {
   id_estacionamento          Int                          @id @default(autoincrement())
   id_proprietario            Int
   nome                       String                       @db.VarChar(255)
-  cnpj                       String                       @unique(map: "cnpj") @db.VarChar(18)
+  cnpj                       String                       @unique(map: "uq_estacionamento_cnpj") @db.VarChar(18)
   cep                        String                       @db.VarChar(9)
   rua                        String                       @db.VarChar(255)
   numero                     String                       @db.VarChar(20)
@@ -90,9 +92,9 @@ model estacionamento {
   politica_preco             politica_preco[]
   vaga                       vaga[]
 
-  @@unique([cep, numero], map: "endereco_unico")
-  @@unique([latitude, longitude], map: "localizacao_unica")
-  @@index([id_proprietario], map: "id_proprietario")
+  @@unique([cep, numero], map: "uq_estacionamento_endereco")
+  @@unique([latitude, longitude], map: "uq_estacionamento_localizacao")
+  @@index([id_proprietario], map: "idx_estacionamento_id_proprietario")
 }
 
 model estacionamento_funcionario {
@@ -104,7 +106,7 @@ model estacionamento_funcionario {
   usuario           usuario                              @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "estacionamento_funcionario_ibfk_2")
 
   @@id([id_estacionamento, id_usuario])
-  @@index([id_usuario], map: "id_usuario")
+  @@index([id_usuario], map: "idx_estacionamento_funcionario_id_usuario")
 }
 
 model log {
@@ -115,12 +117,12 @@ model log {
   data_log   DateTime @default(now()) @db.Timestamp(0)
   usuario    usuario? @relation(fields: [id_usuario], references: [id_usuario], map: "log_ibfk_1")
 
-  @@index([id_usuario], map: "id_usuario")
+  @@index([id_usuario], map: "idx_log_id_usuario")
 }
 
 model pagamento {
   id_pagamento   Int              @id @default(autoincrement())
-  id_reserva     Int              @unique(map: "id_reserva")
+  id_reserva     Int              @unique(map: "uq_pagamento_id_reserva")
   id_cupom       Int?
   valor_bruto    Decimal          @db.Decimal(10, 2)
   valor_desconto Decimal?         @default(0.00) @db.Decimal(10, 2)
@@ -132,7 +134,7 @@ model pagamento {
   reserva        reserva          @relation(fields: [id_reserva], references: [id_reserva], onDelete: Cascade, onUpdate: Restrict, map: "pagamento_ibfk_1")
   cupom          cupom?           @relation(fields: [id_cupom], references: [id_cupom], onUpdate: Restrict, map: "pagamento_ibfk_2")
 
-  @@index([id_cupom], map: "id_cupom")
+  @@index([id_cupom], map: "idx_pagamento_id_cupom")
 }
 
 model plano_mensal {
@@ -145,7 +147,7 @@ model plano_mensal {
   contrato_mensalista contrato_mensalista[]
   estacionamento      estacionamento        @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, onUpdate: Restrict, map: "plano_mensal_ibfk_1")
 
-  @@index([id_estacionamento], map: "id_estacionamento")
+  @@index([id_estacionamento], map: "idx_plano_id_estacionamento")
 }
 
 model politica_preco {
@@ -158,7 +160,9 @@ model politica_preco {
   ativo                  Boolean?       @default(true)
   estacionamento         estacionamento @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, map: "politica_preco_ibfk_1")
 
-  @@index([id_estacionamento], map: "id_estacionamento")
+  // chave composta única — necessária para upsert com where: { id_estacionamento_descricao: { ... } }
+  @@unique([id_estacionamento, descricao], name: "id_estacionamento_descricao")
+  @@index([id_estacionamento], map: "idx_politica_preco_id_estacionamento")
 }
 
 model reserva {
@@ -166,7 +170,7 @@ model reserva {
   id_usuario         Int
   id_vaga            Int
   id_veiculo         Int?
-  codigo_confirmacao String?        @unique(map: "codigo_confirmacao") @db.VarChar(100)
+  codigo_confirmacao String?        @unique(map: "uq_reserva_codigo_confirmacao") @db.VarChar(100)
   data_hora_inicio   DateTime       @default(now()) @db.Timestamp(0)
   data_hora_fim      DateTime?      @db.Timestamp(0)
   status             reserva_status
@@ -175,35 +179,39 @@ model reserva {
   vaga               vaga           @relation(fields: [id_vaga], references: [id_vaga], onDelete: Cascade, map: "reserva_ibfk_2")
   veiculo            veiculo?       @relation(fields: [id_veiculo], references: [id_veiculo], map: "reserva_ibfk_3")
 
-  @@index([id_usuario], map: "id_usuario")
-  @@index([id_vaga], map: "id_vaga")
-  @@index([id_veiculo], map: "id_veiculo")
+  @@index([id_usuario], map: "idx_reserva_id_usuario")
+  @@index([id_vaga], map: "idx_reserva_id_vaga")
+  @@index([id_veiculo], map: "idx_reserva_id_veiculo")
 }
 
+
 model usuario {
-  id_usuario                                                Int                          @id @default(autoincrement())
-  nome                                                      String                       @db.VarChar(255)
-  email                                                     String                       @unique(map: "email") @db.VarChar(255)
-  senha                                                     String                       @db.VarChar(255)
-  telefone                                                  String?                      @db.VarChar(20)
-  url_foto_perfil                                           String?                      @db.VarChar(255)
-  papel                                                     usuario_papel
-  data_criacao                                              DateTime                     @default(now()) @db.Timestamp(0)
-  ativo                                                     Boolean?                     @default(true)
-  resetToken                                                String?                      @unique(map: "resetToken") @db.VarChar(255)
-  resetTokenExpires                                         DateTime?                    @db.DateTime(0)
-  avaliacao                                                 avaliacao[]
-  contrato_mensalista                                       contrato_mensalista[]
-  conversa_oculta_conversa_oculta_id_usuarioTousuario       conversa_oculta[]            @relation("conversa_oculta_id_usuarioTousuario")
-  conversa_oculta_conversa_oculta_id_parceiro_chatTousuario conversa_oculta[]            @relation("conversa_oculta_id_parceiro_chatTousuario")
-  estacionamento                                            estacionamento[]
-  estacionamento_funcionario                                estacionamento_funcionario[]
-  log                                                       log[]
-  mensagem_mensagem_id_remetenteTousuario                   mensagem[]                   @relation("mensagem_id_remetenteTousuario")
-  mensagem_mensagem_id_destinatarioTousuario                mensagem[]                   @relation("mensagem_id_destinatarioTousuario")
-  reserva                                                   reserva[]
-  veiculo                                                   veiculo[]
+  id_usuario            Int               @id @default(autoincrement())
+  nome                  String            @db.VarChar(255)
+  email                 String            @unique @db.VarChar(255)
+  senha                 String            @db.VarChar(255)
+  telefone              String?           @db.VarChar(20)
+  url_foto_perfil       String?           @db.VarChar(255)
+  papel                 usuario_papel
+  data_criacao          DateTime          @default(now()) @db.Timestamp(0)
+  ativo                 Boolean?          @default(true)
+  
+  // Relacionamentos Padrão
+  estacionamento        estacionamento[]
+  veiculo               veiculo[]
+  reserva               reserva[]
+  contrato_mensalista   contrato_mensalista[]
+  avaliacao             avaliacao[]
+  log                   log[]
+  estacionamento_funcionario estacionamento_funcionario[]
+  
+  // RELACIONAMENTOS DO CHAT (VERSÃO CORRIGIDA E LIMPA)
+  mensagens_enviadas    mensagem[]        @relation("Enviadas")
+  mensagens_recebidas   mensagem[]        @relation("Recebidas")
+  conversas_ocultas     conversa_oculta[] @relation("QuemOcultou")
+  parceiro_oculto_em    conversa_oculta[] @relation("ParceiroOculto")
 }
+
 
 model vaga {
   id_vaga           Int             @id @default(autoincrement())
@@ -214,13 +222,13 @@ model vaga {
   reserva           reserva[]
   estacionamento    estacionamento  @relation(fields: [id_estacionamento], references: [id_estacionamento], onDelete: Cascade, map: "vaga_ibfk_1")
 
-  @@unique([id_estacionamento, identificador], map: "id_estacionamento")
+  @@unique([id_estacionamento, identificador], map: "uq_vaga_estacionamento_identificador")
 }
 
 model veiculo {
   id_veiculo          Int                   @id @default(autoincrement())
   id_usuario          Int
-  placa               String                @unique(map: "placa") @db.VarChar(10)
+  placa               String                @unique(map: "uq_veiculo_placa") @db.VarChar(10)
   marca               String                @db.VarChar(50)
   modelo              String                @db.VarChar(50)
   cor                 String                @db.VarChar(30)
@@ -232,38 +240,44 @@ model veiculo {
   reserva             reserva[]
   usuario             usuario               @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "veiculo_ibfk_1")
 
-  @@index([id_usuario], map: "id_usuario")
-}
-
-model conversa_oculta {
-  id_usuario                                        Int
-  id_parceiro_chat                                  Int
-  usuario_conversa_oculta_id_usuarioTousuario       usuario @relation("conversa_oculta_id_usuarioTousuario", fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "conversa_oculta_ibfk_1")
-  usuario_conversa_oculta_id_parceiro_chatTousuario usuario @relation("conversa_oculta_id_parceiro_chatTousuario", fields: [id_parceiro_chat], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "conversa_oculta_ibfk_2")
-
-  @@id([id_usuario, id_parceiro_chat])
-  @@index([id_parceiro_chat], map: "id_parceiro_chat")
+  @@index([id_usuario], map: "idx_veiculo_id_usuario")
 }
 
 model mensagem {
-  id_mensagem                               Int        @id @default(autoincrement())
-  id_remetente                              Int
-  id_destinatario                           Int
-  conteudo                                  String     @db.Text
-  timestamp                                 DateTime   @default(now()) @db.Timestamp(0)
-  lida                                      Boolean?   @default(false)
-  foi_editada                               Boolean?   @default(false)
-  reply_to                                  Int?
-  url_midia                                 String?    @db.VarChar(255)
-  usuario_mensagem_id_remetenteTousuario    usuario    @relation("mensagem_id_remetenteTousuario", fields: [id_remetente], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "mensagem_ibfk_1")
-  usuario_mensagem_id_destinatarioTousuario usuario    @relation("mensagem_id_destinatarioTousuario", fields: [id_destinatario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "mensagem_ibfk_2")
-  mensagem                                  mensagem?  @relation("mensagemTomensagem", fields: [reply_to], references: [id_mensagem], onUpdate: Restrict, map: "mensagem_ibfk_3")
-  other_mensagem                            mensagem[] @relation("mensagemTomensagem")
+  id_mensagem      Int        @id @default(autoincrement())
+  id_remetente     Int
+  id_destinatario  Int
+  conteudo         String     @db.Text
+  url_midia        String?    @db.VarChar(255)
+  timestamp        DateTime   @default(now())
+  lida             Boolean    @default(false)
+  foi_editada      Boolean    @default(false)
+  reply_to_id      Int?       @map("reply_to")
+  
+  // Relacionamentos com o nome exato esperado pelo 'model usuario'
+  remetente        usuario    @relation("Enviadas", fields: [id_remetente], references: [id_usuario], onDelete: Cascade)
+  destinatario     usuario    @relation("Recebidas", fields: [id_destinatario], references: [id_usuario], onDelete: Cascade)
 
-  @@index([id_destinatario], map: "id_destinatario")
-  @@index([id_remetente], map: "id_remetente")
-  @@index([reply_to], map: "reply_to")
+  reply_to_message mensagem?  @relation("Respostas", fields: [reply_to_id], references: [id_mensagem], onDelete: SetNull)
+  respostas        mensagem[] @relation("Respostas")
+
+  @@index([id_remetente])
+  @@index([id_destinatario])
 }
+
+model conversa_oculta {
+  id_usuario       Int
+  id_parceiro_chat Int
+
+  // Relacionamentos com os nomes exatos esperados pelo 'model usuario'
+  usuario          usuario @relation("QuemOcultou", fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  parceiro_chat    usuario @relation("ParceiroOculto", fields: [id_parceiro_chat], references: [id_usuario], onDelete: Cascade)
+  
+  @@id([id_usuario, id_parceiro_chat])
+  @@index([id_parceiro_chat])
+}
+
+/* ===== enums ===== */
 
 enum anexo_avaliacao_tipo_anexo {
   IMAGEM

@@ -95,7 +95,7 @@ export const LoginForm = ({ navigation }) => {
       );
 
       if (!user) {
-        throw new Error('Credenciais inválidas.');
+        throw new Error('Usuário não encontrado');
       }
 
       setUser(user);
@@ -140,7 +140,7 @@ export const LoginForm = ({ navigation }) => {
       {/* Esqueci a senha */}
       <View>
         <TouchableOpacity href="/forgot-password" onPress={() => navigation.navigate('Esqueci a senha')}>
-          <Text>Esqueci a senha</Text>
+          <Text style={styles.links}>Esqueci a senha</Text>
         </TouchableOpacity>
       </View>
 
@@ -153,7 +153,9 @@ export const LoginForm = ({ navigation }) => {
       {/* cadastrar */}
       <View style={{ display: "flex", flexDirection: "row" }}>
         <Text>Não tem uma conta? </Text>
-        <TouchableOpacity href="/register" />
+        <TouchableOpacity onPress={() => navigation.navigate('Cadastre-se')}>
+        <Text style={styles.links}>Cadastre-se</Text>
+        </TouchableOpacity>
       </View>
     </View>
 
@@ -173,6 +175,10 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  links: {
+    color: "#D08700",
+    fontWeight: "bold",
   },
   container: {
     width: '90%',
