@@ -11,6 +11,8 @@ import {
 } from "../models/PoliticaPreco.js";
 import { obterEstacionamentoPorId } from "../models/Estacionamento.js";
 import { politicaPrecoSchema, atualizarPoliticaPrecoSchema, politicaPrecoParamsSchema } from '../schemas/politicaPreco.schema.js';
+import { registrarLog } from '../services/logServices.js';
+
 
 // Função auxiliar para garantir que o usuário é admin ou o dono do estacionamento em questão.
 const verificarPermissao = async (estacionamentoId, requisitante) => {
@@ -30,7 +32,13 @@ export const criarPoliticaPrecoController = async (req, res) => {
 
         const temPermissao = await verificarPermissao(params.estacionamentoId, requisitante);
         if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
-        
+        registrarLog({
+            id_usuario_acao: req.usuario.id_usuario,
+            id_estacionamento: params.estacionamentoId,
+            acao: 'CRIAÇÃO/REATIVAÇÃO DE POLÍTICA DE PREÇO',
+            detalhes: { descricao: body.descricao }
+        });
+
         const novaPolitica = await criarOuReativarPoliticaPreco(body, params.estacionamentoId);
         res.status(201).json({ message: "Política de preço salva com sucesso!", politica: novaPolitica });
     } catch (error) {
@@ -55,12 +63,12 @@ export const listarPoliticasController = async (req, res) => {
 
 // NOVA FUNÇÃO: Rota protegida que busca apenas as políticas INATIVAS (histórico).
 export const listarHistoricoController = async (req, res) => {
-     try {
+    try {
         const { params } = politicaPrecoParamsSchema.parse(req);
         const requisitante = req.usuario;
         const temPermissao = await verificarPermissao(params.estacionamentoId, requisitante);
         if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
-        
+
         const historico = await listarPoliticasHistorico(params.estacionamentoId);
         res.status(200).json(historico);
     } catch (error) {
@@ -102,7 +110,14 @@ export const desativarPoliticaController = async (req, res) => {
 
         const temPermissao = await verificarPermissao(politicaAlvo.id_estacionamento, requisitante);
         if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
-        
+
+        registrarLog({
+            id_usuario_acao: req.usuario.id_usuario,
+            id_estacionamento: politicaAlvo.id_estacionamento,
+            acao: 'DESATIVAÇÃO DE POLÍTICA DE PREÇO',
+            detalhes: { descricao: politicaAlvo.descricao }
+        });
+
         await desativarPoliticaPreco(params.politicaId);
         res.status(204).send();
     } catch (error) {
@@ -123,7 +138,7 @@ export const restaurarPoliticaController = async (req, res) => {
 
         const temPermissao = await verificarPermissao(politicaAlvo.id_estacionamento, requisitante);
         if (!temPermissao) return res.status(403).json({ message: "Acesso proibido." });
-        
+
         const politicaRestaurada = await reativarPoliticaPreco(params.politicaId);
         res.status(200).json({ message: "Política restaurada!", politica: politicaRestaurada });
     } catch (error) {

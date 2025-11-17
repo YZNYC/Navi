@@ -1,56 +1,65 @@
+// src/routes/estacionamentoRoutes.js
 import express from 'express';
-import {  listarEstacionamentoController,  obterEstacionamentoPorIdController,  criarEstacionamentoController,  atualizarEstacionamentoController,excluirEstacionamentoController, listarMeusEstacionamentosController} from '../controllers/EstacionamentoController.js';
+
+// --- CONTROLLERS ---
+import {
+    listarEstacionamentoController,  
+    obterEstacionamentoPorIdController,  
+    criarEstacionamentoController,  
+    atualizarEstacionamentoController,
+    excluirEstacionamentoController,
+    listarMeusEstacionamentosController
+} from '../controllers/EstacionamentoController.js';
+import { listarVagasPorEstacionamentoController } from '../controllers/VagaController.js';
 import { listarReservasDeEstacionamentoController } from '../controllers/ReservaController.js';
-import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
-import politicaPrecoRoutes from './politicaPrecoRoutes.js';
-import planoMensalRoutes from './PlanoMensalRoutes.js';
 import { listarContratosDeEstacionamentoController } from '../controllers/ContratoController.js'; 
+import { getDashboardProprietario } from '../controllers/RelatorioController.js';
+
+// --- MIDDLEWARES ---
+import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
+
+// --- ROTEADORES FILHOS ---
+import politicaPrecoRoutes from './PoliticaPrecoRoutes.js';
+import planoMensalRoutes from './PlanoMensalRoutes.js';
 import avaliacaoRoutes from './AvaliacaoRoutes.js';
 import funcionarioRoutes from './FuncionariosRoutes.js';
-import { listarVagasPorEstacionamentoController } from '../controllers/VagaController.js';
-import { getDashboardProprietario } from '../controllers/RelatorioController.js'; // <-- Importe
+import logRoutes from './logRoutes.js';
 
 const router = express.Router();
+
+// --- DEFINIÇÃO DE PAPÉIS ---
 const permissoesDeGestao = ['PROPRIETARIO', 'ADMINISTRADOR'];
+const permissoesDeVisualizacao = ['PROPRIETARIO', 'ADMINISTRADOR', 'GESTOR', 'OPERADOR'];
 
-// ROTAS PÚBLICAS PARA CONSULTA 
-router.get('/', listarEstacionamentoController);
-router.get('/meus', authMiddleware, listarMeusEstacionamentosController);
-router.get('/:id', obterEstacionamentoPorIdController);
-router.get('/:estacionamentoId/vagas', listarVagasPorEstacionamentoController);
+// =========================================================================
+//  ORDEM DE ROTAS ESTRITA: DO MAIS ESPECÍFICO PARA O MAIS GENÉRICO
+// =========================================================================
 
-// ROTAS PROTEGIDAS PARA GESTÃO DE ESTACIONAMENTOS 
-router.post('/', authMiddleware, authorize(permissoesDeGestao), criarEstacionamentoController);
+// ---- 1. Rotas GET Específicas ----
+router.get('/', listarEstacionamentoController); // Rota raiz (pública)
+router.get('/meus', authMiddleware, authorize(permissoesDeVisualizacao), listarMeusEstacionamentosController);
 
-// ROTA PUT (Atualização completa)
+// ---- 2. Rotas com ID na Raiz (/estacionamentos/:id) ----
+router.get('/:id', obterEstacionamentoPorIdController); // Rota genérica com ID
 router.put('/:id', authMiddleware, authorize(permissoesDeGestao), atualizarEstacionamentoController);
-
-// 🚨 ROTA PATCH ADICIONADA (Para Atualização Parcial, como status 'ativo')
-router.patch('/:id', authMiddleware, authorize(permissoesDeGestao), atualizarEstacionamentoController); 
-
 router.delete('/:id', authMiddleware, authorize(permissoesDeGestao), excluirEstacionamentoController);
 
+// ---- 3. Rota de Criação ----
+router.post('/', authMiddleware, authorize(permissoesDeGestao), criarEstacionamentoController);
 
-// ANINHAMENTO DE ROTAS FILHAS 
 
-router.get('/:estacionamentoId/dashboard', authMiddleware, authorize(permissoesDeGestao), getDashboardProprietario);
-
-// Delega rotas de políticas de preço para seu próprio roteador
-router.use('/:estacionamentoId/politicas', politicaPrecoRoutes);
-
-// Adiciona rota aninhada para listar as reservas de um estacionamento
+// ---- 4. Rotas Aninhadas Diretas (um nível de profundidade) ----
+router.get('/:estacionamentoId/dashboard', authMiddleware, authorize(permissoesDeVisualizacao), getDashboardProprietario);
+router.get('/:estacionamentoId/vagas', authMiddleware, authorize(permissoesDeVisualizacao), listarVagasPorEstacionamentoController);
 router.get('/:estacionamentoId/reservas', authMiddleware, authorize(permissoesDeGestao), listarReservasDeEstacionamentoController);
-
-// Rotas de planos mensais
-router.use('/:estacionamentoId/planos', planoMensalRoutes);
-
-// Rotas de contratos
 router.get('/:estacionamentoId/contratos', authMiddleware, authorize(permissoesDeGestao), listarContratosDeEstacionamentoController);
 
-// Rotas de Avaliação
-router.use('/:estacionamentoId/avaliacoes', avaliacaoRoutes);
 
-// Rotas de Funcionarios
+// ---- 5. Roteadores Aninhados Delegados (CRUDs completos de filhos) ----
+router.use('/:estacionamentoId/politicas', politicaPrecoRoutes);
+router.use('/:estacionamentoId/planos', planoMensalRoutes);
+router.use('/:estacionamentoId/avaliacoes', avaliacaoRoutes);
 router.use('/:estacionamentoId/funcionarios', funcionarioRoutes);
+router.use('/:estacionamentoId/logs', logRoutes);
 
 export default router;
