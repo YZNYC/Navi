@@ -1,49 +1,38 @@
-import { Router } from 'express';
+// routes/NaviRouter.js
 
-import { askAdmin, askProprietario } from '../controllers/NaviController.js';
+import express from 'express';
+import { naviAdminController, naviProprietarioController } from '../controllers/NaviAskController.js';
+import { listarConversasController, obterHistoricoController, salvarConversaController } from '../controllers/ConversaNaviController.js';
+import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js'; 
 
-// [CORREÇÃO-CHAVE]: Importando ambos os middlewares
+const router = express.Router();
 
-import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js';
+// Aplica autenticação a TODAS as rotas da IA (Regra 2.1)
+router.use(authMiddleware);
 
+// =======================================================
+// ROTAS DE INTERAÇÃO COM A IA (/api/navi/...)
+// =======================================================
 
+// Rota Admin (Global) - Agora o authorize está no escopo
+router.post('/admin/ask', authorize(['ADMINISTRADOR']), naviAdminController);
 
-const router = Router();
-
-
-
-// Rota para o PROPRIETÁRIO
-
-router.post(
-
-  '/proprietario/ask',
-
-  // [CORREÇÃO-CHAVE]: Usando os middlewares em sequência
-
-  authMiddleware, // 1. Primeiro, verifica se o token é válido. É chamado sem () porque é um middleware direto.
-
-  authorize(['PROPRIETARIO', 'GESTOR']), // 2. Depois, verifica se o usuário tem o papel correto.
-
-  askProprietario // 3. Se ambos passarem, executa o controller.
-
-);
+// Rota Proprietário (Específico) - Agora o authorize está no escopo
+router.post('/proprietario/ask', authorize(['PROPRIETARIO', 'FUNCIONARIO']), naviProprietarioController);
 
 
+// =======================================================
+// ROTAS DE PERSISTÊNCIA (/api/conversas-navi/...)
+// Essas rotas já usam o authMiddleware acima, o que é suficiente.
+// =======================================================
 
-// Rota para o ADMIN
+// Lista metadados das conversas (Sidebar)
+router.get('/conversas-navi', listarConversasController);
 
-router.post(
+// Salva ou Atualiza uma conversa
+router.post('/conversas-navi/salvar', salvarConversaController);
 
-  '/admin/ask',
-
-  authMiddleware, // 1. Verifica se está autenticado
-
-  authorize(['ADMINISTRADOR']), // 2. Verifica se é um administrador
-
-  askAdmin // 3. Executa o controller
-
-);
-
-
+// Obtém o histórico de uma conversa específica
+router.get('/conversas-navi/:conversaId/historico', obterHistoricoController);
 
 export default router;
