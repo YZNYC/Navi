@@ -2,8 +2,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 // Importando as rotas
 import { LoginForm } from "./src/app/account/index.js";
-import { ForgotPassword } from "./src/app/account/forgot-password/forgot-password.js";
-import { UpdatePassword } from "./src/app/account/forgot-password/forgot-password.js";
+import { ForgotPassword, UpdatePassword } from "./src/app/account/forgot-password/forgot-password.js";
 import Account from "./src/app/account/account.js";
 
 import Main from "./src/app/screens/main/main.js";
