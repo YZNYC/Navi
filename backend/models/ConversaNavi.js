@@ -1,6 +1,6 @@
 // src/navi/models/ConversaModel.js
 
-import prisma from '../../../config/prisma.js';
+import prisma from '../config/prisma.js';
 
 export const ConversaModel = {
     /**

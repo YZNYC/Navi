@@ -1,9 +1,8 @@
-// src/navi/controllers/NaviAskController.js
 
 import { NaviService } from '../services/navi.service.js';
 import { askNaviAdminSchema, askNaviProprietarioSchema } from '../schemas/navi.schema.js';
-import { generateDocument } from '../models/DocumentGenerateNavi.js'; 
-import prisma from '../../../config/prisma.js';
+import { DocumentService } from '../models/DocumentGenerateNavi.js'; // CORREÇÃO: Importar o objeto de serviço nomeado
+import prisma from '../config/prisma.js';
 
 // Checagem de Autorização de Dados (Regra 2.1)
 const verificarAutorizacao = async (estacionamentoId, userId) => {

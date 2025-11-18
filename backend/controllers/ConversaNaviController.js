@@ -1,6 +1,6 @@
 // src/navi/controllers/ConversaController.js
 
-import { ConversaModel } from '../models/ConversaModel.js';
+import { ConversaModel } from '../models/ConversaNavi.js';
 // ... (outros imports)
 
 // 1. Listar Metadados (Sidebar)

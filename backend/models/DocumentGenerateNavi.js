@@ -1,7 +1,7 @@
 import PDFDocument from 'pdfkit';
 import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx';
 
-// Função auxiliar para converter um stream em Buffer
+
 const streamToBuffer = (stream) => new Promise((resolve, reject) => {
     const chunks = [];
     stream.on('data', (chunk) => chunks.push(chunk));
@@ -9,13 +9,12 @@ const streamToBuffer = (stream) => new Promise((resolve, reject) => {
     stream.on('end', () => resolve(Buffer.concat(chunks)));
 });
 
-export const DocumentGenerateNavi = {
+/**
+ * Serviço que gera um documento binário (PDF ou DOCX) para download.
+ */
+export const DocumentService = {
     /**
      * Gera o Buffer do arquivo e define os headers para a resposta Express.
-     * @param {object} res - Objeto de resposta do Express.
-     * @param {object} naviResponse - Objeto de resposta JSON da IA (contém type, title, etc.).
-     * @param {object} dataContext - Os dados que a IA usou para gerar o relatório.
-     * @param {string} prefixo - Prefixo do nome do arquivo (ex: 'Global_Navi').
      */
     generateAndSend: async (res, naviResponse, dataContext, prefixo) => {
         const { documentType, documentTitle } = naviResponse;
