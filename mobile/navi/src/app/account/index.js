@@ -52,7 +52,6 @@ export default function Account() {
   return (
     <View style={styles.page}>
       <Text style={styles.title}>Tela da Conta</Text>
-      <LoginForm />
     </View>
   );
 }
@@ -134,7 +133,7 @@ export const LoginForm = ({ navigation }) => {
 
       {/* Esqueci a senha */}
       <View style={{ paddingTop: 10 }}>
-        <TouchableOpacity href="/forgot-password" onPress={() => navigation.navigate('Esqueci a senha')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Esqueci a senha')}>
           <Text style={styles.links}>Esqueci a senha</Text>
         </TouchableOpacity>
       </View>

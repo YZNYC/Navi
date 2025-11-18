@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
-import { useLogin } from '../../../providers/loginProvider';
+import { View, TextInput, Button, Alert, StyleSheet, Text } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import { useRoute } from '@react-navigation/native';
+import { sha256 } from 'js-sha256';
+import { RectButton } from 'react-native-gesture-handler';
 
 //inicialização do db
 const openDb = async () => {
@@ -14,7 +16,8 @@ export const ForgotPassword = ({ navigation }) => {
     const handleForgotPassword = async () => {
         try {
             if (!email) {
-                Alert.alert("Por-favor digite um e-mail válido!");
+                Alert.alert("Por favor digite um e-mail válido!");
+                return;
             }
             const db = await openDb();
             const user = await db.getFirstAsync(
@@ -22,9 +25,10 @@ export const ForgotPassword = ({ navigation }) => {
                 [email.trim()]
             );
             if (user) {
-                navigation.navigate('UpdatePassword', { userEmail: email.trim() });
+                navigation.navigate('Atualizar a senha', { userEmail: email.trim() });
             } else {
-                Alert.alert("Erro", "E-mail não encontrado");
+                Alert.alert("E-mail não encontrado");
+                return;
             }
         } catch (error) {
             console.error(error);
@@ -48,19 +52,24 @@ export const ForgotPassword = ({ navigation }) => {
 };
 
 export const UpdatePassword = ({ navigation }) => {
-    const route = useRoute(); 
-    const { userEmail } = route.params; 
+    const route = useRoute();
+    const { userEmail } = route.params;
     const [newPassword, setNewPassword] = useState('');
 
     const handleUpdatePassword = async () => {
         try {
             if (!newPassword) {
-                Alert.alert("Coloque uma senha válida!");
+                Alert.alert("Erro", "Coloque uma senha válida!");
+                return;
             }
+            const senhaHasheada = sha256(newPassword);
             const db = await openDb();
-            const password = await db.runAsync('UPDATE usuario SET senha = ? WHERE email = ?', [newPassword, userEmail]);;
-            if (password) {
+            const result = await db.runAsync('UPDATE usuario SET senha = ? WHERE email = ?', [senhaHasheada, userEmail]);
+            if (result.changes > 0) {
+                Alert.alert("Sucesso", "Sua senha foi atualizada!");
                 navigation.navigate('Login');
+            } else {
+                Alert.alert("Erro", "Não foi possível atualizar a senha.");
             }
         } catch (error) {
             console.error(error);
@@ -77,7 +86,7 @@ export const UpdatePassword = ({ navigation }) => {
                 onChangeText={setNewPassword}
                 secureTextEntry={true}
             />
-            <Button title="Salvar Nova Senha" onPress={() => { /* ... */ }} />
+            <Button title="Salvar Nova Senha" onPress={handleUpdatePassword} />
         </View>
     );
 }
