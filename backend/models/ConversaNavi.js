@@ -1,12 +1,18 @@
-// src/navi/models/ConversaModel.js
+import prismaClient from '../config/prisma.js'; 
 
-import prisma from '../../../config/prisma.js';
+const prisma = prismaClient; // Use a constante local para o Prisma
 
 export const ConversaModel = {
     /**
      * Salva ou Atualiza uma conversa.
      */
     salvarOuAtualizar: async (conversaId, userId, titulo, topico, historico) => {
+        // Log de debug para ver o objeto Prisma antes da falha
+        if (!prisma || !prisma.conversaNavi) { 
+            console.error("ERRO CRÍTICO (PRISMA): O objeto 'prisma' ou o Model 'conversaNavi' é undefined.");
+            throw new Error("Falha de Inicialização do PrismaClient. Você executou npx prisma generate?"); 
+        }
+        
         const historicoJson = JSON.stringify(historico);
         const parsedUserId = parseInt(userId); 
         const parsedConversaId = conversaId ? parseInt(conversaId) : null;
@@ -15,14 +21,15 @@ export const ConversaModel = {
             historico_json: historicoJson,
             titulo: titulo,
             topico: topico,
+            id_usuario: parsedUserId, 
         };
 
         if (parsedConversaId) {
             // Atualiza
             return prisma.conversaNavi.update({ where: { id: parsedConversaId }, data });
         } else {
-            // Cria Nova Conversa (Ponto de falha mais comum: FK id_usuario)
-            return prisma.conversaNavi.create({ data: { ...data, id_usuario: parsedUserId } });
+            // Cria Nova Conversa 
+            return prisma.conversaNavi.create({ data: data });
         }
     },
 
@@ -48,9 +55,8 @@ export const ConversaModel = {
         
         if (!conversa) return null;
         
-        // Retorna o array de histórico parseado e o id_usuario (para autorização no controller)
         return {
-            ...conversa,
+            id_usuario: conversa.id_usuario,
             historico: JSON.parse(conversa.historico_json)
         };
     },

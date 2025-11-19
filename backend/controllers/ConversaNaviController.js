@@ -1,7 +1,4 @@
-// src/navi/controllers/ConversaController.js
-
-import { ConversaModel } from '../models/ConversaModel.js';
-// ... (outros imports)
+import { ConversaModel } from '../models/ConversaNavi.js';
 
 // 1. Listar Metadados (Sidebar)
 export const listarConversasController = async (req, res) => {
@@ -10,8 +7,8 @@ export const listarConversasController = async (req, res) => {
         const conversas = await ConversaModel.listarPorUsuario(userId);
         res.status(200).json(conversas);
     } catch (error) {
-        console.error("ERRO CONVERSA/LISTAR:", error);
-        res.status(500).json({ message: "Erro interno ao listar conversas." });
+        console.error("ERRO CONVERSA/LISTAR:", error.message);
+        res.status(500).json({ message: "Erro interno ao listar conversas.", debug: error.message });
     }
 };
 
@@ -21,7 +18,7 @@ export const obterHistoricoController = async (req, res) => {
         const userId = req.usuario.id_usuario;
         const conversaId = req.params.conversaId;
         
-        const conversa = await ConversaModel.obterHistorico(conversaId);
+        const conversa = await ConversaModel.obterHistorico(conversaId); 
         
         if (!conversa) return res.status(404).json({ message: "Conversa não encontrada." });
         
@@ -34,8 +31,8 @@ export const obterHistoricoController = async (req, res) => {
         res.status(200).json(conversa.historico); 
         
     } catch (error) {
-        console.error("ERRO CONVERSA/HISTORICO:", error);
-        res.status(500).json({ message: "Erro interno ao obter histórico." });
+        console.error("ERRO CONVERSA/HISTORICO:", error.message);
+        res.status(500).json({ message: "Erro interno ao obter histórico.", debug: error.message });
     }
 };
 
@@ -57,7 +54,7 @@ export const salvarConversaController = async (req, res) => {
         res.status(200).json(conversaAtualizada); 
         
     } catch (error) {
-        console.error("ERRO CONVERSA/SALVAR:", error);
-        res.status(500).json({ message: "Erro interno ao salvar conversa." });
+        console.error("ERRO CONVERSA/SALVAR:", error.message);
+        res.status(500).json({ message: "Erro interno ao salvar conversa no DB.", debug: error.message });
     }
 };

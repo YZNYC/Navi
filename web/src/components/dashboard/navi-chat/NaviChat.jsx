@@ -1,4 +1,4 @@
-// components/dashboard/navi-chat/NaviChat.js
+// src/components/dashboard/navi-chat/NaviChat.js
 
 'use client';
 
@@ -16,6 +16,7 @@ import {
 // API e Contexto
 import api from '@/lib/api'; 
 import { useAuth } from '@/contexts/AuthContext'; 
+import ReactMarkdown from 'react-markdown'; // OBRIGATÓRIO
 
 // =================================================================
 // 1. SUB-COMPONENTES VISUAIS (UI KIT)
@@ -29,7 +30,23 @@ const ThinkingDots = () => (
     </div>
 );
 
+// Componente para injetar classes no <p> do ReactMarkdown
+const MarkdownRenderer = ({ content, isChart = false }) => {
+    const components = {
+        p: ({ node, ...props }) => (
+            // Aplica a classe de quebra de linha ao parágrafo (solução para o erro 60)
+            <p className="whitespace-pre-wrap" {...props} />
+        ),
+    };
+
+    return <ReactMarkdown components={components}>{content}</ReactMarkdown>;
+};
+
+
 const ChatMessageItem = ({ msg, isUser, messageRef }) => {
+    // Conteúdo da IA está em parts[0].text
+    const content = msg.parts?.[0]?.text || msg.content || ""; 
+    
     return (
         <div ref={messageRef} className={`flex w-full mb-4 ${isUser ? 'justify-end' : 'justify-start'}`}>
             <div 
@@ -45,14 +62,15 @@ const ChatMessageItem = ({ msg, isUser, messageRef }) => {
                 {msg.chartData ? (
                      <div className="p-2">
                         <p className="font-semibold text-xs text-slate-400 mb-2 uppercase tracking-wider">Gráfico Gerado</p>
-                        <p className="mb-2">{msg.parts?.[0]?.text}</p>
+                        {/* Renderiza o texto de insight do gráfico como Markdown */}
+                        <MarkdownRenderer content={content} isChart={true} />
                         <div className="bg-slate-50 rounded p-4 border text-center text-xs text-slate-400">
-                            {/* Placeholder visual para o gráfico */}
                             [Visualização do Gráfico: {msg.chartData.type}]
                         </div>
                      </div>
                 ) : (
-                    <p className="whitespace-pre-wrap">{msg.parts?.[0]?.text || msg.content}</p>
+                    // Renderiza o texto normal como Markdown para formatação
+                    <MarkdownRenderer content={content} />
                 )}
             </div>
         </div>
@@ -88,13 +106,10 @@ export default function NaviChat({
     const isSessionReady = !authLoading && !!user;
     const effectiveRole = user?.papel;
 
-    // === LOGICA DE DADOS (Fetch e Envio) ===
-
     // 1. Buscar Lista de Conversas (GET)
     const fetchConversas = useCallback(async () => {
         if (!user) return; 
         try {
-            // Nota: Se der 404 aqui, verifique app.js e ConversasNaviRoutes.js no backend
             const response = await api.get('/api/conversas-navi');
             const data = response.data;
             setConversas(Array.isArray(data) ? data.sort((a, b) => new Date(b.data_atualizacao) - new Date(a.data_atualizacao)) : []);
@@ -103,18 +118,11 @@ export default function NaviChat({
         }
     }, [user]);
 
-    useEffect(() => { 
-        if (isSessionReady) {
-            fetchConversas(); 
-        }
-    }, [fetchConversas, isSessionReady]);
+    useEffect(() => { if (isSessionReady) fetchConversas(); }, [fetchConversas, isSessionReady]);
 
     // 2. Carregar Histórico (GET)
     useEffect(() => {
-        if (!activeConversaId || !user) { 
-            setHistorico([]); 
-            return; 
-        }
+        if (!activeConversaId || !user) { setHistorico([]); return; }
 
         setIsLoading(true);
         api.get(`/api/conversas-navi/${activeConversaId}/historico`)
@@ -122,46 +130,33 @@ export default function NaviChat({
                 const data = response.data;
                 setHistorico(Array.isArray(data) ? data : []);
             })
-            .catch(err => {
-                console.error("Erro ao carregar histórico:", err);
-                // Não bloqueia o uso se falhar o histórico
-            })
+            .catch(err => { console.error("Erro ao carregar histórico:", err); })
             .finally(() => setIsLoading(false));
     }, [activeConversaId, user]);
 
     // Scroll automático
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [historico, isLoading]);
+    useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [historico, isLoading]);
 
-    // 3. Salvar Conversa (POST) - Função isolada para tratamento de erro
+    // 3. Salvar Conversa (POST)
     const saveConversation = async (finalHistory, conversaId) => {
         try {
             const payload = {
                 conversaId: conversaId,
                 historico: finalHistory,
-                // Garante que id_estacionamento seja null para admins ou número para proprietários
                 id_estacionamento: effectiveRole !== 'ADMINISTRADOR' && id_estacionamento_selecionado 
                     ? Number(id_estacionamento_selecionado) 
                     : null
             };
 
-            // Chama a API
             const response = await api.post('/api/conversas-navi/salvar', payload);
             const savedChat = response.data;
 
-            // Se salvou uma conversa nova, atualiza o ID e recarrega a lista lateral
             if (!conversaId && savedChat?.id_conversa) {
                 setActiveConversaId(savedChat.id_conversa);
                 fetchConversas();
             }
         } catch (err) {
-            // Log detalhado para debug
             console.error("ERRO CRÍTICO AO SALVAR CONVERSA:", err.response?.status, err.response?.data || err.message);
-            
-            if (err.response?.status === 404) {
-                console.warn("Dica: Verifique se o servidor backend foi REINICIADO após criar a rota '/api/conversas-navi/salvar'.");
-            }
         }
     };
 
@@ -173,27 +168,15 @@ export default function NaviChat({
         let endpoint = '';
         let body = {};
 
-        // Define endpoint baseado no papel
         if (effectiveRole === 'ADMINISTRADOR') {
             endpoint = `/api/navi/admin/ask`;
-            body = { 
-                user_question: userInput, 
-                history: historico 
-            };
+            body = { user_question: userInput, history: historico };
         } else {
-            if (!id_estacionamento_selecionado) { 
-                setError('Selecione um estacionamento.'); 
-                return; 
-            }
+            if (!id_estacionamento_selecionado) { setError('Selecione um estacionamento.'); return; }
             endpoint = `/api/navi/proprietario/ask`;
-            body = { 
-                id_estacionamento: Number(id_estacionamento_selecionado), 
-                user_question: userInput, 
-                history: historico 
-            };
+            body = { id_estacionamento: Number(id_estacionamento_selecionado), user_question: userInput, history: historico };
         }
 
-        // Atualização Otimista da UI (Mostra pergunta imediatamente)
         const newUserMessage = { role: 'user', parts: [{ text: userInput }] };
         const tempHistorico = [...historico, newUserMessage];
         
@@ -203,7 +186,6 @@ export default function NaviChat({
         setError(null);
 
         try {
-            // 1. Pede resposta para a IA
             const response = await api.post(endpoint, body);
             const iaResponse = response.data;
             
@@ -213,7 +195,6 @@ export default function NaviChat({
                 chartData: iaResponse.type === 'chart' ? iaResponse.chartData : null,
             };
 
-            // Adiciona aos arquivos se for gráfico/documento
             if (iaResponse.type === 'chart' || iaResponse.type === 'document') {
                 setGeneratedFiles(prev => [...prev, { 
                     id: Date.now(), 
@@ -225,14 +206,12 @@ export default function NaviChat({
             const finalHistorico = [...tempHistorico, newAiMessage];
             setHistorico(finalHistorico);
 
-            // 2. Tenta salvar no banco (Executa em background para não travar a UI)
             await saveConversation(finalHistorico, activeConversaId);
 
         } catch (err) {
             console.error("Erro na requisição da IA:", err);
             const msg = err.response?.data?.error || err.message || 'Não foi possível conectar ao Navi.';
             setError(msg);
-            // Remove a pergunta do usuário se a IA falhar totalmente
             setHistorico(prev => prev.slice(0, -1)); 
         } finally {
             setIsLoading(false);
@@ -321,6 +300,7 @@ export default function NaviChat({
                     flex flex-col overflow-hidden transition-transform duration-300 ease-in-out
                     ${isChatDrawerOpen ? 'translate-x-0' : '-translate-x-[120%]'}
                 `}
+                onClick={e => e.stopPropagation()} 
             >
                 <div className="p-6 flex items-center justify-between border-b border-slate-100">
                     <h2 className="font-bold text-lg text-slate-800">Conversas</h2>
@@ -357,6 +337,7 @@ export default function NaviChat({
                     flex flex-col overflow-hidden transition-transform duration-300 ease-in-out
                     ${isFilesDrawerOpen ? 'translate-x-0' : 'translate-x-[120%]'}
                 `}
+                onClick={e => e.stopPropagation()} 
             >
                 <div className="p-6 border-b border-slate-100">
                     <h2 className="font-bold text-lg text-slate-800">Arquivos</h2>

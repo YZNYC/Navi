@@ -98,10 +98,7 @@ app.use('/relatorios', relatoriosRoutes);
 app.use('/chat', chatRoutes);
 app.use('/estabelecimentos/kpi', estabelecimentoKpiRoutes);
 app.use('/usuarios/kpi', usuarioKpiRoutes);
-//Rotas da IA só pra ficar mais separadinho
-app.use('/api/navi', naviRoutes);
-app.use('/api/conversas-navi', naviRoutes);
-
+app.use('/api', naviRoutes); 
 app.get('/', (req, res) => {
     res.send('API Navi + WebSocket rodando!');
 });

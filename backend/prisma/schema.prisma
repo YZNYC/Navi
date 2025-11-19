@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma" 
 }
 
 datasource db {
@@ -292,5 +293,6 @@ enum usuario_papel {
   PROPRIETARIO
   MOTORISTA
   GESTOR
+  FUNCIONARIO
   OPERADOR
 }
