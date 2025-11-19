@@ -2,6 +2,7 @@ import { adicionarFuncionario, listarFuncionariosPorEstacionamento, atualizarPer
 import { obterEstacionamentoPorId } from "../models/Estacionamento.js";
 import { adicionarFuncionarioSchema, atualizarFuncionarioSchema, criarEAdicionarFuncionarioSchema } from "../schemas/funcionario.schema.js";
 import { iniciarChat } from "../models/Conversas.js";
+import { registrarLog } from "../services/logServices.js";
 import prisma from "../config/prisma.js";
 import bcrypt from 'bcryptjs';
 
@@ -18,7 +19,7 @@ export const adicionarFuncionarioController = async (req, res) => {
         const { estacionamentoId } = req.params;
         const { body } = adicionarFuncionarioSchema.parse(req);
         const requisitanteId = req.usuario.id_usuario;
-        
+
         // ... (sua lógica de permissão e busca do futuroFuncionario)
 
         // Adiciona o funcionário
@@ -34,7 +35,7 @@ export const adicionarFuncionarioController = async (req, res) => {
             console.error("AVISO: O funcionário foi adicionado, mas falhou ao criar o chat automático.", chatError);
         }
         // --- FIM DA MELHORIA ---
-        
+
         res.status(201).json({ message: "Funcionário adicionado com sucesso!", funcionario: novoFuncionario });
     } catch (error) {
         if (error.name === 'ZodError') {
@@ -80,12 +81,19 @@ export const removerFuncionarioController = async (req, res) => {
                 return res.status(403).json({ message: "Acesso proibido." });
             }
         }
-        
+
+        registrarLog({
+            id_usuario_acao: req.usuario.id_usuario,
+            id_estacionamento: estacionamentoId,
+            acao: 'FUNCIONÁRIO REMOVIDO',
+            detalhes: { funcionarioIdRemovido: funcionarioId }
+        });
+
         await removerFuncionario(estacionamentoId, funcionarioId);
         res.status(204).send();
 
     } catch (error) {
-     
+
         if (error.code === 'P2025') {
             return res.status(404).json({ message: "Funcionário não encontrado neste estacionamento." });
         }
@@ -97,7 +105,7 @@ export const removerFuncionarioController = async (req, res) => {
 export const atualizarPermissaoController = async (req, res) => {
     try {
         const { estacionamentoId, funcionarioId } = req.params;
-        const { body } = atualizarFuncionarioSchema.parse(req); 
+        const { body } = atualizarFuncionarioSchema.parse(req);
         const requisitante = req.usuario;
 
         if (requisitante.papel !== 'ADMINISTRADOR') {
@@ -134,13 +142,13 @@ export const criarEAdicionarFuncionarioController = async (req, res) => {
                 return res.status(403).json({ message: "Acesso proibido. Você não gerencia este estacionamento." });
             }
         }
-    
+
         const emailExistente = await prisma.usuario.findUnique({ where: { email: body.email } });
         if (emailExistente) {
             return res.status(409).json({ message: "Este email já pertence a um usuário existente." });
         }
 
- 
+
         const novoFuncionarioVinculado = await prisma.$transaction(async (tx) => {
             // Cria um usuário com uma senha temporária aleatória. O funcionário deverá usar o "Esqueci a senha".
             const senhaTemporaria = Math.random().toString(36).slice(-8);
@@ -164,6 +172,12 @@ export const criarEAdicionarFuncionarioController = async (req, res) => {
                 }
             });
             return novoVinculo;
+        });
+        registrarLog({
+            id_usuario_acao: req.usuario.id_usuario,
+            id_estacionamento: estacionamentoId,
+            acao: 'NOVO FUNCIONÁRIO CONTRATADO',
+            detalhes: { emailContratado: body.email, permissao: body.permissao }
         });
 
         res.status(201).json({ message: "Funcionário criado e vinculado com sucesso!", funcionario: novoFuncionarioVinculado });

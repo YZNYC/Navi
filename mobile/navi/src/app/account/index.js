@@ -3,7 +3,7 @@ import { useLogin } from '../../providers/loginProvider';
 
 //importando bibliotecas
 import { useState, useEffect } from 'react';
-import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import { sha256 } from 'js-sha256';
 
@@ -52,7 +52,6 @@ export default function Account() {
   return (
     <View style={styles.page}>
       <Text style={styles.title}>Tela da Conta</Text>
-      <LoginForm />
     </View>
   );
 }
@@ -134,7 +133,7 @@ export const LoginForm = ({ navigation }) => {
 
       {/* Esqueci a senha */}
       <View style={{ paddingTop: 10 }}>
-        <TouchableOpacity href="/forgot-password" onPress={() => navigation.navigate('Esqueci a senha')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Esqueci a senha')}>
           <Text style={styles.links}>Esqueci a senha</Text>
         </TouchableOpacity>
       </View>
@@ -152,6 +151,10 @@ export const LoginForm = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </View>
+
+
+
+
   );
 }
 const styles = StyleSheet.create({
