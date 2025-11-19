@@ -4,37 +4,28 @@ import {
     listarConversasController, 
     obterHistoricoController, 
     salvarConversaController 
-} from '../controllers/ConversaNaviController.js'; // CORRIGIDO: A importação nomeada deve funcionar
+} from '../controllers/ConversaNaviController.js';
 
 import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js'; 
 
 const router = express.Router();
 
-// Aplica autenticação a TODAS as rotas da IA (Regra 2.1)
 router.use(authMiddleware);
 
-// =======================================================
-// ROTAS DE INTERAÇÃO COM A IA (/api/navi/...)
-// =======================================================
-
-// Rota Admin (Global)
+// Rota do Admin (Global)
 router.post('/navi/admin/ask', authorize(['ADMINISTRADOR']), naviAdminController);
 
-// Rota Proprietário
+// Rota do Proprietario
 router.post('/navi/proprietario/ask', authorize(['PROPRIETARIO', 'FUNCIONARIO']), naviProprietarioController);
 
-
-// =======================================================
-// ROTAS DE PERSISTÊNCIA (/api/conversas-navi/...)
-// =======================================================
-
-// Lista metadados das conversas (Sidebar)
+// Rotas de persistencia 
+// Para listar os metadados das conversas (Sidebar dos chats)
 router.get('/conversas-navi', listarConversasController);
 
 // Salva ou Atualiza uma conversa
 router.post('/conversas-navi/salvar', salvarConversaController);
 
-// Obtém o histórico de uma conversa específica
+// Pega o histórico de uma conversa específica
 router.get('/conversas-navi/:conversaId/historico', obterHistoricoController);
 
 export default router;

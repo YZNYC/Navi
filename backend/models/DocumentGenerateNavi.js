@@ -9,25 +9,15 @@ const streamToBuffer = (stream) => new Promise((resolve, reject) => {
     stream.on('end', () => resolve(Buffer.concat(chunks)));
 });
 
-/**
- * Serviço que gera um documento binário (PDF ou DOCX) para download.
- */
+
 export const DocumentService = {
-    /**
-     * Gera o Buffer do arquivo e define os headers para a resposta Express.
-     */
     generateAndSend: async (res, naviResponse, dataContext, prefixo) => {
         const { documentType, documentTitle } = naviResponse;
-        
-        // 1. Gera o Buffer do arquivo
+      
         const fileBuffer = await DocumentService._generateBuffer(documentType, documentTitle, dataContext);
-
-        // 2. Define o Content-Type e Extensão
         const contentType = documentType === 'PDF' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
         const fileExtension = documentType === 'PDF' ? 'pdf' : 'docx';
         const fileName = `${documentTitle.replace(/\s/g, '_')}_${prefixo}.${fileExtension}`;
-
-        // 3. Envia o arquivo de volta
         res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
         res.setHeader('Content-Length', fileBuffer.length);

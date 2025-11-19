@@ -1,6 +1,5 @@
 import { ConversaModel } from '../models/ConversaNavi.js';
 
-// 1. Listar Metadados (Sidebar)
 export const listarConversasController = async (req, res) => {
     try {
         const userId = req.usuario.id_usuario;
@@ -12,7 +11,6 @@ export const listarConversasController = async (req, res) => {
     }
 };
 
-// 2. Obter Histórico (Ao selecionar um chat)
 export const obterHistoricoController = async (req, res) => {
     try {
         const userId = req.usuario.id_usuario;
@@ -21,13 +19,11 @@ export const obterHistoricoController = async (req, res) => {
         const conversa = await ConversaModel.obterHistorico(conversaId); 
         
         if (!conversa) return res.status(404).json({ message: "Conversa não encontrada." });
-        
-        // REGRA DE SEGURANÇA: Checar se o ID do token é o dono da conversa
+
         if (conversa.id_usuario !== userId && req.usuario.papel !== 'ADMINISTRADOR') {
             return res.status(403).json({ message: "Acesso proibido à esta conversa." });
         }
-        
-        // Retorna o histórico parseado (o array)
+      
         res.status(200).json(conversa.historico); 
         
     } catch (error) {
@@ -36,7 +32,6 @@ export const obterHistoricoController = async (req, res) => {
     }
 };
 
-// 3. Salvar/Atualizar (Após cada resposta da IA)
 export const salvarConversaController = async (req, res) => {
     try {
         const { conversaId, historico, titulo, topico } = req.body;
@@ -50,7 +45,6 @@ export const salvarConversaController = async (req, res) => {
             historico
         );
 
-        // Retorna o objeto completo para o frontend
         res.status(200).json(conversaAtualizada); 
         
     } catch (error) {

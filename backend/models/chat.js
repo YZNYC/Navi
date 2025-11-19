@@ -1,5 +1,3 @@
-// src/models/Conversa.js
-
 import prisma from '../config/prisma.js';
 
 /**

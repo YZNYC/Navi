@@ -1,5 +1,3 @@
-// src/models/EstabelecimentoKpiModel.js
-
 import prisma from '../config/prisma.js';
 
 /**
