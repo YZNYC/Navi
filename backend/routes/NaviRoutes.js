@@ -1,8 +1,11 @@
-// routes/NaviRouter.js
-
 import express from 'express';
-import { naviAdminController, naviProprietarioController } from '../controllers/NaviAskController.js';
-import { listarConversasController, obterHistoricoController, salvarConversaController } from '../controllers/ConversaNaviController.js';
+import { naviAdminController, naviProprietarioController } from '../controllers/NaviAskController.js'; 
+import { 
+    listarConversasController, 
+    obterHistoricoController, 
+    salvarConversaController 
+} from '../controllers/ConversaNaviController.js'; // CORRIGIDO: A importação nomeada deve funcionar
+
 import { authMiddleware, authorize } from '../middlewares/AuthMiddlewares.js'; 
 
 const router = express.Router();
@@ -14,16 +17,15 @@ router.use(authMiddleware);
 // ROTAS DE INTERAÇÃO COM A IA (/api/navi/...)
 // =======================================================
 
-// Rota Admin (Global) - Agora o authorize está no escopo
-router.post('/admin/ask', authorize(['ADMINISTRADOR']), naviAdminController);
+// Rota Admin (Global)
+router.post('/navi/admin/ask', authorize(['ADMINISTRADOR']), naviAdminController);
 
-// Rota Proprietário (Específico) - Agora o authorize está no escopo
-router.post('/proprietario/ask', authorize(['PROPRIETARIO', 'FUNCIONARIO']), naviProprietarioController);
+// Rota Proprietário
+router.post('/navi/proprietario/ask', authorize(['PROPRIETARIO', 'FUNCIONARIO']), naviProprietarioController);
 
 
 // =======================================================
 // ROTAS DE PERSISTÊNCIA (/api/conversas-navi/...)
-// Essas rotas já usam o authMiddleware acima, o que é suficiente.
 // =======================================================
 
 // Lista metadados das conversas (Sidebar)
